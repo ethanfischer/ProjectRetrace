@@ -1,7 +1,9 @@
 {
     "name": "ProjectRetrace.Runtime",
     "rootNamespace": "ProjectRetrace",
-    "references": [],
+    "references": [
+        "Unity.InputSystem"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

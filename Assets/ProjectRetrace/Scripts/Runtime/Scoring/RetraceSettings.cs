@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace ProjectRetrace
 {
@@ -42,10 +43,10 @@ namespace ProjectRetrace
         public float timeLimitMultiplier = 1.5f;
 
         [Tooltip("Manual mode only, and always available as an escape hatch while playtesting.")]
-        public KeyCode manualFinishKey = KeyCode.Return;
+        public Key manualFinishKey = Key.Enter;
 
         [Header("Debug")]
-        public KeyCode debugToggleKey = KeyCode.F3;
+        public Key debugToggleKey = Key.F3;
 
         /// <summary>
         /// Runtime fallback so a missing asset never blocks a playtest -- every consumer

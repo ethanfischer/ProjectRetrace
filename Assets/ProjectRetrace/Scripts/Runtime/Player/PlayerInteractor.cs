@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace ProjectRetrace
 {
@@ -8,7 +9,7 @@ namespace ProjectRetrace
         public Transform rayOrigin;
         [SerializeField] private float reach = 2.5f;
         [SerializeField] private LayerMask interactableMask = ~0;
-        [SerializeField] private KeyCode interactKey = KeyCode.E;
+        [SerializeField] private Key interactKey = Key.E;
 
         private IInteractable _current;
         private bool _inputEnabled = true;
@@ -41,10 +42,16 @@ namespace ProjectRetrace
 
             _current = FindTarget();
 
-            if (_current != null && Input.GetKeyDown(interactKey))
+            if (_current != null && WasPressedThisFrame(interactKey))
             {
                 _current.Interact(this);
             }
+        }
+
+        private static bool WasPressedThisFrame(Key key)
+        {
+            var keyboard = Keyboard.current;
+            return keyboard != null && keyboard[key].wasPressedThisFrame;
         }
 
         private IInteractable FindTarget()

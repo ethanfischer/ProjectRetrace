@@ -1,15 +1,20 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace ProjectRetrace
 {
     /// <summary>
-    /// Minimal first-person controller on the legacy Input Manager: WASD, mouse look, sprint,
+    /// Minimal first-person controller on the Input System: WASD, mouse look, sprint,
     /// jump. Deliberately plain -- the interesting part of this game is the trail, not the
     /// locomotion.
     /// </summary>
     [RequireComponent(typeof(CharacterController))]
     public class FirstPersonController : MonoBehaviour
     {
+        /// <summary>The legacy Mouse X/Y axes applied this before returning a delta, so folding
+        /// it in here keeps sensitivity values tuned against the old controller valid.</summary>
+        private const float LegacyMouseAxisSensitivity = 0.1f;
+
         [Header("Look")]
         public Transform cameraPivot;
         [SerializeField] private float mouseSensitivity = 2.2f;
@@ -81,12 +86,14 @@ namespace ProjectRetrace
 
         private void Look()
         {
-            var mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
-            var mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
+            var mouse = Mouse.current;
+            if (mouse == null) return;
 
-            transform.Rotate(Vector3.up, mouseX, Space.Self);
+            var look = mouse.delta.ReadValue() * (LegacyMouseAxisSensitivity * mouseSensitivity);
 
-            _pitch = Mathf.Clamp(_pitch - mouseY, -pitchLimit, pitchLimit);
+            transform.Rotate(Vector3.up, look.x, Space.Self);
+
+            _pitch = Mathf.Clamp(_pitch - look.y, -pitchLimit, pitchLimit);
             if (cameraPivot != null)
             {
                 cameraPivot.localRotation = Quaternion.Euler(_pitch, 0f, 0f);
@@ -95,17 +102,20 @@ namespace ProjectRetrace
 
         private void Move()
         {
-            var input = new Vector3(Input.GetAxisRaw("Horizontal"), 0f, Input.GetAxisRaw("Vertical"));
+            var keyboard = Keyboard.current;
+            if (keyboard == null) return;
+
+            var input = ReadMoveInput(keyboard);
             if (input.sqrMagnitude > 1f) input.Normalize();
 
-            var speed = Input.GetKey(KeyCode.LeftShift) ? sprintSpeed : walkSpeed;
+            var speed = keyboard.leftShiftKey.isPressed ? sprintSpeed : walkSpeed;
             var motion = transform.TransformDirection(input) * speed;
 
             if (_controller.isGrounded)
             {
                 // A small downward bias keeps isGrounded stable on slopes and stair edges.
                 _verticalVelocity = -2f;
-                if (Input.GetButtonDown("Jump")) _verticalVelocity = jumpSpeed;
+                if (keyboard.spaceKey.wasPressedThisFrame) _verticalVelocity = jumpSpeed;
             }
             else
             {
@@ -114,6 +124,19 @@ namespace ProjectRetrace
 
             motion.y = _verticalVelocity;
             _controller.Move(motion * Time.deltaTime);
+        }
+
+        private static Vector3 ReadMoveInput(Keyboard keyboard)
+        {
+            var x = 0f;
+            var z = 0f;
+
+            if (keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed) x -= 1f;
+            if (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed) x += 1f;
+            if (keyboard.sKey.isPressed || keyboard.downArrowKey.isPressed) z -= 1f;
+            if (keyboard.wKey.isPressed || keyboard.upArrowKey.isPressed) z += 1f;
+
+            return new Vector3(x, 0f, z);
         }
     }
 }

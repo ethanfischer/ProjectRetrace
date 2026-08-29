@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace ProjectRetrace
 {
@@ -37,7 +38,7 @@ namespace ProjectRetrace
         [SerializeField] private bool randomiseSeed = true;
 
         [SerializeField] private int fixedSeed = 12345;
-        [SerializeField] private KeyCode restartKey = KeyCode.R;
+        [SerializeField] private Key restartKey = Key.R;
 
         private RetraceSettings _fallbackSettings;
         private float _searchStartTime;
@@ -169,18 +170,24 @@ namespace ProjectRetrace
             DebugVisible = true;
         }
 
+        private static bool WasPressedThisFrame(Key key)
+        {
+            var keyboard = Keyboard.current;
+            return keyboard != null && keyboard[key].wasPressedThisFrame;
+        }
+
         private void Update()
         {
             var config = EffectiveSettings;
 
-            if (Input.GetKeyDown(config.debugToggleKey))
+            if (WasPressedThisFrame(config.debugToggleKey))
             {
                 DebugVisible = !DebugVisible;
             }
 
             if (Phase == GamePhase.Results)
             {
-                if (Input.GetKeyDown(restartKey)) StartRun();
+                if (WasPressedThisFrame(restartKey)) StartRun();
                 return;
             }
 
@@ -188,7 +195,7 @@ namespace ProjectRetrace
 
             // Manual finish stays live in every mode: it is the escape hatch when a playtest
             // goes sideways and you just want to see the score.
-            if (Input.GetKeyDown(config.manualFinishKey))
+            if (WasPressedThisFrame(config.manualFinishKey))
             {
                 FinishRun();
                 return;
