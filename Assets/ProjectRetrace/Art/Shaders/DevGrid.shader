@@ -4,7 +4,7 @@ Shader "ProjectRetrace/DevGrid"
     {
         _BaseColor ("Base Color", Color) = (0.16, 0.17, 0.18, 1)
         _LineColor ("Line Color", Color) = (0.45, 0.48, 0.5, 1)
-        _MajorLineColor ("Major Line Color", Color) = (0.75, 0.55, 0.2, 1)
+        _MajorLineColor ("Major Line Color", Color) = (0.7, 0.72, 0.75, 1)
         _CellSize ("Cell Size (m)", Float) = 1
         _MajorEvery ("Major Line Every N Cells", Float) = 5
         _LineWidth ("Line Width", Range(0.5, 4)) = 1.2
