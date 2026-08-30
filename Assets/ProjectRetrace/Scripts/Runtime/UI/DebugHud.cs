@@ -13,6 +13,8 @@ namespace ProjectRetrace
         public PlayerInteractor interactor;
         public BreadcrumbTrail trail;
 
+        private KeyItem _key;
+
         private GUIStyle _label;
         private GUIStyle _centered;
 
@@ -26,6 +28,11 @@ namespace ProjectRetrace
         {
             EnsureStyles();
 
+            if (GameDirector.DebugVisible)
+            {
+                DrawKeyLocator();
+            }
+
             if (director == null || director.Phase != GamePhase.Results)
             {
                 DrawReticle();
@@ -38,6 +45,43 @@ namespace ProjectRetrace
             {
                 DrawStats();
             }
+        }
+
+        private KeyItem Key
+        {
+            get
+            {
+                if (_key == null) _key = FindFirstObjectByType<KeyItem>();
+                return _key;
+            }
+        }
+
+        /// <summary>Debug aid: pins down "I could not find the key" bugs by showing exactly
+        /// where the key thinks it is, through walls, plus whether it is still takeable.</summary>
+        private void DrawKeyLocator()
+        {
+            var key = Key;
+            var camera = Camera.main;
+            if (key == null || camera == null) return;
+
+            var screen = camera.WorldToScreenPoint(key.transform.position);
+            if (screen.z <= 0f) return;
+
+            var rect = new Rect(screen.x - 60f, Screen.height - screen.y - 14f, 120f, 28f);
+            GUI.color = key.CanInteract ? new Color(1f, 0.9f, 0.3f) : new Color(1f, 0.4f, 0.4f);
+            GUI.Label(rect, string.Format("v KEYS {0:0.0}m", screen.z), _centered);
+            GUI.color = Color.white;
+        }
+
+        private string KeyStatusLine()
+        {
+            var key = Key;
+            if (key == null) return "Keys: NOT FOUND IN SCENE";
+
+            var pos = key.transform.position;
+            var parent = key.transform.parent != null ? key.transform.parent.name : "no parent";
+            return string.Format("Keys: ({0:0.0}, {1:0.0}, {2:0.0}) in \"{3}\"{4}",
+                pos.x, pos.y, pos.z, parent, key.CanInteract ? "" : "  [TAKEN/DISABLED]");
         }
 
         private void EnsureStyles()
@@ -118,6 +162,7 @@ namespace ProjectRetrace
             GUILayout.Label(string.Format("Distance: {0:0.0}m then {1:0.0}m", score.Phase1Distance, score.Phase2Distance), _label);
             GUILayout.Label(string.Format("Live score: {0}%", score.Percent), _label);
             GUILayout.Label(string.Format("spacing {0:0.00}m / radius {1:0.00}m", settings.dotSpacing, settings.collectRadius), _label);
+            GUILayout.Label(KeyStatusLine(), _label);
             GUILayout.EndArea();
         }
     }
