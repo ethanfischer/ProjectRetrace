@@ -1,0 +1,41 @@
+name: Build and deploy to itch.io
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  ITCH_TARGET: garglesmcgee/project-retrace
+
+jobs:
+  build-webgl:
+    name: Build WebGL and push to itch.io
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Library cache is the difference between ~45 min and ~10 min builds
+      - uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-WebGL-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-WebGL-
+
+      - uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          targetPlatform: WebGL
+
+      - name: Push to itch.io with butler
+        env:
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+        run: |
+          curl -fsSL -o butler.zip "https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default"
+          unzip -q butler.zip -d butler-bin
+          chmod +x butler-bin/butler
+          butler-bin/butler push build/WebGL/WebGL "${ITCH_TARGET}:html5" --userversion "${GITHUB_SHA::8}"
