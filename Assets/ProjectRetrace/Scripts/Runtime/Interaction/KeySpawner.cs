@@ -36,6 +36,11 @@ namespace ProjectRetrace
             var random = new System.Random(seed);
             _chosenIndex = random.Next(spots.Count);
             var spot = spots[_chosenIndex];
+
+            // Parented so the keys ride along when their hiding place moves (a sliding drawer,
+            // a swinging lid). Restore still uses the world pose captured here, which is the
+            // closed state, so the phase transition puts them back correctly regardless.
+            key.transform.SetParent(spot, false);
             key.MakeAvailableAt(spot.position, spot.rotation);
         }
 
@@ -45,6 +50,14 @@ namespace ProjectRetrace
             for (var i = 0; i < candidateSpots.Count; i++)
             {
                 if (candidateSpots[i] != null) spots.Add(candidateSpots[i]);
+            }
+
+            // InstanceID sort keeps the order identical across the two PlaceKey calls in a run,
+            // so the same seed lands on the same spot in phase 2.
+            var markers = Object.FindObjectsByType<KeySpotMarker>(FindObjectsSortMode.InstanceID);
+            for (var i = 0; i < markers.Length; i++)
+            {
+                if (!spots.Contains(markers[i].transform)) spots.Add(markers[i].transform);
             }
 
             return spots;

@@ -106,7 +106,7 @@ namespace ProjectRetrace
             var score = trail.BuildScore();
             var settings = trail.EffectiveSettings;
 
-            var box = new Rect(12f, 12f, 300f, 168f);
+            var box = new Rect(12f, 12f, 300f, 250f);
             GUI.Box(box, GUIContent.none);
 
             GUILayout.BeginArea(new Rect(box.x + 10f, box.y + 8f, box.width - 20f, box.height - 16f));
@@ -118,6 +118,7 @@ namespace ProjectRetrace
             GUILayout.Label(string.Format("Distance: {0:0.0}m then {1:0.0}m", score.Phase1Distance, score.Phase2Distance), _label);
             GUILayout.Label(string.Format("Live score: {0}%", score.Percent), _label);
             GUILayout.Label(string.Format("spacing {0:0.00}m / radius {1:0.00}m", settings.dotSpacing, settings.collectRadius), _label);
+            GUILayout.Label("Ray: " + (interactor != null ? interactor.DebugLastHit : "-"), _label);
             GUILayout.EndArea();
         }
     }

@@ -2,17 +2,23 @@ using UnityEngine;
 
 namespace ProjectRetrace
 {
-    /// <summary>A door that swings around its local up axis.</summary>
+    /// <summary>A hinged panel: room doors, cupboard doors, chest lids. Swings around hingeAxis.</summary>
     public class DoorInteractable : InteractableBase
     {
         [SerializeField] private float openAngle = 90f;
         [SerializeField] private float openSpeed = 3f;
 
+        [Tooltip("Local axis to swing around. Up for doors, Right for a chest lid.")]
+        [SerializeField] private Vector3 hingeAxis = Vector3.up;
+
+        [Tooltip("Noun shown in the prompt: 'Open door', 'Open chest', ...")]
+        [SerializeField] private string label = "door";
+
         private Quaternion _closedLocalRotation;
         private bool _isOpen;
         private float _openAmount;
 
-        public override string Prompt => _isOpen ? "Close door" : "Open door";
+        public override string Prompt => (_isOpen ? "Close " : "Open ") + label;
 
         private void Awake()
         {
@@ -30,7 +36,7 @@ namespace ProjectRetrace
             if (Mathf.Approximately(_openAmount, target)) return;
 
             _openAmount = Mathf.MoveTowards(_openAmount, target, openSpeed * Time.deltaTime);
-            transform.localRotation = _closedLocalRotation * Quaternion.Euler(0f, openAngle * _openAmount, 0f);
+            transform.localRotation = _closedLocalRotation * Quaternion.AngleAxis(openAngle * _openAmount, hingeAxis);
         }
 
         public override void CaptureInitialState()
