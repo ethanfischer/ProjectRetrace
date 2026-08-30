@@ -15,9 +15,6 @@ namespace ProjectRetrace
         [Tooltip("Hitting a prop's static shell latches onto its nearest moving part within this distance, so a whole dresser prompts, not just the drawer fronts.")]
         [SerializeField] private float shellLatchRadius = 0.9f;
 
-        [Tooltip("When the precise ray misses, retry as a sphere of this radius. Low furniture viewed from standing eye height presents thin, steep faces; without this the aim must be pixel-perfect.")]
-        [SerializeField] private float aimAssistRadius = 0.15f;
-
         [SerializeField] private Color highlightTint = new Color(1f, 0.85f, 0.45f);
 
         private IInteractable _current;
@@ -87,32 +84,16 @@ namespace ProjectRetrace
 
             var ray = new Ray(rayOrigin.position, rayOrigin.forward);
 
-            IInteractable interactable = null;
-            var haveHit = Physics.Raycast(ray, out var hit, reach, interactableMask, QueryTriggerInteraction.Ignore);
-            if (haveHit)
-            {
-                interactable = Resolve(hit);
-            }
-
-            // A precise ray misses low furniture easily from standing eye height (thin faces at
-            // steep angles, or the floor just in front). Retry as a fat sphere before giving up.
-            if (interactable == null
-                && Physics.SphereCast(ray, aimAssistRadius, out var assistHit, reach, interactableMask, QueryTriggerInteraction.Ignore))
-            {
-                var assisted = Resolve(assistHit);
-                if (assisted != null)
-                {
-                    interactable = assisted;
-                    hit = assistHit;
-                    haveHit = true;
-                }
-            }
-
-            if (!haveHit)
+            // The camera sits at the skin of the player's own capsule, so a steeply pitched ray
+            // can clip it and die immediately -- which silently ate every glance at low
+            // furniture. Cast through everything and take the first hit that isn't ourselves.
+            if (!TryHitOtherThanSelf(ray, out var hit))
             {
                 DebugLastHit = "nothing in reach";
                 return null;
             }
+
+            var interactable = Resolve(hit);
 
             DebugLastHit = string.Format(
                 "{0}/{1} @ {2:0.00}m{3}",
@@ -121,6 +102,22 @@ namespace ProjectRetrace
                 hit.distance,
                 interactable == null ? " (no interactable)" : string.Empty);
             return interactable;
+        }
+
+        private bool TryHitOtherThanSelf(Ray ray, out RaycastHit hit)
+        {
+            var hits = Physics.RaycastAll(ray, reach, interactableMask, QueryTriggerInteraction.Ignore);
+            System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+            for (var i = 0; i < hits.Length; i++)
+            {
+                if (hits[i].collider.transform.root == transform.root) continue;
+                hit = hits[i];
+                return true;
+            }
+
+            hit = default;
+            return false;
         }
 
         /// <summary>GetComponentInParent so a prop can carry its collider on a child mesh; shells
