@@ -40,6 +40,9 @@ namespace ProjectRetrace
         [SerializeField] private int fixedSeed = 12345;
         [SerializeField] private Key restartKey = Key.R;
 
+        [Tooltip("Start each run with the breadcrumb debug view visible. Turn off for shipping builds; F3 still toggles it either way.")]
+        [SerializeField] private bool debugVisibleByDefault = true;
+
         private RetraceSettings _fallbackSettings;
         private float _searchStartTime;
         private float _retraceStartTime;
@@ -95,6 +98,8 @@ namespace ProjectRetrace
         public void StartRun()
         {
             StopAllCoroutines();
+
+            DebugVisible = debugVisibleByDefault;
 
             _seed = randomiseSeed ? UnityEngine.Random.Range(int.MinValue, int.MaxValue) : fixedSeed;
 
