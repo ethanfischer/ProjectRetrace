@@ -40,7 +40,6 @@ namespace ProjectRetrace.EditorTools
             spawnPoint.position = new Vector3(0f, 0.05f, 0f);
 
             var keys = BuildKeys();
-            var spots = BuildKeySpots();
 
             // Wiring.
             director.player = controller;
@@ -51,9 +50,10 @@ namespace ProjectRetrace.EditorTools
 
             trail.tracked = player.transform;
 
+            // No candidate spots here: hiding places come from KeySpotMarkers inside furniture
+            // props (ProjectRetrace > Furniture), which KeySpawner discovers at runtime.
             keySpawner.key = keys;
             keySpawner.candidateSpots.Clear();
-            for (var i = 0; i < spots.Length; i++) keySpawner.candidateSpots.Add(spots[i]);
 
             hud.director = director;
             hud.interactor = interactor;
@@ -117,20 +117,6 @@ namespace ProjectRetrace.EditorTools
             keys.transform.position = new Vector3(0f, 1f, 3f);
             Undo.RegisterCreatedObjectUndo(keys, "Create Keys");
             return keys.AddComponent<KeyItem>();
-        }
-
-        private static Transform[] BuildKeySpots()
-        {
-            var parent = CreateObject("KeySpots", null).transform;
-            var spots = new Transform[3];
-            for (var i = 0; i < spots.Length; i++)
-            {
-                var spot = CreateObject("Spot " + (i + 1), parent).transform;
-                spot.position = new Vector3((i - 1) * 4f, 1f, 5f);
-                spots[i] = spot;
-            }
-
-            return spots;
         }
 
         private static GameObject CreateObject(string name, Transform parent)
