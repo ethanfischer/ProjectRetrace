@@ -50,10 +50,7 @@ namespace ProjectRetrace.EditorTools
 
             trail.tracked = player.transform;
 
-            // No candidate spots here: hiding places come from KeySpotMarkers inside furniture
-            // props (ProjectRetrace > Furniture), which KeySpawner discovers at runtime.
             keySpawner.key = keys;
-            keySpawner.candidateSpots.Clear();
 
             hud.director = director;
             hud.interactor = interactor;

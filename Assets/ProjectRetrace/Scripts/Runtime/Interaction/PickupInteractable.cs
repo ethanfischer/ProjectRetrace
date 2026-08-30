@@ -11,7 +11,6 @@ namespace ProjectRetrace
         private Quaternion _initialRotation;
         private bool _taken;
 
-        public bool Taken => _taken;
         public override bool CanInteract => base.CanInteract && !_taken;
 
         protected virtual void Awake()

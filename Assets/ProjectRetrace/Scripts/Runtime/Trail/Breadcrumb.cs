@@ -9,7 +9,9 @@ namespace ProjectRetrace
     public class Breadcrumb
     {
         public readonly Vector3 Position;
-        public bool Collected;
+
+        /// <summary>Whether this mark overlaps the other round's path (see BreadcrumbTrail).</summary>
+        public bool Matched;
 
         public Breadcrumb(Vector3 position)
         {

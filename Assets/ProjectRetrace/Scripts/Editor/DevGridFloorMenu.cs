@@ -35,7 +35,7 @@ namespace ProjectRetrace.EditorTools
             Selection.activeGameObject = floor;
         }
 
-        private static Material GetOrCreateMaterial()
+        internal static Material GetOrCreateMaterial()
         {
             var material = AssetDatabase.LoadAssetAtPath<Material>(MaterialPath);
             if (material != null) return material;

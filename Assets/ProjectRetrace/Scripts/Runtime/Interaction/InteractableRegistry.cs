@@ -11,7 +11,6 @@ namespace ProjectRetrace
     {
         private static readonly List<InteractableBase> Interactables = new List<InteractableBase>();
 
-        public static IReadOnlyList<InteractableBase> All => Interactables;
 
         /// <summary>
         /// Statics survive play-mode entry when Domain Reload is disabled (which many people

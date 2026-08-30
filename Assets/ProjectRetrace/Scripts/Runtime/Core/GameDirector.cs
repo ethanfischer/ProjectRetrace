@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -51,9 +50,6 @@ namespace ProjectRetrace
         public GamePhase Phase { get; private set; } = GamePhase.Search;
         public ScoreResult LastResult { get; private set; }
         public float Phase1Duration { get; private set; }
-        public int Seed => _seed;
-
-        public event Action<GamePhase> PhaseChanged;
 
         public RetraceSettings EffectiveSettings
         {
@@ -116,7 +112,7 @@ namespace ProjectRetrace
             if (trail != null)
             {
                 trail.settings = EffectiveSettings;
-                trail.BeginPlacement();
+                trail.BeginPhase1();
             }
 
             _searchStartTime = Time.time;
@@ -151,7 +147,7 @@ namespace ProjectRetrace
             InteractableRegistry.RestoreAll();
             MovePlayerToSpawn();
 
-            if (trail != null) trail.BeginCollection();
+            if (trail != null) trail.BeginPhase2();
 
             SetPlayerInputEnabled(true);
             _retraceStartTime = Time.time;
@@ -168,10 +164,9 @@ namespace ProjectRetrace
                 LastResult = trail.BuildScore();
             }
 
-            SetPlayerInputEnabled(false);
+            // Input stays enabled: Results is a walkable comparison view where the player
+            // wanders the house looking at both trails side by side.
             SetPhase(GamePhase.Results);
-
-            // The results screen is where you want to see the trail, so open the debug view.
             DebugVisible = true;
         }
 
@@ -227,7 +222,6 @@ namespace ProjectRetrace
         private void SetPhase(GamePhase phase)
         {
             Phase = phase;
-            PhaseChanged?.Invoke(phase);
         }
     }
 }

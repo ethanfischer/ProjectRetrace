@@ -30,10 +30,6 @@ namespace ProjectRetrace
 
         public string CurrentPrompt => _current != null ? _current.Prompt : null;
 
-        /// <summary>What the reticle ray last hit, for the debug HUD. Names the blocker when a
-        /// prompt refuses to appear.</summary>
-        public string DebugLastHit { get; private set; } = "-";
-
         public void SetInputEnabled(bool inputEnabled)
         {
             _inputEnabled = inputEnabled;
@@ -89,19 +85,10 @@ namespace ProjectRetrace
             // furniture. Cast through everything and take the first hit that isn't ourselves.
             if (!TryHitOtherThanSelf(ray, out var hit))
             {
-                DebugLastHit = "nothing in reach";
                 return null;
             }
 
-            var interactable = Resolve(hit);
-
-            DebugLastHit = string.Format(
-                "{0}/{1} @ {2:0.00}m{3}",
-                hit.collider.transform.parent != null ? hit.collider.transform.parent.name : "-",
-                hit.collider.name,
-                hit.distance,
-                interactable == null ? " (no interactable)" : string.Empty);
-            return interactable;
+            return Resolve(hit);
         }
 
         private bool TryHitOtherThanSelf(Ray ray, out RaycastHit hit)

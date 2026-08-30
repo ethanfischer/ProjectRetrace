@@ -63,7 +63,7 @@ Two assemblies, both under `Assets/ProjectRetrace/Scripts/`:
 (namespace `ProjectRetrace.EditorTools`, editor-only, references Runtime).
 
 `GameDirector` owns the run as a state machine over `GamePhase` (Search, Transition, Retrace,
-Results), exposing a `PhaseChanged` event and a static `Instance`. The Transition step is the
+Results), exposing a static `Instance`. The Transition step is the
 load-bearing one: it calls `InteractableRegistry.RestoreAll()`, re-places the keys from the same
 run seed, and teleports the player to the identical spawn transform. If phase 2 is not exactly
 the same house, the score means nothing. `StartRun` restores *before* capturing on purpose, so a
@@ -89,7 +89,9 @@ asset never blocks a playtest. Follow that pattern rather than dereferencing `se
 
 `SceneSetupMenu` (menu: ProjectRetrace > Setup Scene Systems) builds and wires the entire rig
 into the open scene. When you add a system that needs scene wiring, wire it there too, or it
-silently won't exist in anyone else's scene.
+silently won't exist in anyone else's scene. Related editor menus: ProjectRetrace > Furniture
+builds searchable props (hiding spots auto-register via `KeySpotMarker`), and
+ProjectRetrace > Generate Test House builds a seeded two-story house with furniture scattered.
 
 ## Conventions
 

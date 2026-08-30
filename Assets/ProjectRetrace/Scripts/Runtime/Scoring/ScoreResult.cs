@@ -6,18 +6,22 @@ namespace ProjectRetrace
     /// </summary>
     public struct ScoreResult
     {
-        public int Collected;
-        public int Total;
+        public int Matched1;
+        public int Total1;
+        public int Matched2;
+        public int Total2;
         public float Phase1Distance;
         public float Phase2Distance;
 
-        /// <summary>Fraction of breadcrumbs collected, 0..1. Punishes shortcutting.</summary>
+        /// <summary>Fraction of round-1 marks the retrace passed over, 0..1. Punishes missing
+        /// parts of the original route.</summary>
         public float Coverage;
 
-        /// <summary>clamp01(phase1Distance / phase2Distance), 0..1. Punishes wandering.</summary>
-        public float Efficiency;
+        /// <summary>Fraction of round-2 marks that landed on the original path, 0..1. Punishes
+        /// extra breadcrumbs from wandering or taking a different route.</summary>
+        public float Precision;
 
-        /// <summary>Coverage * Efficiency, 0..1.</summary>
+        /// <summary>Coverage * Precision, 0..1.</summary>
         public float Final;
 
         public int Percent => ToPercent(Final);

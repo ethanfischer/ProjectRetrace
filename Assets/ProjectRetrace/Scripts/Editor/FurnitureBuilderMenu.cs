@@ -36,7 +36,7 @@ namespace ProjectRetrace.EditorTools
 
         // All props are built with their pivot on the floor and their front facing local +Z.
 
-        private static GameObject BuildDresser()
+        internal static GameObject BuildDresser()
         {
             var root = NewRoot("Dresser");
 
@@ -66,7 +66,7 @@ namespace ProjectRetrace.EditorTools
             serialized.ApplyModifiedPropertiesWithoutUndo();
         }
 
-        private static GameObject BuildCupboard()
+        internal static GameObject BuildCupboard()
         {
             var root = NewRoot("Cupboard");
 
@@ -85,7 +85,7 @@ namespace ProjectRetrace.EditorTools
             return root;
         }
 
-        private static GameObject BuildChest()
+        internal static GameObject BuildChest()
         {
             var root = NewRoot("Chest");
 

@@ -106,19 +106,18 @@ namespace ProjectRetrace
             var score = trail.BuildScore();
             var settings = trail.EffectiveSettings;
 
-            var box = new Rect(12f, 12f, 300f, 250f);
+            var box = new Rect(12f, 12f, 300f, 210f);
             GUI.Box(box, GUIContent.none);
 
             GUILayout.BeginArea(new Rect(box.x + 10f, box.y + 8f, box.width - 20f, box.height - 16f));
             GUILayout.Label("<b>DEBUG</b>  (" + settings.debugToggleKey + " to hide)", _label);
             GUILayout.Label("Phase: " + (director != null ? director.Phase.ToString() : "-"), _label);
-            GUILayout.Label(string.Format("Marks: {0} / {1}", score.Collected, score.Total), _label);
-            GUILayout.Label(string.Format("Coverage: {0:P0}", score.Coverage), _label);
-            GUILayout.Label(string.Format("Efficiency: {0:P0}", score.Efficiency), _label);
+            GUILayout.Label(string.Format("Overlap: {0} / {1} of round 1", score.Matched1, score.Total1), _label);
+            GUILayout.Label(string.Format("On-path: {0} / {1} of round 2", score.Matched2, score.Total2), _label);
+            GUILayout.Label(string.Format("Coverage: {0:P0}  Precision: {1:P0}", score.Coverage, score.Precision), _label);
             GUILayout.Label(string.Format("Distance: {0:0.0}m then {1:0.0}m", score.Phase1Distance, score.Phase2Distance), _label);
             GUILayout.Label(string.Format("Live score: {0}%", score.Percent), _label);
             GUILayout.Label(string.Format("spacing {0:0.00}m / radius {1:0.00}m", settings.dotSpacing, settings.collectRadius), _label);
-            GUILayout.Label("Ray: " + (interactor != null ? interactor.DebugLastHit : "-"), _label);
             GUILayout.EndArea();
         }
     }
