@@ -10,6 +10,33 @@ and [SETUP.md](SETUP.md) for scene setup, controls, and tuning guidance.
 The Unity editor is the primary tool. The `.sln`/`.csproj` files at the root are Unity-generated
 and gitignored. Never hand-edit them; edit the `.asmdef` files instead.
 
+### Unity CLI (preferred when the editor is open)
+
+The official Unity CLI (`unity`, ~/.unity/bin) talks to the *running* editor via the
+`com.unity.pipeline` package (already in the manifest). Prefer it over batchmode whenever the
+editor is open — batchmode can't run then, and the CLI can do far more:
+
+```bash
+unity status --no-banner
+```
+
+lists connected editors (state `ready` means good to go). The workhorses:
+
+- `unity cmd eval --no-banner '<C# code>'` — run arbitrary C# in the editor (Roslyn). Works in
+  play mode too; `return` a string for output. This is the debugging tool of choice: it found
+  the interaction-ray bug by reading live component state in play mode.
+- `unity cmd editor_play` / `editor_pause` / `editor_stop` — drive play mode.
+- `unity cmd recompile` then poll `unity cmd recompile_status` until `{"status":"completed"}` —
+  compile without focusing the editor.
+- `unity cmd console` — read editor console output; `clear_console` resets it.
+- `unity cmd capture_game_view` / `capture_scene_view` — screenshot to PNG.
+- `unity list --no-banner` — full catalog of available commands.
+
+Verify play-mode behavior yourself with eval (teleport the player, read state, assert) rather
+than asking a human to playtest. The console warning about "-automated" mode is harmless.
+
+### Batchmode (editor closed)
+
 Compile-check headlessly (swap the version if Hub has a different install):
 
 ```bash
@@ -26,7 +53,8 @@ Run tests headlessly:
 `.asmdef` under `Assets/ProjectRetrace/Scripts/Tests/` referencing `ProjectRetrace.Runtime` plus
 the nunit/test-framework references. `-testFilter` narrows a run to a single test.
 
-Batchmode fails if the editor already has the project open, so close it first.
+Batchmode fails if the editor already has the project open — use the Unity CLI instead in that
+case.
 
 ## Architecture
 
