@@ -7,8 +7,8 @@ namespace ProjectRetrace
     {
         [SerializeField] private bool hideOnPickup = true;
 
-        private Vector3 _initialPosition;
-        private Quaternion _initialRotation;
+        private Vector3 _initialLocalPosition;
+        private Quaternion _initialLocalRotation;
         private bool _taken;
 
         public override bool CanInteract => base.CanInteract && !_taken;
@@ -33,16 +33,24 @@ namespace ProjectRetrace
         {
         }
 
+        /// <summary>
+        /// Captured in LOCAL space on purpose. The keys are parented to a spot inside a drawer
+        /// or chest, and RestoreAll runs in arbitrary registry order: a world-space restore
+        /// could run while the container was still open, then get dragged out of place when the
+        /// container snapped shut afterwards -- leaving the keys stranded inside the carcass.
+        /// A local pose is correct no matter what state the parent is in when this restores.
+        /// </summary>
         public override void CaptureInitialState()
         {
-            _initialPosition = transform.position;
-            _initialRotation = transform.rotation;
+            _initialLocalPosition = transform.localPosition;
+            _initialLocalRotation = transform.localRotation;
         }
 
         public override void RestoreInitialState()
         {
             _taken = false;
-            transform.SetPositionAndRotation(_initialPosition, _initialRotation);
+            transform.localPosition = _initialLocalPosition;
+            transform.localRotation = _initialLocalRotation;
             SetVisible(true);
         }
 
