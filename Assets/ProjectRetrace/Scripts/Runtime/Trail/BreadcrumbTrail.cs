@@ -186,7 +186,7 @@ namespace ProjectRetrace
         /// <summary>Live score during phase 2, and the final score once stopped.</summary>
         public ScoreResult BuildScore()
         {
-            return RetraceScorer.Score(_matched1, _phase1.Count, _matched2, _phase2.Count, _phase1Distance, _phase2Distance);
+            return RetraceScorer.Score(_matched1, _phase1.Count, _matched2, _phase2.Count);
         }
     }
 }

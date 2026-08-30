@@ -13,7 +13,7 @@ namespace ProjectRetrace
     /// </summary>
     public static class RetraceScorer
     {
-        public static ScoreResult Score(int matched1, int total1, int matched2, int total2, float phase1Distance, float phase2Distance)
+        public static ScoreResult Score(int matched1, int total1, int matched2, int total2)
         {
             var result = new ScoreResult
             {
@@ -21,8 +21,6 @@ namespace ProjectRetrace
                 Total1 = total1,
                 Matched2 = matched2,
                 Total2 = total2,
-                Phase1Distance = phase1Distance,
-                Phase2Distance = phase2Distance,
                 Coverage = total1 > 0 ? Mathf.Clamp01((float)matched1 / total1) : 0f,
                 Precision = total2 > 0 ? Mathf.Clamp01((float)matched2 / total2) : 0f,
             };
