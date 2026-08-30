@@ -4,17 +4,17 @@ using UnityEngine;
 namespace ProjectRetrace
 {
     /// <summary>
-    /// Draws both trails: round 1 in one colour, round 2 in another. Hidden by default --
-    /// phase 2 is meant to be blind -- and toggled with the debug key; the Results phase
-    /// forces it on so the player can walk the house comparing the two routes side by side.
-    /// Uses real renderers rather than editor gizmos so it also works in a build, which is
-    /// what you want when handing a build to someone else to playtest.
+    /// Draws both trails as flat floor arrows pointing the direction the player walked:
+    /// round 1 in one colour, round 2 in another. Hidden by default -- phase 2 is meant to be
+    /// blind -- and toggled with the debug key; the Results phase forces it on so the player
+    /// can walk the house comparing the two routes side by side. Uses real renderers rather
+    /// than editor gizmos so it also works in a build.
     /// </summary>
     [RequireComponent(typeof(BreadcrumbTrail))]
     public class TrailVisualizer : MonoBehaviour
     {
-        [SerializeField] private float dotScale = 0.18f;
-        [SerializeField] private float dotHeightOffset = 0.05f;
+        [SerializeField] private float arrowScale = 1f;
+        [SerializeField] private float heightOffset = 0.06f;
         [SerializeField] private Color round1Color = new Color(0.25f, 0.75f, 1f);
         [SerializeField] private Color round2Color = new Color(1f, 0.55f, 0.15f);
 
@@ -24,32 +24,35 @@ namespace ProjectRetrace
         private readonly List<Renderer> _round2Dots = new List<Renderer>();
         private Material _round1Material;
         private Material _round2Material;
+        private Mesh _arrowMesh;
         private bool _lastVisible;
 
         private void Awake()
         {
             _trail = GetComponent<BreadcrumbTrail>();
 
-            var rootObject = new GameObject("BreadcrumbDots");
+            var rootObject = new GameObject("BreadcrumbArrows");
             _root = rootObject.transform;
             _root.SetParent(transform, false);
 
             _round1Material = CreateUnlitMaterial(round1Color);
             _round2Material = CreateUnlitMaterial(round2Color);
+            _arrowMesh = BuildArrowMesh();
 
             _root.gameObject.SetActive(false);
         }
 
         private void OnDestroy()
         {
-            DestroyMaterial(_round1Material);
-            DestroyMaterial(_round2Material);
+            DestroyResource(_round1Material);
+            DestroyResource(_round2Material);
+            DestroyResource(_arrowMesh);
         }
 
         private void LateUpdate()
         {
-            SyncDots(_trail.Phase1Crumbs, _round1Dots, _round1Material);
-            SyncDots(_trail.Phase2Crumbs, _round2Dots, _round2Material);
+            SyncArrows(_trail.Phase1Crumbs, _round1Dots, _round1Material);
+            SyncArrows(_trail.Phase2Crumbs, _round2Dots, _round2Material);
 
             var visible = GameDirector.DebugVisible;
             if (visible != _lastVisible)
@@ -59,49 +62,75 @@ namespace ProjectRetrace
             }
         }
 
-        /// <summary>Adds dots for newly dropped crumbs, and clears when a run restarts.</summary>
-        private void SyncDots(IReadOnlyList<Breadcrumb> crumbs, List<Renderer> dots, Material material)
+        /// <summary>Adds arrows for newly dropped crumbs, and clears when a run restarts.</summary>
+        private void SyncArrows(IReadOnlyList<Breadcrumb> crumbs, List<Renderer> arrows, Material material)
         {
-            if (crumbs.Count < dots.Count)
+            if (crumbs.Count < arrows.Count)
             {
-                ClearDots(dots);
+                ClearArrows(arrows);
             }
 
-            for (var i = dots.Count; i < crumbs.Count; i++)
+            for (var i = arrows.Count; i < crumbs.Count; i++)
             {
-                dots.Add(CreateDot(crumbs[i].Position, material));
+                arrows.Add(CreateArrow(crumbs[i], material));
             }
         }
 
-        private Renderer CreateDot(Vector3 position, Material material)
+        private Renderer CreateArrow(Breadcrumb crumb, Material material)
         {
-            var dot = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            dot.name = "Crumb";
+            var arrow = new GameObject("Crumb");
+            arrow.transform.SetParent(_root, false);
+            arrow.transform.SetPositionAndRotation(
+                crumb.Position + Vector3.up * heightOffset,
+                Quaternion.LookRotation(crumb.Direction, Vector3.up));
+            arrow.transform.localScale = Vector3.one * arrowScale;
 
-            // The sphere primitive ships with a collider, which would otherwise sit in the
-            // middle of the room and swallow the player's interaction raycasts.
-            var collider = dot.GetComponent<Collider>();
-            if (collider != null) Destroy(collider);
-
-            dot.transform.SetParent(_root, false);
-            dot.transform.position = position + Vector3.up * dotHeightOffset;
-            dot.transform.localScale = Vector3.one * dotScale;
-
-            var renderer = dot.GetComponent<Renderer>();
+            arrow.AddComponent<MeshFilter>().sharedMesh = _arrowMesh;
+            var renderer = arrow.AddComponent<MeshRenderer>();
             renderer.sharedMaterial = material;
             renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             renderer.receiveShadows = false;
             return renderer;
         }
 
-        private static void ClearDots(List<Renderer> dots)
+        private static void ClearArrows(List<Renderer> arrows)
         {
-            for (var i = 0; i < dots.Count; i++)
+            for (var i = 0; i < arrows.Count; i++)
             {
-                if (dots[i] != null) Destroy(dots[i].gameObject);
+                if (arrows[i] != null) Destroy(arrows[i].gameObject);
             }
 
-            dots.Clear();
+            arrows.Clear();
+        }
+
+        /// <summary>
+        /// A flat chevron-tailed arrow lying on the floor, pointing local +Z. Built in code so
+        /// the project carries no mesh assets; one shared mesh serves every arrow.
+        /// </summary>
+        private static Mesh BuildArrowMesh()
+        {
+            var mesh = new Mesh { name = "CrumbArrow" };
+            mesh.vertices = new[]
+            {
+                new Vector3(-0.06f, 0f, -0.22f),
+                new Vector3(0.06f, 0f, -0.22f),
+                new Vector3(0.06f, 0f, 0.05f),
+                new Vector3(-0.06f, 0f, 0.05f),
+                new Vector3(-0.16f, 0f, 0.05f),
+                new Vector3(0.16f, 0f, 0.05f),
+                new Vector3(0f, 0f, 0.3f),
+            };
+            mesh.triangles = new[]
+            {
+                0, 3, 2,
+                0, 2, 1,
+                4, 6, 5,
+            };
+            var normals = new Vector3[mesh.vertexCount];
+            for (var i = 0; i < normals.Length; i++) normals[i] = Vector3.up;
+            mesh.normals = normals;
+            mesh.RecalculateBounds();
+            return mesh;
         }
 
         /// <summary>
@@ -114,17 +143,17 @@ namespace ProjectRetrace
             if (shader == null) shader = Shader.Find("Unlit/Color");
             if (shader == null) shader = Shader.Find("Sprites/Default");
 
-            var material = new Material(shader) { name = "CrumbDot" };
+            var material = new Material(shader) { name = "CrumbArrow" };
             if (material.HasProperty("_BaseColor")) material.SetColor("_BaseColor", color);
             if (material.HasProperty("_Color")) material.SetColor("_Color", color);
             return material;
         }
 
-        private static void DestroyMaterial(Material material)
+        private static void DestroyResource(Object resource)
         {
-            if (material == null) return;
-            if (Application.isPlaying) Destroy(material);
-            else DestroyImmediate(material);
+            if (resource == null) return;
+            if (Application.isPlaying) Destroy(resource);
+            else DestroyImmediate(resource);
         }
     }
 }

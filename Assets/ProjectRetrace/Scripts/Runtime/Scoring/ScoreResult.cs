@@ -30,12 +30,15 @@ namespace ProjectRetrace
         {
             get
             {
-                if (Final >= 0.90f) return "S";
-                if (Final >= 0.80f) return "A";
-                if (Final >= 0.65f) return "B";
-                if (Final >= 0.50f) return "C";
-                if (Final >= 0.30f) return "D";
-                return "F";
+                return Final switch
+                {
+                    >= 1f => "A+",
+                    >= 0.90f => "A",
+                    >= 0.80f => "B",
+                    >= 0.70f => "C",
+                    >= 0.60f => "D",
+                    _ => "F"
+                };
             }
         }
 

@@ -39,6 +39,7 @@ namespace ProjectRetrace
         private RetraceSettings _fallbackSettings;
         private TrailMode _mode = TrailMode.Idle;
         private Vector3 _lastPosition;
+        private Vector3 _lastCrumbPosition;
         private float _distanceSinceLastCrumb;
         private float _phase1Distance;
         private float _phase2Distance;
@@ -81,6 +82,7 @@ namespace ProjectRetrace
             }
 
             _lastPosition = tracked.position;
+            _lastCrumbPosition = tracked.position;
             DropCrumb(tracked.position);
         }
 
@@ -95,6 +97,7 @@ namespace ProjectRetrace
             if (tracked != null)
             {
                 _lastPosition = tracked.position;
+                _lastCrumbPosition = tracked.position;
                 DropCrumb(tracked.position);
             }
         }
@@ -138,7 +141,17 @@ namespace ProjectRetrace
 
         private void DropCrumb(Vector3 position)
         {
-            var crumb = new Breadcrumb(position);
+            // The arrow points from the previous crumb to this one: the actual direction
+            // walked over this stretch, not the instantaneous facing (which flicks around
+            // while the player looks at things).
+            var direction = position - _lastCrumbPosition;
+            direction.y = 0f;
+            direction = direction.sqrMagnitude > 0.0001f
+                ? direction.normalized
+                : (tracked != null ? Flatten(tracked.forward) : Vector3.forward);
+            _lastCrumbPosition = position;
+
+            var crumb = new Breadcrumb(position, direction);
             if (_mode == TrailMode.Phase1)
             {
                 _phase1.Add(crumb);
@@ -177,6 +190,12 @@ namespace ProjectRetrace
             }
         }
 
+        private static Vector3 Flatten(Vector3 vector)
+        {
+            vector.y = 0f;
+            return vector.sqrMagnitude > 0.0001f ? vector.normalized : Vector3.forward;
+        }
+
         private float RadiusSquared()
         {
             var radius = EffectiveSettings.collectRadius;
@@ -186,7 +205,10 @@ namespace ProjectRetrace
         /// <summary>Live score during phase 2, and the final score once stopped.</summary>
         public ScoreResult BuildScore()
         {
-            return RetraceScorer.Score(_matched1, _phase1.Count, _matched2, _phase2.Count);
+            var result = RetraceScorer.Score(_matched1, _phase1.Count, _matched2, _phase2.Count);
+            result.Phase1Distance = _phase1Distance;
+            result.Phase2Distance = _phase2Distance;
+            return result;
         }
     }
 }

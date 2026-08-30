@@ -10,12 +10,16 @@ namespace ProjectRetrace
     {
         public readonly Vector3 Position;
 
+        /// <summary>Horizontal direction the player was walking when this mark dropped.</summary>
+        public readonly Vector3 Direction;
+
         /// <summary>Whether this mark overlaps the other round's path (see BreadcrumbTrail).</summary>
         public bool Matched;
 
-        public Breadcrumb(Vector3 position)
+        public Breadcrumb(Vector3 position, Vector3 direction)
         {
             Position = position;
+            Direction = direction;
         }
     }
 }
