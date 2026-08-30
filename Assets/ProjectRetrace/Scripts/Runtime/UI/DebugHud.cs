@@ -26,6 +26,7 @@ namespace ProjectRetrace
 
         private void OnGUI()
         {
+            HudScale.Apply();
             EnsureStyles();
 
             if (GameDirector.DebugVisible)
@@ -67,7 +68,9 @@ namespace ProjectRetrace
             var screen = camera.WorldToScreenPoint(key.transform.position);
             if (screen.z <= 0f) return;
 
-            var rect = new Rect(screen.x - 60f, Screen.height - screen.y - 14f, 120f, 28f);
+            // WorldToScreenPoint is in device pixels; the GUI matrix works in reference units.
+            var rect = new Rect(screen.x / HudScale.Factor - 60f,
+                HudScale.Height - screen.y / HudScale.Factor - 14f, 120f, 28f);
             GUI.color = key.CanInteract ? new Color(1f, 0.9f, 0.3f) : new Color(1f, 0.4f, 0.4f);
             GUI.Label(rect, string.Format("v KEYS {0:0.0}m", screen.z), _centered);
             GUI.color = Color.white;
@@ -96,7 +99,7 @@ namespace ProjectRetrace
 
         private void DrawReticle()
         {
-            var centre = new Rect(Screen.width * 0.5f - 3f, Screen.height * 0.5f - 3f, 6f, 6f);
+            var centre = new Rect(HudScale.Width * 0.5f - 3f, HudScale.Height * 0.5f - 3f, 6f, 6f);
             var hasTarget = interactor != null && interactor.Current != null;
             GUI.color = hasTarget ? new Color(1f, 0.9f, 0.3f) : new Color(1f, 1f, 1f, 0.5f);
             GUI.DrawTexture(centre, Texture2D.whiteTexture);
@@ -110,7 +113,7 @@ namespace ProjectRetrace
             var prompt = interactor.CurrentPrompt;
             if (string.IsNullOrEmpty(prompt)) return;
 
-            var rect = new Rect(0f, Screen.height * 0.5f + 24f, Screen.width, 28f);
+            var rect = new Rect(0f, HudScale.Height * 0.5f + 24f, HudScale.Width, 28f);
             GUI.Label(rect, "[E] " + prompt, _centered);
         }
 
@@ -140,7 +143,7 @@ namespace ProjectRetrace
                 banner += string.Format("   {0:0}s", remaining);
             }
 
-            GUI.Label(new Rect(0f, 24f, Screen.width, 30f), banner, _centered);
+            GUI.Label(new Rect(0f, 24f, HudScale.Width, 30f), banner, _centered);
         }
 
         private void DrawStats()

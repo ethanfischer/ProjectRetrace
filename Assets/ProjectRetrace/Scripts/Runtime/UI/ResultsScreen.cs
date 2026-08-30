@@ -25,10 +25,11 @@ namespace ProjectRetrace
         {
             if (director == null || director.Phase != GamePhase.Results) return;
 
+            HudScale.Apply();
             EnsureStyles();
 
             var result = director.LastResult;
-            var panel = new Rect(Screen.width * 0.5f - 260f, 12f, 520f, 128f);
+            var panel = new Rect(HudScale.Width * 0.5f - 260f, 12f, 520f, 128f);
             GUI.Box(panel, GUIContent.none);
 
             GUILayout.BeginArea(new Rect(panel.x + 20f, panel.y + 10f, panel.width - 40f, panel.height - 20f));
