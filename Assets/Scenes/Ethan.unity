@@ -30231,8 +30231,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c03d2c095a6947fea9e5578ede55884, type: 3}
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.TrailVisualizer
-  dotScale: 0.09
-  dotHeightOffset: 0.07
+  arrowScale: 0.2
+  heightOffset: 0.06
   round1Color: {r: 0.25, g: 0.75, b: 1, a: 1}
   round2Color: {r: 1, g: 0.55, b: 0.15, a: 1}
 --- !u!114 &2069100029
