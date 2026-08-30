@@ -1,0 +1,142 @@
+using UnityEngine;
+using UnityEngine.InputSystem;
+
+namespace ProjectRetrace
+{
+    /// <summary>
+    /// Minimal first-person controller on the Input System: WASD, mouse look, sprint,
+    /// jump. Deliberately plain -- the interesting part of this game is the trail, not the
+    /// locomotion.
+    /// </summary>
+    [RequireComponent(typeof(CharacterController))]
+    public class FirstPersonController : MonoBehaviour
+    {
+        /// <summary>The legacy Mouse X/Y axes applied this before returning a delta, so folding
+        /// it in here keeps sensitivity values tuned against the old controller valid.</summary>
+        private const float LegacyMouseAxisSensitivity = 0.1f;
+
+        [Header("Look")]
+        public Transform cameraPivot;
+        [SerializeField] private float mouseSensitivity = 2.2f;
+        [SerializeField] private float pitchLimit = 89f;
+
+        [Header("Move")]
+        [SerializeField] private float walkSpeed = 3.4f;
+        [SerializeField] private float sprintSpeed = 6.0f;
+        [SerializeField] private float jumpSpeed = 4.5f;
+        [SerializeField] private float gravity = -18f;
+
+        private CharacterController _controller;
+        private float _pitch;
+        private float _verticalVelocity;
+        private bool _inputEnabled = true;
+
+        private void Awake()
+        {
+            _controller = GetComponent<CharacterController>();
+            if (cameraPivot == null && Camera.main != null)
+            {
+                cameraPivot = Camera.main.transform;
+            }
+        }
+
+        private void Start()
+        {
+            LockCursor(true);
+        }
+
+        /// <summary>Frozen during the phase transition and on the results screen.</summary>
+        public void SetInputEnabled(bool inputEnabled)
+        {
+            _inputEnabled = inputEnabled;
+            LockCursor(inputEnabled);
+        }
+
+        public static void LockCursor(bool locked)
+        {
+            Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None;
+            Cursor.visible = !locked;
+        }
+
+        /// <summary>
+        /// The CharacterController overwrites direct transform writes, so it has to be
+        /// disabled across the move -- otherwise the player snaps straight back to spawn.
+        /// </summary>
+        public void Teleport(Vector3 position, Quaternion rotation)
+        {
+            _controller.enabled = false;
+            transform.SetPositionAndRotation(position, rotation);
+            _controller.enabled = true;
+
+            _verticalVelocity = 0f;
+            _pitch = 0f;
+            if (cameraPivot != null)
+            {
+                cameraPivot.localRotation = Quaternion.identity;
+            }
+        }
+
+        private void Update()
+        {
+            if (!_inputEnabled) return;
+
+            Look();
+            Move();
+        }
+
+        private void Look()
+        {
+            var mouse = Mouse.current;
+            if (mouse == null) return;
+
+            var look = mouse.delta.ReadValue() * (LegacyMouseAxisSensitivity * mouseSensitivity);
+
+            transform.Rotate(Vector3.up, look.x, Space.Self);
+
+            _pitch = Mathf.Clamp(_pitch - look.y, -pitchLimit, pitchLimit);
+            if (cameraPivot != null)
+            {
+                cameraPivot.localRotation = Quaternion.Euler(_pitch, 0f, 0f);
+            }
+        }
+
+        private void Move()
+        {
+            var keyboard = Keyboard.current;
+            if (keyboard == null) return;
+
+            var input = ReadMoveInput(keyboard);
+            if (input.sqrMagnitude > 1f) input.Normalize();
+
+            var speed = keyboard.leftShiftKey.isPressed ? sprintSpeed : walkSpeed;
+            var motion = transform.TransformDirection(input) * speed;
+
+            if (_controller.isGrounded)
+            {
+                // A small downward bias keeps isGrounded stable on slopes and stair edges.
+                _verticalVelocity = -2f;
+                if (keyboard.spaceKey.wasPressedThisFrame) _verticalVelocity = jumpSpeed;
+            }
+            else
+            {
+                _verticalVelocity += gravity * Time.deltaTime;
+            }
+
+            motion.y = _verticalVelocity;
+            _controller.Move(motion * Time.deltaTime);
+        }
+
+        private static Vector3 ReadMoveInput(Keyboard keyboard)
+        {
+            var x = 0f;
+            var z = 0f;
+
+            if (keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed) x -= 1f;
+            if (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed) x += 1f;
+            if (keyboard.sKey.isPressed || keyboard.downArrowKey.isPressed) z -= 1f;
+            if (keyboard.wKey.isPressed || keyboard.upArrowKey.isPressed) z += 1f;
+
+            return new Vector3(x, 0f, z);
+        }
+    }
+}
