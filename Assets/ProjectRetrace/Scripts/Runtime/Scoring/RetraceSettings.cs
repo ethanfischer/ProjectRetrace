@@ -16,9 +16,9 @@ namespace ProjectRetrace
         public float dotSpacing = 1.5f;
 
         [Header("Sentry")]
-        [Tooltip("Patrol speed. Kept below the player's walk speed (3.4) so being followed stays escapable.")]
+        [Tooltip("Patrol speed. Kept well below the player's walk speed (3.4) so being followed stays escapable.")]
         [Min(0.1f)]
-        public float sentrySpeed = 2.8f;
+        public float sentrySpeed = 2.0f;
 
         [Tooltip("Speed once the player has been spotted. The catch is already decided at the moment of detection -- the chase only sells it.")]
         [Min(0.1f)]

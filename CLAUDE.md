@@ -1,10 +1,11 @@
 ## Project
 
-Unity 6 (`6000.3.17f1`) URP first-person stealth game. Two phases: search a house for keys
-while the game silently records your route, then steal the keys back — re-hidden somewhere
-new — while a sentry NPC retraces your phase-1 route and catches you on sight. Win by
-grabbing the keys unseen; no score. See [README.md](README.md) for the pitch
-and [SETUP.md](SETUP.md) for scene setup, controls, and tuning guidance.
+Unity 6 (`6000.3.17f1`) URP first-person stealth game. Three rounds: search a house for keys
+while the game silently records your route; steal them back — re-hidden somewhere new —
+while a sentry NPC retraces your search route; then steal them once more against two
+sentries, the second retracing the sneak route you just took. Catches on sight, three lives
+per stealth round, no score. See [README.md](README.md) for the pitch and
+[SETUP.md](SETUP.md) for scene setup, controls, and tuning guidance.
 
 ## Commands
 

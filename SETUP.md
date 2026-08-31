@@ -45,26 +45,30 @@ there is nothing to wire.
 | Enter | instantly win the stealth phase (escape hatch while playtesting) |
 | R | run again (on the results screen) |
 
-## 4. How the stealth phase works
+## 4. How the stealth rounds work
 
-Phase 1 drops a breadcrumb every `dotSpacing` metres **of travel**, and records a dwell
-point wherever you stand still for `dwellSeconds`. On the transition:
+Every phase you play drops a breadcrumb every `dotSpacing` metres **of travel** and
+records a dwell point wherever you stand still for `dwellSeconds`. On each round
+transition:
 
 - The house resets to its opening state, and you return to spawn.
-- The keys are re-hidden at a **different** spot (same run seed, derived, so a fixed seed
-  reproduces both hides).
-- The sentry spawns just ~2m along your recorded route — right in front of you, already
-  walking away — and follows it in the direction you did, at its own constant speed,
-  pausing for a fixed `lookAroundSeconds` at each recorded dwell. When it reaches the
-  route's end it cuts straight back to the start and loops. Your recorded route (the blue
-  debug arrows) is never shown during the stealth phase, even with the debug view on.
+- The keys are re-hidden at a **different** spot (seeds derived from the run seed, so a
+  fixed seed reproduces every hide).
+- A sentry spawns just ~2m along the recorded route it owns — round 2: one sentry on your
+  search route; round 3: that one plus a second sentry on the sneak route you took in
+  round 2 (specifically the attempt that succeeded). Each follows its route in the
+  direction you walked it, at its own constant speed, pausing for a fixed
+  `lookAroundSeconds` at each recorded dwell, and loops back to the route's start from
+  the end. You only ever see the trail you are currently drawing; older trails are patrol
+  scripts and stay hidden even with the debug view on.
 
 Detection is cone + line-of-sight (head and chest checked separately, so furniture can
 hide you). Getting spotted ends the attempt — the short chase that follows is just
-presentation. You get `stealthLives` attempts (3 by default); each catch resets the house
-and returns you to spawn, with the keys still hidden in the **same** phase-2 spot, so what
-you learned before getting caught stays true. Run out of attempts and the run is lost. A
-`graceSeconds` window after each attempt starts keeps the near-spawn patrol start fair.
+presentation. You get `stealthLives` attempts (3 by default) **per round**; each catch
+resets the house and returns you to spawn, with the keys still hidden in the **same**
+spot for that round, so what you learned before getting caught stays true. Run out of
+attempts and the run is lost. A `graceSeconds` window after each attempt starts keeps the
+near-spawn patrol starts fair.
 
 Two deliberate anti-exploit choices: the sentry never replays your *timing* (camping in a
 corner during phase 1 records one dwell, not a long pause), and pause length is fixed no

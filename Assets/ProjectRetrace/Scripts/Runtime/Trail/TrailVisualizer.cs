@@ -66,13 +66,11 @@ namespace ProjectRetrace
                 _lastVisible = visible;
             }
 
-            // The round-1 trail is the sentry's script: showing it during the stealth phase
-            // would hand the player a minimap of the threat, so it stays hidden from the
-            // transition onward even with the debug view on. Results shows neither trail --
-            // the run is over and the arrows would just be clutter over the banner.
-            var phase = GameDirector.Instance != null ? GameDirector.Instance.Phase : GamePhase.Search;
-            var round1Visible = phase == GamePhase.Search;
-            var round2Visible = phase != GamePhase.Results;
+            // Only the trail currently being drawn is ever shown: any older trail is some
+            // sentry's patrol script by now, and showing it would hand the player a minimap
+            // of the threat -- so this holds even with the debug view on.
+            var round1Visible = _trail.Mode == TrailMode.Phase1;
+            var round2Visible = _trail.Mode == TrailMode.Phase2;
             if (_round1Root.gameObject.activeSelf != round1Visible)
             {
                 _round1Root.gameObject.SetActive(round1Visible);

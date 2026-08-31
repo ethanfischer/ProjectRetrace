@@ -13,11 +13,12 @@ namespace ProjectRetrace
     }
 
     /// <summary>
-    /// The phase-2 antagonist: walks the player's recorded phase-1 route via the navmesh, in
+    /// A stealth-phase antagonist: walks a recorded route of the player's via the navmesh, in
     /// the same direction the player walked it, pausing to look around wherever the player
-    /// stopped. Its pace and pause lengths are deliberately its own, never the recording's:
-    /// replaying the player's timing would let them idle in a corner during phase 1 to buy an
-    /// easy phase 2.
+    /// stopped. Which route is the director's business -- round 2's sentry retraces the
+    /// search, round 3 adds a second sentry retracing round 2's sneak. Its pace and pause
+    /// lengths are deliberately its own, never the recording's: replaying the player's timing
+    /// would let them idle in a corner to buy an easy next round.
     ///
     /// Spotting is instant-loss. The chase that follows only sells the catch -- the outcome
     /// is decided (and player input frozen) the moment the cone turns red, and a hard time
@@ -45,11 +46,14 @@ namespace ProjectRetrace
         private static readonly float[] SampleHeights = { 1.6f, 1.0f };
 
         public FirstPersonController player;
-        public BreadcrumbTrail trail;
         public RetraceSettings settings;
+
+        [Tooltip("Body colour, so two sentries on different routes read as two characters.")]
+        public Color bodyTint = Color.white;
 
         private RetraceSettings _fallbackSettings;
         private NavMeshAgent _agent;
+        private IReadOnlyList<Breadcrumb> _route;
         private readonly Dictionary<int, DwellPoint> _dwellByCrumb = new Dictionary<int, DwellPoint>();
         private int _targetIndex;
         private bool _lookedAtTarget;
@@ -80,6 +84,21 @@ namespace ProjectRetrace
         {
             _agent = GetComponent<NavMeshAgent>();
             BuildConeVisual();
+            TintBody();
+        }
+
+        /// <summary>Property block rather than material instances: the capsule and nose share
+        /// the stock primitive material, and instancing it per sentry would leak on restarts.</summary>
+        private void TintBody()
+        {
+            var block = new MaterialPropertyBlock();
+            block.SetColor("_BaseColor", bodyTint);
+            block.SetColor("_Color", bodyTint);
+            foreach (var renderer in GetComponentsInChildren<MeshRenderer>(true))
+            {
+                if (renderer == _coneRenderer) continue;
+                renderer.SetPropertyBlock(block);
+            }
         }
 
         private void OnDestroy()
@@ -88,16 +107,17 @@ namespace ProjectRetrace
             if (_coneMesh != null) Destroy(_coneMesh);
         }
 
-        /// <summary>Called by GameDirector when the stealth phase starts.</summary>
-        public void BeginPatrol()
+        /// <summary>Called by GameDirector when a stealth round starts, with the recorded
+        /// route this sentry is to retrace.</summary>
+        public void BeginPatrol(IReadOnlyList<Breadcrumb> route, IReadOnlyList<DwellPoint> dwells)
         {
-            var crumbs = trail != null ? trail.Phase1Crumbs : null;
-            if (crumbs == null || crumbs.Count < 2)
+            if (route == null || route.Count < 2)
             {
                 Debug.LogWarning("[PatrolSentry] No recorded route to patrol -- staying inactive.", this);
                 return;
             }
 
+            _route = route;
             gameObject.SetActive(true);
 
             var config = EffectiveSettings;
@@ -108,15 +128,18 @@ namespace ProjectRetrace
             _agent.stoppingDistance = 0f;
 
             _dwellByCrumb.Clear();
-            foreach (var dwell in trail.DwellPoints)
+            if (dwells != null)
             {
-                _dwellByCrumb[Mathf.Max(0, dwell.CrumbIndex)] = dwell;
+                foreach (var dwell in dwells)
+                {
+                    _dwellByCrumb[Mathf.Max(0, dwell.CrumbIndex)] = dwell;
+                }
             }
 
             // The route can begin off the mesh -- the spawn point may sit outside the baked
             // house -- so start at the first crumb past the head start that actually lands
             // on it. Warping to an off-mesh point would strand the agent entirely.
-            _targetIndex = FirstCrumbOnMesh(crumbs, StartIndex(crumbs));
+            _targetIndex = FirstCrumbOnMesh(route, StartIndex(route));
             if (_targetIndex < 0)
             {
                 Debug.LogWarning("[PatrolSentry] No crumb of the route is on the navmesh -- staying inactive.", this);
@@ -124,10 +147,10 @@ namespace ProjectRetrace
                 return;
             }
 
-            _agent.Warp(crumbs[_targetIndex].Position);
-            transform.rotation = Quaternion.LookRotation(crumbs[_targetIndex].Direction, Vector3.up);
+            _agent.Warp(route[_targetIndex].Position);
+            transform.rotation = Quaternion.LookRotation(route[_targetIndex].Direction, Vector3.up);
             _lookedAtTarget = true;
-            AdvanceWaypoint(crumbs);
+            AdvanceWaypoint(route);
 
             _graceUntil = Time.time + config.graceSeconds;
             SetConeAlarmed(false);
@@ -175,7 +198,6 @@ namespace ProjectRetrace
         {
             if (_agent.pathPending || _agent.remainingDistance >= WaypointReachedDistance) return;
 
-            var crumbs = trail.Phase1Crumbs;
             if (!_lookedAtTarget && _dwellByCrumb.TryGetValue(_targetIndex, out var dwell))
             {
                 _lookedAtTarget = true;
@@ -183,7 +205,7 @@ namespace ProjectRetrace
                 return;
             }
 
-            AdvanceWaypoint(crumbs);
+            AdvanceWaypoint(_route);
         }
 
         private void BeginLook(DwellPoint dwell)
@@ -211,7 +233,7 @@ namespace ProjectRetrace
             State = SentryState.Patrolling;
             _agent.updateRotation = true;
             _agent.isStopped = false;
-            AdvanceWaypoint(trail.Phase1Crumbs);
+            AdvanceWaypoint(_route);
         }
 
         /// <summary>

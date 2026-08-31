@@ -40,7 +40,8 @@ namespace ProjectRetrace.EditorTools
             spawnPoint.position = new Vector3(0f, 0.05f, 0f);
 
             var keys = BuildKeys();
-            var sentry = BuildSentry();
+            var sentry = BuildSentry("Sentry", Color.white);
+            var sentry2 = BuildSentry("Sentry B", new Color(0.75f, 0.55f, 0.95f));
             CreateObject("NavMesh Baker", null).AddComponent<NavMeshRuntimeBaker>();
 
             // Wiring.
@@ -50,18 +51,20 @@ namespace ProjectRetrace.EditorTools
             director.keySpawner = keySpawner;
             director.spawnPoint = spawnPoint;
             director.sentry = sentry;
+            director.sentry2 = sentry2;
 
             trail.tracked = player.transform;
 
             keySpawner.key = keys;
 
             sentry.player = controller;
-            sentry.trail = trail;
+            sentry2.player = controller;
 
             hud.director = director;
             hud.interactor = interactor;
             hud.trail = trail;
             hud.sentry = sentry;
+            hud.sentry2 = sentry2;
             results.director = director;
 
             controller.cameraPivot = cameraTransform;
@@ -113,9 +116,9 @@ namespace ProjectRetrace.EditorTools
             return player;
         }
 
-        private static PatrolSentry BuildSentry()
+        private static PatrolSentry BuildSentry(string name, Color tint)
         {
-            var sentry = CreateObject("Sentry", null);
+            var sentry = CreateObject(name, null);
             sentry.transform.position = new Vector3(0f, 0.05f, 0f);
 
             var agent = sentry.AddComponent<UnityEngine.AI.NavMeshAgent>();
@@ -142,7 +145,9 @@ namespace ProjectRetrace.EditorTools
             // Starts inactive: the sentry exists only during the stealth phase, and an active
             // agent would try to place itself on a navmesh that may not be baked yet.
             sentry.SetActive(false);
-            return sentry.AddComponent<PatrolSentry>();
+            var patrol = sentry.AddComponent<PatrolSentry>();
+            patrol.bodyTint = tint;
+            return patrol;
         }
 
         private static KeyItem BuildKeys()

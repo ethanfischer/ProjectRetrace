@@ -27,7 +27,7 @@ namespace ProjectRetrace
     [DisallowMultipleComponent]
     public class BreadcrumbTrail : MonoBehaviour
     {
-        /// <summary>Ignore the first moments of phase 1 so the spawn freeze while input is
+        /// <summary>Ignore the first moments of each phase so the spawn freeze while input is
         /// re-enabled does not read as a deliberate stop.</summary>
         private const float DwellWarmupSeconds = 1f;
 
@@ -38,7 +38,8 @@ namespace ProjectRetrace
 
         private readonly List<Breadcrumb> _phase1 = new List<Breadcrumb>();
         private readonly List<Breadcrumb> _phase2 = new List<Breadcrumb>();
-        private readonly List<DwellPoint> _dwells = new List<DwellPoint>();
+        private readonly List<DwellPoint> _dwells1 = new List<DwellPoint>();
+        private readonly List<DwellPoint> _dwells2 = new List<DwellPoint>();
         private RetraceSettings _fallbackSettings;
         private TrailMode _mode = TrailMode.Idle;
         private Vector3 _lastPosition;
@@ -49,11 +50,12 @@ namespace ProjectRetrace
         private Vector3 _dwellAnchor;
         private float _dwellTime;
         private bool _dwellRecorded;
-        private float _phase1StartTime;
+        private float _phaseStartTime;
 
         public IReadOnlyList<Breadcrumb> Phase1Crumbs => _phase1;
         public IReadOnlyList<Breadcrumb> Phase2Crumbs => _phase2;
-        public IReadOnlyList<DwellPoint> DwellPoints => _dwells;
+        public IReadOnlyList<DwellPoint> Phase1Dwells => _dwells1;
+        public IReadOnlyList<DwellPoint> Phase2Dwells => _dwells2;
         public TrailMode Mode => _mode;
         public float Phase1Distance => _phase1Distance;
         public float Phase2Distance => _phase2Distance;
@@ -73,13 +75,14 @@ namespace ProjectRetrace
         {
             _phase1.Clear();
             _phase2.Clear();
-            _dwells.Clear();
+            _dwells1.Clear();
+            _dwells2.Clear();
             _phase1Distance = 0f;
             _phase2Distance = 0f;
             _distanceSinceLastCrumb = 0f;
             _dwellTime = 0f;
             _dwellRecorded = false;
-            _phase1StartTime = Time.time;
+            _phaseStartTime = Time.time;
             _mode = TrailMode.Phase1;
 
             if (tracked == null)
@@ -95,17 +98,24 @@ namespace ProjectRetrace
             DropCrumb(tracked.position);
         }
 
-        /// <summary>Phase 2: keep the search trail for the patrol, record the sneak trail.</summary>
+        /// <summary>Phase 2: keep the search trail for the patrol, record the sneak trail.
+        /// Clears any previous phase-2 recording, so after a caught-and-retry the trail holds
+        /// only the attempt that succeeded -- the one the next sentry will retrace.</summary>
         public void BeginPhase2()
         {
             _phase2.Clear();
+            _dwells2.Clear();
             _phase2Distance = 0f;
             _distanceSinceLastCrumb = 0f;
+            _dwellTime = 0f;
+            _dwellRecorded = false;
+            _phaseStartTime = Time.time;
             _mode = TrailMode.Phase2;
             if (tracked != null)
             {
                 _lastPosition = tracked.position;
                 _lastCrumbPosition = tracked.position;
+                _dwellAnchor = tracked.position;
                 DropCrumb(tracked.position);
             }
         }
@@ -133,12 +143,13 @@ namespace ProjectRetrace
             if (_mode == TrailMode.Phase1)
             {
                 _phase1Distance += travelled;
-                TrackDwell(position);
             }
             else
             {
                 _phase2Distance += travelled;
             }
+
+            TrackDwell(position);
 
             if (_distanceSinceLastCrumb >= EffectiveSettings.dotSpacing)
             {
@@ -149,7 +160,7 @@ namespace ProjectRetrace
 
         private void TrackDwell(Vector3 position)
         {
-            if (Time.time - _phase1StartTime < DwellWarmupSeconds)
+            if (Time.time - _phaseStartTime < DwellWarmupSeconds)
             {
                 _dwellAnchor = position;
                 return;
@@ -171,7 +182,9 @@ namespace ProjectRetrace
             _dwellTime += Time.deltaTime;
             if (_dwellTime < EffectiveSettings.dwellSeconds) return;
 
-            _dwells.Add(new DwellPoint(_dwellAnchor, tracked.eulerAngles.y, _phase1.Count - 1));
+            var crumbs = _mode == TrailMode.Phase1 ? _phase1 : _phase2;
+            var dwells = _mode == TrailMode.Phase1 ? _dwells1 : _dwells2;
+            dwells.Add(new DwellPoint(_dwellAnchor, tracked.eulerAngles.y, crumbs.Count - 1));
             _dwellRecorded = true;
         }
 
