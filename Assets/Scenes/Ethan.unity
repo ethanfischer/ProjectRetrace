@@ -12763,7 +12763,7 @@ MonoBehaviour:
   randomiseSeed: 1
   fixedSeed: 12345
   restartKey: 32
-  debugVisibleByDefault: 1
+  debugVisibleByDefault: 0
 --- !u!4 &791878633
 Transform:
   m_ObjectHideFlags: 0
