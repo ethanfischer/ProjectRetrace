@@ -13,8 +13,15 @@ MonoBehaviour:
   m_Name: RetraceSettings
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.RetraceSettings
   dotSpacing: 0.1
-  collectRadius: 0.3
-  endMode: 0
-  timeLimitMultiplier: 1.5
+  sentrySpeed: 1
+  chaseSpeed: 5.5
+  catchDistance: 1.1
+  stealthLives: 5
+  visionRange: 11
+  visionAngle: 80
+  graceSeconds: 3
+  dwellRadius: 0.9
+  dwellSeconds: 2
+  lookAroundSeconds: 3
   manualFinishKey: 2
   debugToggleKey: 96

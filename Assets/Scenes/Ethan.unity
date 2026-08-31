@@ -9543,7 +9543,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.3
-  m_Speed: 2
+  m_Speed: 1.5
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
@@ -9587,7 +9587,7 @@ MonoBehaviour:
   clip: {fileID: 8300000, guid: 021dcde34f2e240d285304c2aa1e7589, type: 3}
   strideMetres: 0.8
   volume: 0.8
-  pitchJitter: 0.1
+  pitchJitter: 0.2
 --- !u!1 &627953594
 GameObject:
   m_ObjectHideFlags: 0
@@ -12794,7 +12794,7 @@ MonoBehaviour:
   spawnPoint: {fileID: 39120961}
   sentry: {fileID: 625525231}
   sentry2: {fileID: 171248859}
-  settings: {fileID: 0}
+  settings: {fileID: 11400000, guid: 855b885ef7fc944b4b90face58fdabae, type: 2}
   transitionPause: 1.25
   randomiseSeed: 1
   fixedSeed: 12345
