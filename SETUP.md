@@ -17,12 +17,17 @@ committed blind:
 
 ## 2. First playable scene
 
-1. New scene. Add a floor (a scaled cube or plane) and a few boxes to walk around.
+1. Menu: **ProjectRetrace → Generate Test House** for a seeded two-story house with
+   furniture, or add your own floor and props.
 2. Menu: **ProjectRetrace → Setup Scene Systems**. This creates and wires everything:
-   the director, the trail, the player rig, a spawn point, the keys, and three candidate
-   hiding spots.
-3. Move the three `KeySpots` children somewhere interesting.
-4. Press Play.
+   the director, the trail, the player rig, a spawn point, the keys, the sentry, and the
+   runtime navmesh baker.
+3. Press Play.
+
+The navmesh bakes automatically from live colliders when play starts, so regenerating the
+house never leaves a stale bake behind. The sentry needs walkable geometry under a root
+named `TestHouse*` (or it falls back to baking every collider in the scene, with a
+warning).
 
 To make a drawer or door, put `DrawerInteractable` / `DoorInteractable` on any object with
 a collider. They capture their own closed state and restore it on the phase change, so
@@ -37,27 +42,39 @@ there is nothing to wire.
 | Space | jump |
 | E | interact |
 | **F3** | **toggle the debug trail view** |
-| Enter | end the retrace early (escape hatch while playtesting) |
+| Enter | instantly win the stealth phase (escape hatch while playtesting) |
 | R | run again (on the results screen) |
 
-## 4. How scoring works
+## 4. How the stealth rounds work
 
-Phase 1 drops a breadcrumb every `dotSpacing` metres **of travel**. Phase 2 collects those
-same marks by proximity. The score is:
+Every phase you play drops a breadcrumb every `dotSpacing` metres **of travel** and
+records a dwell point wherever you stand still for `dwellSeconds`. On each round
+transition:
 
-```
-coverage   = marks collected / marks total      // punishes shortcutting
-efficiency = clamp01(phase1Distance / phase2Distance)   // punishes wandering
-final      = coverage * efficiency
-```
+- The house resets to its opening state, and you return to spawn.
+- The keys are re-hidden at a **different** spot (seeds derived from the run seed, so a
+  fixed seed reproduces every hide).
+- A sentry spawns just ~2m along the recorded route it owns — round 2: one sentry on your
+  search route; round 3: that one plus a second sentry on the sneak route you took in
+  round 2 (specifically the attempt that succeeded). Each follows its route in the
+  direction you walked it, at its own constant speed, pausing for a fixed
+  `lookAroundSeconds` at each recorded dwell. At the route's end it stands for 3 seconds
+  fading out, then reappears at the start and fades back in — frozen and blind until
+  fully materialised, so the restart is never an ambush. You only ever see the trail you
+  are currently drawing; older trails are patrol scripts and stay hidden even with the
+  debug view on.
 
-Both terms are needed. Coverage alone can't detect wandering, because collecting marks is
-monotonic — sprinting through every room in the house collects *everything* and would
-otherwise score 100%. Efficiency is what closes that.
+Detection is cone + line-of-sight (head and chest checked separately, so furniture can
+hide you). Getting spotted ends the attempt — the short chase that follows is just
+presentation. You get `stealthLives` attempts (3 by default) **per round**; each catch
+resets the house and returns you to spawn, with the keys still hidden in the **same**
+spot for that round, so what you learned before getting caught stays true. Run out of
+attempts and the run is lost. A `graceSeconds` window after each attempt starts keeps the
+near-spawn patrol starts fair.
 
-Two useful properties fall out of this: walking the route at any speed scores the same
-(spacing is distance-based, not time-based), and standing still to look around costs
-nothing (only horizontal translation is accumulated).
+Two deliberate anti-exploit choices: the sentry never replays your *timing* (camping in a
+corner during phase 1 records one dwell, not a long pause), and pause length is fixed no
+matter how long you actually stood there.
 
 ## 5. Tuning
 
@@ -65,20 +82,14 @@ Everything lives on a `RetraceSettings` asset — right-click in the Project win
 **Create → ProjectRetrace → Retrace Settings**, then drop it on the director. Without one,
 sensible defaults are used, so a missing asset never blocks a playtest.
 
-`dotSpacing` (1.5m) and `collectRadius` (1.0m) *are* the difficulty curve. One finding from
-simulating the scoring before you tune it:
+The difficulty curve is `sentrySpeed` (2.8, below your 3.4 walk speed), `visionRange`
+(11m — indoors, walls do most of the limiting, but an open doorway doesn't) and
+`visionAngle` (80°). The floor cone the sentry projects is its true sightline: full range
+and angle, re-cut against the walls every frame. If the cone touches your feet, it can
+see you.
 
-> **Above ~1.5m of collect radius, coverage stops discriminating.** At 1.75m, a route
-> wobbling a full 1.8m off course still collects 100% of marks, so efficiency ends up
-> carrying the entire score. The default is 1.0m so that coverage actually grades the run.
-> Widen it only if playtests feel harsh — and know you're trading away the coverage signal
-> when you do.
-
-Rough guide at 1.5m spacing: radius 0.75m is strict, 1.0m grades honestly, 1.5m+ is
-forgiving-to-the-point-of-inert.
-
-`endMode` switches how phase 2 ends: `KeyPickup` (default), `TimeLimit` (phase-1 duration ×
-multiplier), or `Manual`.
+`dwellRadius` / `dwellSeconds` control what counts as a stop in phase 1;
+`lookAroundSeconds` is how long the sentry honours each one.
 
 ## 6. Working as a team
 
@@ -94,7 +105,8 @@ multiplier), or `Manual`.
 
 ## 7. Not built yet
 
-Art, audio, the house itself, menus, and audio/settings. Interactions also don't count
-toward the score — phase 2 only asks you to walk the route, not to reopen the same drawers.
-Adding that later means recording the interaction sequence in phase 1 and comparing it in
-phase 2; the hooks (`InteractableRegistry`, stable per-run reset) are already there.
+Art, audio, menus. The sentry has no hearing — sprinting right behind it is free, which
+is either a bug or a speedrun mechanic depending on taste. It also never deviates from
+the recorded route to investigate, and doors it walks through stay however you left them
+(it can't open or close anything). All three are candidate mechanics, not oversights to
+fix silently.

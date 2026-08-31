@@ -4,16 +4,20 @@ using UnityEngine;
 namespace ProjectRetrace
 {
     /// <summary>
-    /// Picks a hiding spot using the run seed, so phase 1 is not identical every playtest. The
-    /// seed is reused on the transition, so phase 2 is the same house you just searched. Spots
-    /// come exclusively from KeySpotMarkers in the scene (inside furniture props), discovered
-    /// at placement time -- no manual wiring.
+    /// Picks a hiding spot using the run seed, so phase 1 is not identical every playtest.
+    /// The transition calls this a second time with a derived seed and the phase-1 spot
+    /// excluded, so phase 2 hides the keys somewhere genuinely new. Spots come exclusively
+    /// from KeySpotMarkers in the scene (inside furniture props), discovered at placement
+    /// time -- no manual wiring.
     /// </summary>
     public class KeySpawner : MonoBehaviour
     {
         public KeyItem key;
 
-        public void PlaceKey(int seed)
+        /// <summary>The spot chosen by the most recent placement, for the transition to exclude.</summary>
+        public Transform LastSpot { get; private set; }
+
+        public void PlaceKey(int seed, Transform exclude = null)
         {
             if (key == null)
             {
@@ -22,15 +26,25 @@ namespace ProjectRetrace
             }
 
             var spots = ValidSpots();
+
+            // Only honour the exclusion when another spot exists; a one-spot scene reusing
+            // the phase-1 hiding place beats the keys not existing at all.
+            if (exclude != null && spots.Count > 1)
+            {
+                spots.Remove(exclude);
+            }
+
             if (spots.Count == 0)
             {
                 Debug.LogWarning("[KeySpawner] No KeySpotMarkers in the scene -- leaving the keys where they are.", this);
                 key.MakeAvailableAt(key.transform.position, key.transform.rotation);
+                LastSpot = null;
                 return;
             }
 
             var random = new System.Random(seed);
             var spot = spots[random.Next(spots.Count)];
+            LastSpot = spot;
 
             // Parented so the keys ride along when their hiding place moves (a sliding drawer,
             // a swinging lid). Restore still uses the world pose captured here, which is the
@@ -42,7 +56,7 @@ namespace ProjectRetrace
         private static List<Transform> ValidSpots()
         {
             // InstanceID sort keeps the order identical across the two PlaceKey calls in a run,
-            // so the same seed lands on the same spot in phase 2.
+            // so a fixed seed reproduces both hiding spots exactly.
             var markers = Object.FindObjectsByType<KeySpotMarker>(FindObjectsSortMode.InstanceID);
             var spots = new List<Transform>(markers.Length);
             for (var i = 0; i < markers.Length; i++)

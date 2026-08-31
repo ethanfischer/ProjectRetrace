@@ -40,6 +40,9 @@ namespace ProjectRetrace.EditorTools
             spawnPoint.position = new Vector3(0f, 0.05f, 0f);
 
             var keys = BuildKeys();
+            var sentry = BuildSentry("Sentry", Color.white);
+            var sentry2 = BuildSentry("Sentry B", new Color(0.75f, 0.55f, 0.95f));
+            CreateObject("NavMesh Baker", null).AddComponent<NavMeshRuntimeBaker>();
 
             // Wiring.
             director.player = controller;
@@ -47,14 +50,21 @@ namespace ProjectRetrace.EditorTools
             director.trail = trail;
             director.keySpawner = keySpawner;
             director.spawnPoint = spawnPoint;
+            director.sentry = sentry;
+            director.sentry2 = sentry2;
 
             trail.tracked = player.transform;
 
             keySpawner.key = keys;
 
+            sentry.player = controller;
+            sentry2.player = controller;
+
             hud.director = director;
             hud.interactor = interactor;
             hud.trail = trail;
+            hud.sentry = sentry;
+            hud.sentry2 = sentry2;
             results.director = director;
 
             controller.cameraPivot = cameraTransform;
@@ -82,6 +92,7 @@ namespace ProjectRetrace.EditorTools
 
             controller = player.AddComponent<FirstPersonController>();
             interactor = player.AddComponent<PlayerInteractor>();
+            AddFootsteps(player);
 
             // Reuse the scene's existing main camera when there is one, rather than leaving a
             // second camera behind to fight over rendering and audio listeners.
@@ -104,6 +115,49 @@ namespace ProjectRetrace.EditorTools
             }
 
             return player;
+        }
+
+        private static PatrolSentry BuildSentry(string name, Color tint)
+        {
+            var sentry = CreateObject(name, null);
+            sentry.transform.position = new Vector3(0f, 0.05f, 0f);
+
+            var agent = sentry.AddComponent<UnityEngine.AI.NavMeshAgent>();
+            agent.radius = 0.3f;
+            agent.height = 1.8f;
+
+            // Visual only: the collider comes off so the sentry's own capsule never blocks
+            // its line-of-sight raycasts or pollutes a whole-scene navmesh bake.
+            var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+            body.name = "Body";
+            Object.DestroyImmediate(body.GetComponent<CapsuleCollider>());
+            body.transform.SetParent(sentry.transform, false);
+            body.transform.localPosition = new Vector3(0f, 0.9f, 0f);
+            body.transform.localScale = new Vector3(0.6f, 0.9f, 0.6f);
+
+            // A nose so the facing reads from across a room, before the floor cone is visible.
+            var nose = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            nose.name = "Nose";
+            Object.DestroyImmediate(nose.GetComponent<BoxCollider>());
+            nose.transform.SetParent(sentry.transform, false);
+            nose.transform.localPosition = new Vector3(0f, 1.6f, 0.3f);
+            nose.transform.localScale = new Vector3(0.12f, 0.12f, 0.25f);
+
+            // Starts inactive: the sentry exists only during the stealth phase, and an active
+            // agent would try to place itself on a navmesh that may not be baked yet.
+            sentry.SetActive(false);
+            var patrol = sentry.AddComponent<PatrolSentry>();
+            patrol.bodyTint = tint;
+            patrol.spottedClip = AssetDatabase.LoadAssetAtPath<AudioClip>(
+                "Assets/ProjectRetrace/Audio/whistle.wav");
+            AddFootsteps(sentry);
+            return patrol;
+        }
+
+        private static void AddFootsteps(GameObject walker)
+        {
+            walker.AddComponent<FootstepEmitter>().clip = AssetDatabase.LoadAssetAtPath<AudioClip>(
+                "Assets/ProjectRetrace/Audio/footstep-tile.wav");
         }
 
         private static KeyItem BuildKeys()

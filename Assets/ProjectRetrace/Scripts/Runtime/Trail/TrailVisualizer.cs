@@ -4,11 +4,9 @@ using UnityEngine;
 namespace ProjectRetrace
 {
     /// <summary>
-    /// Draws both trails as flat floor arrows pointing the direction the player walked:
-    /// round 1 in one colour, round 2 in another. Hidden by default -- phase 2 is meant to be
-    /// blind -- and toggled with the debug key; the Results phase forces it on so the player
-    /// can walk the house comparing the two routes side by side. Uses real renderers rather
-    /// than editor gizmos so it also works in a build.
+    /// Debug view: draws both trails as flat floor arrows pointing the direction the player
+    /// walked, round 1 in one colour, round 2 in another, toggled with the debug key. Uses
+    /// real renderers rather than editor gizmos so it also works in a build.
     /// </summary>
     [RequireComponent(typeof(BreadcrumbTrail))]
     public class TrailVisualizer : MonoBehaviour
@@ -20,6 +18,8 @@ namespace ProjectRetrace
 
         private BreadcrumbTrail _trail;
         private Transform _root;
+        private Transform _round1Root;
+        private Transform _round2Root;
         private readonly List<Renderer> _round1Dots = new List<Renderer>();
         private readonly List<Renderer> _round2Dots = new List<Renderer>();
         private Material _round1Material;
@@ -34,6 +34,11 @@ namespace ProjectRetrace
             var rootObject = new GameObject("BreadcrumbArrows");
             _root = rootObject.transform;
             _root.SetParent(transform, false);
+
+            _round1Root = new GameObject("Round1").transform;
+            _round1Root.SetParent(_root, false);
+            _round2Root = new GameObject("Round2").transform;
+            _round2Root.SetParent(_root, false);
 
             _round1Material = CreateUnlitMaterial(round1Color);
             _round2Material = CreateUnlitMaterial(round2Color);
@@ -51,8 +56,8 @@ namespace ProjectRetrace
 
         private void LateUpdate()
         {
-            SyncArrows(_trail.Phase1Crumbs, _round1Dots, _round1Material);
-            SyncArrows(_trail.Phase2Crumbs, _round2Dots, _round2Material);
+            SyncArrows(_trail.Phase1Crumbs, _round1Dots, _round1Material, _round1Root);
+            SyncArrows(_trail.Phase2Crumbs, _round2Dots, _round2Material, _round2Root);
 
             var visible = GameDirector.DebugVisible;
             if (visible != _lastVisible)
@@ -60,10 +65,25 @@ namespace ProjectRetrace
                 _root.gameObject.SetActive(visible);
                 _lastVisible = visible;
             }
+
+            // Only the trail currently being drawn is ever shown: any older trail is some
+            // sentry's patrol script by now, and showing it would hand the player a minimap
+            // of the threat -- so this holds even with the debug view on.
+            var round1Visible = _trail.Mode == TrailMode.Phase1;
+            var round2Visible = _trail.Mode == TrailMode.Phase2;
+            if (_round1Root.gameObject.activeSelf != round1Visible)
+            {
+                _round1Root.gameObject.SetActive(round1Visible);
+            }
+
+            if (_round2Root.gameObject.activeSelf != round2Visible)
+            {
+                _round2Root.gameObject.SetActive(round2Visible);
+            }
         }
 
         /// <summary>Adds arrows for newly dropped crumbs, and clears when a run restarts.</summary>
-        private void SyncArrows(IReadOnlyList<Breadcrumb> crumbs, List<Renderer> arrows, Material material)
+        private void SyncArrows(IReadOnlyList<Breadcrumb> crumbs, List<Renderer> arrows, Material material, Transform parent)
         {
             if (crumbs.Count < arrows.Count)
             {
@@ -72,14 +92,14 @@ namespace ProjectRetrace
 
             for (var i = arrows.Count; i < crumbs.Count; i++)
             {
-                arrows.Add(CreateArrow(crumbs[i], material));
+                arrows.Add(CreateArrow(crumbs[i], material, parent));
             }
         }
 
-        private Renderer CreateArrow(Breadcrumb crumb, Material material)
+        private Renderer CreateArrow(Breadcrumb crumb, Material material, Transform parent)
         {
             var arrow = new GameObject("Crumb");
-            arrow.transform.SetParent(_root, false);
+            arrow.transform.SetParent(parent, false);
             arrow.transform.SetPositionAndRotation(
                 crumb.Position + Vector3.up * heightOffset,
                 Quaternion.LookRotation(crumb.Direction, Vector3.up));
@@ -137,7 +157,7 @@ namespace ProjectRetrace
         /// Built in code so the project carries no material assets to merge-conflict over.
         /// Falls back through URP -> built-in so it renders whichever pipeline is active.
         /// </summary>
-        private static Material CreateUnlitMaterial(Color color)
+        internal static Material CreateUnlitMaterial(Color color)
         {
             var shader = Shader.Find("Universal Render Pipeline/Unlit");
             if (shader == null) shader = Shader.Find("Unlit/Color");
