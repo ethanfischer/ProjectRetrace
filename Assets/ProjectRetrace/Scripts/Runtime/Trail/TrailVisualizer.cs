@@ -137,7 +137,7 @@ namespace ProjectRetrace
         /// Built in code so the project carries no material assets to merge-conflict over.
         /// Falls back through URP -> built-in so it renders whichever pipeline is active.
         /// </summary>
-        private static Material CreateUnlitMaterial(Color color)
+        internal static Material CreateUnlitMaterial(Color color)
         {
             var shader = Shader.Find("Universal Render Pipeline/Unlit");
             if (shader == null) shader = Shader.Find("Unlit/Color");

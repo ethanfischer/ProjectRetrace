@@ -11,24 +11,26 @@ namespace ProjectRetrace
     }
 
     /// <summary>
-    /// Records a breadcrumb trail for each phase: one while searching, a second while
-    /// retracing. The score is how well the two trails overlap (see RetraceScorer), so both
-    /// phases record the same way and neither trail is "the" trail.
+    /// Records a breadcrumb trail for each phase: the search route in phase 1, which becomes
+    /// the sentry's patrol route, and the sneak route in phase 2, kept only so the Results
+    /// view can show both side by side.
     ///
     /// Spacing is distance-based rather than time-based on purpose: sampling on a timer would
-    /// pile breadcrumbs up wherever the player stood still, which both distorts the score and
-    /// makes the debug view unreadable. Distance-based spacing also gives speed-independence
-    /// structurally -- walk the same route at half speed and you leave the same trail.
+    /// pile breadcrumbs up wherever the player stood still, and the patrol only needs the
+    /// route's geometry -- the sentry supplies its own pace.
     ///
-    /// Matching is incremental so the live score costs nothing per frame:
-    /// - A phase-1 crumb is Matched once the phase-2 player passes within collectRadius of it.
-    /// - A phase-2 crumb is Matched at drop time if it lands within collectRadius of any
-    ///   phase-1 crumb. Extra wandering therefore drops unmatched phase-2 crumbs, which is
-    ///   exactly what the precision term punishes.
+    /// Dwells are recorded separately, because standing still drops no crumbs and lingering
+    /// would otherwise be invisible to the sentry. One DwellPoint per stop no matter how long
+    /// the stop lasts: the sentry pauses for a fixed duration at playback, so camping in
+    /// phase 1 cannot stretch the patrol and soften phase 2.
     /// </summary>
     [DisallowMultipleComponent]
     public class BreadcrumbTrail : MonoBehaviour
     {
+        /// <summary>Ignore the first moments of phase 1 so the spawn freeze while input is
+        /// re-enabled does not read as a deliberate stop.</summary>
+        private const float DwellWarmupSeconds = 1f;
+
         [Tooltip("The player. Assigned by ProjectRetrace > Setup Scene Systems.")]
         public Transform tracked;
 
@@ -36,6 +38,7 @@ namespace ProjectRetrace
 
         private readonly List<Breadcrumb> _phase1 = new List<Breadcrumb>();
         private readonly List<Breadcrumb> _phase2 = new List<Breadcrumb>();
+        private readonly List<DwellPoint> _dwells = new List<DwellPoint>();
         private RetraceSettings _fallbackSettings;
         private TrailMode _mode = TrailMode.Idle;
         private Vector3 _lastPosition;
@@ -43,11 +46,14 @@ namespace ProjectRetrace
         private float _distanceSinceLastCrumb;
         private float _phase1Distance;
         private float _phase2Distance;
-        private int _matched1;
-        private int _matched2;
+        private Vector3 _dwellAnchor;
+        private float _dwellTime;
+        private bool _dwellRecorded;
+        private float _phase1StartTime;
 
         public IReadOnlyList<Breadcrumb> Phase1Crumbs => _phase1;
         public IReadOnlyList<Breadcrumb> Phase2Crumbs => _phase2;
+        public IReadOnlyList<DwellPoint> DwellPoints => _dwells;
         public TrailMode Mode => _mode;
         public float Phase1Distance => _phase1Distance;
         public float Phase2Distance => _phase2Distance;
@@ -67,11 +73,13 @@ namespace ProjectRetrace
         {
             _phase1.Clear();
             _phase2.Clear();
-            _matched1 = 0;
-            _matched2 = 0;
+            _dwells.Clear();
             _phase1Distance = 0f;
             _phase2Distance = 0f;
             _distanceSinceLastCrumb = 0f;
+            _dwellTime = 0f;
+            _dwellRecorded = false;
+            _phase1StartTime = Time.time;
             _mode = TrailMode.Phase1;
 
             if (tracked == null)
@@ -83,14 +91,14 @@ namespace ProjectRetrace
 
             _lastPosition = tracked.position;
             _lastCrumbPosition = tracked.position;
+            _dwellAnchor = tracked.position;
             DropCrumb(tracked.position);
         }
 
-        /// <summary>Phase 2: keep the search trail, start recording the retrace trail.</summary>
+        /// <summary>Phase 2: keep the search trail for the patrol, record the sneak trail.</summary>
         public void BeginPhase2()
         {
             _phase2.Clear();
-            _matched2 = 0;
             _phase2Distance = 0f;
             _distanceSinceLastCrumb = 0f;
             _mode = TrailMode.Phase2;
@@ -114,8 +122,8 @@ namespace ProjectRetrace
             var position = tracked.position;
 
             // Accumulate on the horizontal plane only: vertical movement is dominated by
-            // jumping, and letting jump-spam inflate distance would tank the score unfairly.
-            // Stairs still accumulate, because climbing them also moves you in XZ.
+            // jumping, and jump-spam should not shorten the gap to the next crumb. Stairs
+            // still accumulate, because climbing them also moves you in XZ.
             var delta = position - _lastPosition;
             delta.y = 0f;
             var travelled = delta.magnitude;
@@ -125,11 +133,11 @@ namespace ProjectRetrace
             if (_mode == TrailMode.Phase1)
             {
                 _phase1Distance += travelled;
+                TrackDwell(position);
             }
             else
             {
                 _phase2Distance += travelled;
-                MatchPhase1Nearby(position);
             }
 
             if (_distanceSinceLastCrumb >= EffectiveSettings.dotSpacing)
@@ -137,6 +145,34 @@ namespace ProjectRetrace
                 DropCrumb(position);
                 _distanceSinceLastCrumb = 0f;
             }
+        }
+
+        private void TrackDwell(Vector3 position)
+        {
+            if (Time.time - _phase1StartTime < DwellWarmupSeconds)
+            {
+                _dwellAnchor = position;
+                return;
+            }
+
+            var offset = position - _dwellAnchor;
+            offset.y = 0f;
+            var radius = EffectiveSettings.dwellRadius;
+            if (offset.sqrMagnitude > radius * radius)
+            {
+                _dwellAnchor = position;
+                _dwellTime = 0f;
+                _dwellRecorded = false;
+                return;
+            }
+
+            if (_dwellRecorded) return;
+
+            _dwellTime += Time.deltaTime;
+            if (_dwellTime < EffectiveSettings.dwellSeconds) return;
+
+            _dwells.Add(new DwellPoint(_dwellAnchor, tracked.eulerAngles.y, _phase1.Count - 1));
+            _dwellRecorded = true;
         }
 
         private void DropCrumb(Vector3 position)
@@ -155,38 +191,10 @@ namespace ProjectRetrace
             if (_mode == TrailMode.Phase1)
             {
                 _phase1.Add(crumb);
-                return;
             }
-
-            // A retrace crumb on the original path is a match; off it, wandering.
-            var radiusSquared = RadiusSquared();
-            for (var i = 0; i < _phase1.Count; i++)
+            else
             {
-                if ((_phase1[i].Position - position).sqrMagnitude > radiusSquared) continue;
-                crumb.Matched = true;
-                _matched2++;
-                break;
-            }
-
-            _phase2.Add(crumb);
-        }
-
-        /// <summary>
-        /// Plain loop rather than trigger colliders: a few hundred sqrMagnitude checks per
-        /// frame costs nothing, and it avoids rigidbody / layer / physics-matrix setup.
-        /// The check is full 3D so the floor above cannot match the floor below.
-        /// </summary>
-        private void MatchPhase1Nearby(Vector3 position)
-        {
-            var radiusSquared = RadiusSquared();
-            for (var i = 0; i < _phase1.Count; i++)
-            {
-                var crumb = _phase1[i];
-                if (crumb.Matched) continue;
-                if ((crumb.Position - position).sqrMagnitude > radiusSquared) continue;
-
-                crumb.Matched = true;
-                _matched1++;
+                _phase2.Add(crumb);
             }
         }
 
@@ -194,21 +202,6 @@ namespace ProjectRetrace
         {
             vector.y = 0f;
             return vector.sqrMagnitude > 0.0001f ? vector.normalized : Vector3.forward;
-        }
-
-        private float RadiusSquared()
-        {
-            var radius = EffectiveSettings.collectRadius;
-            return radius * radius;
-        }
-
-        /// <summary>Live score during phase 2, and the final score once stopped.</summary>
-        public ScoreResult BuildScore()
-        {
-            var result = RetraceScorer.Score(_matched1, _phase1.Count, _matched2, _phase2.Count);
-            result.Phase1Distance = _phase1Distance;
-            result.Phase2Distance = _phase2Distance;
-            return result;
         }
     }
 }

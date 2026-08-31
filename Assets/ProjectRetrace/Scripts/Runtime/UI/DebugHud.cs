@@ -12,6 +12,7 @@ namespace ProjectRetrace
         public GameDirector director;
         public PlayerInteractor interactor;
         public BreadcrumbTrail trail;
+        public PatrolSentry sentry;
 
         private KeyItem _key;
 
@@ -128,19 +129,13 @@ namespace ProjectRetrace
                     banner = "Find your keys";
                     break;
                 case GamePhase.Transition:
-                    banner = "Now retrace your steps...";
+                    banner = "Someone's coming to retrace your steps...";
                     break;
-                case GamePhase.Retrace:
-                    banner = "Retrace your route";
+                case GamePhase.Stealth:
+                    banner = "Steal the keys back. Don't get seen.";
                     break;
                 default:
                     return;
-            }
-
-            var remaining = director.RetraceTimeRemaining;
-            if (remaining >= 0f)
-            {
-                banner += string.Format("   {0:0}s", remaining);
             }
 
             GUI.Label(new Rect(0f, 24f, HudScale.Width, 30f), banner, _centered);
@@ -150,23 +145,34 @@ namespace ProjectRetrace
         {
             if (trail == null) return;
 
-            var score = trail.BuildScore();
             var settings = trail.EffectiveSettings;
 
-            var box = new Rect(12f, 12f, 300f, 210f);
+            var box = new Rect(12f, 12f, 300f, 190f);
             GUI.Box(box, GUIContent.none);
 
             GUILayout.BeginArea(new Rect(box.x + 10f, box.y + 8f, box.width - 20f, box.height - 16f));
             GUILayout.Label("<b>DEBUG</b>  (" + settings.debugToggleKey + " to hide)", _label);
             GUILayout.Label("Phase: " + (director != null ? director.Phase.ToString() : "-"), _label);
-            GUILayout.Label(string.Format("Overlap: {0} / {1} of round 1", score.Matched1, score.Total1), _label);
-            GUILayout.Label(string.Format("On-path: {0} / {1} of round 2", score.Matched2, score.Total2), _label);
-            GUILayout.Label(string.Format("Coverage: {0:P0}  Precision: {1:P0}", score.Coverage, score.Precision), _label);
-            GUILayout.Label(string.Format("Distance: {0:0.0}m then {1:0.0}m", score.Phase1Distance, score.Phase2Distance), _label);
-            GUILayout.Label(string.Format("Live score: {0}%", score.Percent), _label);
-            GUILayout.Label(string.Format("spacing {0:0.00}m / radius {1:0.00}m", settings.dotSpacing, settings.collectRadius), _label);
+            GUILayout.Label(string.Format("Route: {0} crumbs, {1} stops, {2:0.0}m",
+                trail.Phase1Crumbs.Count, trail.DwellPoints.Count, trail.Phase1Distance), _label);
+            GUILayout.Label(string.Format("Sneak: {0} crumbs, {1:0.0}m",
+                trail.Phase2Crumbs.Count, trail.Phase2Distance), _label);
+            GUILayout.Label(SentryStatusLine(), _label);
+            GUILayout.Label(string.Format("spacing {0:0.00}m", settings.dotSpacing), _label);
             GUILayout.Label(KeyStatusLine(), _label);
             GUILayout.EndArea();
+        }
+
+        private string SentryStatusLine()
+        {
+            if (sentry == null) return "Sentry: NOT WIRED";
+            if (sentry.State == SentryState.Inactive) return "Sentry: inactive";
+
+            var distance = sentry.player != null
+                ? Vector3.Distance(sentry.transform.position, sentry.player.transform.position)
+                : -1f;
+            return string.Format("Sentry: {0} -> crumb {1}, {2:0.0}m away",
+                sentry.State, sentry.TargetIndex, distance);
         }
     }
 }

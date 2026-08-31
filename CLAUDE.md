@@ -1,8 +1,9 @@
 ## Project
 
-Unity 6 (`6000.3.17f1`) URP first-person game. Two phases: search a house for keys while the
-game silently drops breadcrumbs behind you, then walk the same house again blind to the breadcrumbs and collect
-them. Score is coverage times efficiency. See [README.md](README.md) for the pitch
+Unity 6 (`6000.3.17f1`) URP first-person stealth game. Two phases: search a house for keys
+while the game silently records your route, then steal the keys back — re-hidden somewhere
+new — while a sentry NPC retraces your phase-1 route and catches you on sight. Win by
+grabbing the keys unseen; no score. See [README.md](README.md) for the pitch
 and [SETUP.md](SETUP.md) for scene setup, controls, and tuning guidance.
 
 ## Commands
@@ -62,21 +63,29 @@ Two assemblies, both under `Assets/ProjectRetrace/Scripts/`:
 `ProjectRetrace.Runtime` (namespace `ProjectRetrace`) and `ProjectRetrace.Editor`
 (namespace `ProjectRetrace.EditorTools`, editor-only, references Runtime).
 
-`GameDirector` owns the run as a state machine over `GamePhase` (Search, Transition, Retrace,
-Results), exposing a static `Instance`. The Transition step is the
-load-bearing one: it calls `InteractableRegistry.RestoreAll()`, re-places the keys from the same
-run seed, and teleports the player to the identical spawn transform. If phase 2 is not exactly
-the same house, the score means nothing. `StartRun` restores *before* capturing on purpose, so a
-mid-run restart doesn't bake open drawers in as the new initial state.
+`GameDirector` owns the run as a state machine over `GamePhase` (Search, Transition, Stealth,
+Results), exposing a static `Instance`. The Transition step is the load-bearing one: it calls
+`InteractableRegistry.RestoreAll()`, then re-places the keys with a seed *derived* from the run
+seed (excluding the phase-1 spot — placement must come after RestoreAll, which snaps the keys
+back to their captured spot), teleports the player to the identical spawn transform, and starts
+the sentry. Same house, new hiding spot: that pairing is the game. `StartRun` restores *before*
+capturing on purpose, so a mid-run restart doesn't bake open drawers in as the new initial
+state. Getting spotted routes through `OnPlayerSpotted` (freezes input — the run is decided) and
+`OnPlayerCaught` (ends it); both are sentry-driven.
 
-`BreadcrumbTrail` samples by distance travelled, not by time, and only on the XZ plane. That
-makes the score speed-independent and standing still free by construction, and stops jump-spam
-inflating distance. It places crumbs in phase 1, then collects the same list by proximity in
-phase 2 with a plain O(n) sqrMagnitude loop. No trigger colliders or physics layers.
+`BreadcrumbTrail` samples by distance travelled, not by time, and only on the XZ plane, so the
+patrol route captures geometry, not pacing, and jump-spam can't distort it. Standing still drops
+no crumbs, so the trail also records `DwellPoint`s (position + facing yaw) wherever the player
+lingers — one per stop no matter how long, which is deliberate anti-exploit design (see below).
 
-`RetraceScorer` is a pure static class: coverage times efficiency. Both terms are required
-because collecting is monotonic, so coverage alone can't detect wandering. It is Unity-free
-apart from `Mathf`, which makes it the piece worth unit-testing directly.
+`PatrolSentry` (`Runtime/AI/`) is the whole NPC on one component: NavMeshAgent patrol over the
+phase-1 crumbs in the player's direction (looping back to crumb 0 at the end), a fixed-length
+look-around at each dwell point, cone + line-of-sight detection (head and chest samples, the
+RaycastAll-skip-own-root idiom from `PlayerInteractor` — no tags or layers), and a time-capped
+chase that only sells the catch. It deliberately never replays the player's *timing*: pace and
+pause lengths are its own, or players would camp in phase 1 to pad the patrol and soften
+phase 2. `NavMeshRuntimeBaker` bakes from live colliders in `Awake` (agent radius 0.3 to fit
+the generated 1.1m doorways) — no baked asset to go stale when the test house regenerates.
 
 `InteractableRegistry` is a static list that self-populates from `InteractableBase.OnEnable`, so
 the director resets the whole house without holding scene references to individual props. It
@@ -88,7 +97,8 @@ Domain Reload is off.
 asset never blocks a playtest. Follow that pattern rather than dereferencing `settings` directly.
 
 `SceneSetupMenu` (menu: ProjectRetrace > Setup Scene Systems) builds and wires the entire rig
-into the open scene. When you add a system that needs scene wiring, wire it there too, or it
+into the open scene, including the sentry (inactive until the stealth phase) and the navmesh
+baker. When you add a system that needs scene wiring, wire it there too, or it
 silently won't exist in anyone else's scene. Related editor menus: ProjectRetrace > Furniture
 builds searchable props (hiding spots auto-register via `KeySpotMarker`), and
 ProjectRetrace > Generate Test House builds a seeded two-story house with furniture scattered.

@@ -1,19 +1,21 @@
 # ProjectRetrace
 
-A first-person game made in Unity. First you search a house for your keys. Then a second
-phase where you start over and try to retrace your steps as closely as possible.
+A first-person stealth game made in Unity. First you search a house for your keys. Then
+someone else walks in and retraces your every step — and you have to steal the keys back
+without being seen.
 
-**Phase 1 — Search.** Hunt the house. While moving, the game silently drops
-breadcrumbs behind you.
+**Phase 1 — Search.** Hunt the house. While moving, the game silently records the route
+you take, including everywhere you stop to look around.
 
-**Phase 2 — Retrace.** The house resets to exactly how it started, the keys go back to the
-same hiding spot, and you walk it again. You collect those hidden breadcrumbs by passing
-near them.
+**Phase 2 — Steal.** The house resets to exactly how it started, but the keys are hidden
+somewhere **new** — and a sentry now patrols your phase-1 route, pausing to look around
+wherever you did. Find the keys and grab them without entering its vision. Get spotted
+and the run is over.
 
-**Score.** `coverage × efficiency`: the fraction of marks you hit, times how much extra
-ground you covered getting there. Shortcut the route and coverage drops; wander the whole
-house hoovering up marks and efficiency drops. You need both.
+The twist: you know the patrol perfectly, because it's your own route. Search the whole
+house in phase 1 and the sentry is spread thin over a long loop; beeline to the keys and
+it camps a short, tight circuit. How you search *is* the difficulty you inherit.
 
-Press **F3** to see the trail — green marks were hit, red were missed.
+Press **F3** to see both routes — blue is the patrol, orange is your sneak route.
 
 See [SETUP.md](SETUP.md) to get running.
