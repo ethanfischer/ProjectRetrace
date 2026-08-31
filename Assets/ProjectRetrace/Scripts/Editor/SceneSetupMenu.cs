@@ -92,6 +92,7 @@ namespace ProjectRetrace.EditorTools
 
             controller = player.AddComponent<FirstPersonController>();
             interactor = player.AddComponent<PlayerInteractor>();
+            AddFootsteps(player);
 
             // Reuse the scene's existing main camera when there is one, rather than leaving a
             // second camera behind to fight over rendering and audio listeners.
@@ -149,7 +150,14 @@ namespace ProjectRetrace.EditorTools
             patrol.bodyTint = tint;
             patrol.spottedClip = AssetDatabase.LoadAssetAtPath<AudioClip>(
                 "Assets/ProjectRetrace/Audio/whistle.wav");
+            AddFootsteps(sentry);
             return patrol;
+        }
+
+        private static void AddFootsteps(GameObject walker)
+        {
+            walker.AddComponent<FootstepEmitter>().clip = AssetDatabase.LoadAssetAtPath<AudioClip>(
+                "Assets/ProjectRetrace/Audio/footstep-tile.wav");
         }
 
         private static KeyItem BuildKeys()

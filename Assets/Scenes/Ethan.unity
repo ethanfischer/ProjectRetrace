@@ -3657,6 +3657,7 @@ GameObject:
   - component: {fileID: 171248861}
   - component: {fileID: 171248860}
   - component: {fileID: 171248859}
+  - component: {fileID: 171248862}
   m_Layer: 0
   m_Name: Sentry B
   m_TagString: Untagged
@@ -3719,6 +3720,22 @@ Transform:
   - {fileID: 596869746}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &171248862
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 171248858}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93e423949e02d47468d2398d258f335c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.FootstepEmitter
+  clip: {fileID: 8300000, guid: 021dcde34f2e240d285304c2aa1e7589, type: 3}
+  strideMetres: 0.8
+  volume: 0.8
+  pitchJitter: 0.1
 --- !u!1 &173563931
 GameObject:
   m_ObjectHideFlags: 0
@@ -9492,6 +9509,7 @@ GameObject:
   - component: {fileID: 625525233}
   - component: {fileID: 625525232}
   - component: {fileID: 625525231}
+  - component: {fileID: 625525234}
   m_Layer: 0
   m_Name: Sentry
   m_TagString: Untagged
@@ -9554,6 +9572,22 @@ Transform:
   - {fileID: 529098258}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &625525234
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 625525230}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93e423949e02d47468d2398d258f335c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.FootstepEmitter
+  clip: {fileID: 8300000, guid: 021dcde34f2e240d285304c2aa1e7589, type: 3}
+  strideMetres: 0.8
+  volume: 0.8
+  pitchJitter: 0.1
 --- !u!1 &627953594
 GameObject:
   m_ObjectHideFlags: 0
@@ -23353,6 +23387,7 @@ GameObject:
   - component: {fileID: 1455007737}
   - component: {fileID: 1455007735}
   - component: {fileID: 1455007736}
+  - component: {fileID: 1455007738}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -23440,6 +23475,22 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0.9, z: 0}
+--- !u!114 &1455007738
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1455007733}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93e423949e02d47468d2398d258f335c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.FootstepEmitter
+  clip: {fileID: 8300000, guid: 021dcde34f2e240d285304c2aa1e7589, type: 3}
+  strideMetres: 0.8
+  volume: 0.8
+  pitchJitter: 0.1
 --- !u!1 &1461584137
 GameObject:
   m_ObjectHideFlags: 0
