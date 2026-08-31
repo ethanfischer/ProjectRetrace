@@ -23488,7 +23488,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.FootstepEmitter
   clip: {fileID: 8300000, guid: 021dcde34f2e240d285304c2aa1e7589, type: 3}
-  strideMetres: 0.8
+  strideMetres: 1.5
   volume: 0.8
   pitchJitter: 0.1
 --- !u!1 &1461584137
