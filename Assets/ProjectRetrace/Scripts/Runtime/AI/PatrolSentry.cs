@@ -40,9 +40,7 @@ namespace ProjectRetrace
         private const float LookSweepDegrees = 45f;
         private const float LookTurnDegreesPerSecond = 120f;
 
-        /// <summary>The drawn cone is a facing indicator, not a range ruler -- at full
-        /// visionRange it would carpet whole rooms and read as noise.</summary>
-        private const float ConeVisualMetres = 3f;
+        private const int ConeSegments = 24;
 
         private static readonly float[] SampleHeights = { 1.6f, 1.0f };
 
@@ -62,6 +60,8 @@ namespace ProjectRetrace
         private MeshFilter _coneFilter;
         private Renderer _coneRenderer;
         private Material _coneMaterial;
+        private Mesh _coneMesh;
+        private Vector3[] _coneVertices;
 
         public SentryState State { get; private set; }
         public int TargetIndex => _targetIndex;
@@ -85,7 +85,7 @@ namespace ProjectRetrace
         private void OnDestroy()
         {
             if (_coneMaterial != null) Destroy(_coneMaterial);
-            if (_coneFilter != null && _coneFilter.sharedMesh != null) Destroy(_coneFilter.sharedMesh);
+            if (_coneMesh != null) Destroy(_coneMesh);
         }
 
         /// <summary>Called by GameDirector when the stealth phase starts.</summary>
@@ -130,8 +130,8 @@ namespace ProjectRetrace
             AdvanceWaypoint(crumbs);
 
             _graceUntil = Time.time + config.graceSeconds;
-            RebuildConeMesh(config);
             SetConeAlarmed(false);
+            UpdateConeVisual();
             State = SentryState.Patrolling;
         }
 
@@ -150,6 +150,8 @@ namespace ProjectRetrace
         private void Update()
         {
             if (State == SentryState.Inactive) return;
+
+            UpdateConeVisual();
 
             if (State == SentryState.Chasing)
             {
@@ -322,7 +324,7 @@ namespace ProjectRetrace
         }
 
         /// <summary>
-        /// A flat fan on the floor showing where the sentry is looking. In a primitives-only
+        /// A flat fan on the floor showing where the sentry can see. In a primitives-only
         /// game this is the player's only readable tell, so it is always on during stealth.
         /// </summary>
         private void BuildConeVisual()
@@ -337,40 +339,57 @@ namespace ProjectRetrace
             _coneRenderer.receiveShadows = false;
             _coneMaterial = TrailVisualizer.CreateUnlitMaterial(Color.white);
             _coneRenderer.sharedMaterial = _coneMaterial;
-        }
 
-        private void RebuildConeMesh(RetraceSettings config)
-        {
-            if (_coneFilter.sharedMesh != null) Destroy(_coneFilter.sharedMesh);
+            _coneMesh = new Mesh { name = "VisionCone" };
+            _coneMesh.MarkDynamic();
+            _coneVertices = new Vector3[ConeSegments + 2];
+            _coneMesh.vertices = _coneVertices;
 
-            var radius = Mathf.Min(ConeVisualMetres, config.visionRange);
-            var halfAngle = config.visionAngle * 0.5f;
-            const int segments = 12;
-
-            var mesh = new Mesh { name = "VisionCone" };
-            var vertices = new Vector3[segments + 2];
-            vertices[0] = Vector3.zero;
-            for (var i = 0; i <= segments; i++)
-            {
-                var angle = Mathf.Lerp(-halfAngle, halfAngle, i / (float)segments) * Mathf.Deg2Rad;
-                vertices[i + 1] = new Vector3(Mathf.Sin(angle), 0f, Mathf.Cos(angle)) * radius;
-            }
-
-            var triangles = new int[segments * 3];
-            for (var i = 0; i < segments; i++)
+            var triangles = new int[ConeSegments * 3];
+            for (var i = 0; i < ConeSegments; i++)
             {
                 triangles[i * 3] = 0;
                 triangles[i * 3 + 1] = i + 1;
                 triangles[i * 3 + 2] = i + 2;
             }
 
-            mesh.vertices = vertices;
-            mesh.triangles = triangles;
-            var normals = new Vector3[vertices.Length];
+            _coneMesh.triangles = triangles;
+            var normals = new Vector3[_coneVertices.Length];
             for (var i = 0; i < normals.Length; i++) normals[i] = Vector3.up;
-            mesh.normals = normals;
-            mesh.RecalculateBounds();
-            _coneFilter.sharedMesh = mesh;
+            _coneMesh.normals = normals;
+            _coneFilter.sharedMesh = _coneMesh;
+        }
+
+        /// <summary>
+        /// The fan is re-cut against the walls every frame, at the sentry's true range and
+        /// angle, so the floor shows its actual sightline. A fixed-shape cone lies in one of
+        /// two directions: drawn short it reads safe where the sentry can see you, drawn long
+        /// it pokes through walls and reads seen where you are hidden.
+        /// </summary>
+        private void UpdateConeVisual()
+        {
+            var config = EffectiveSettings;
+            var eye = transform.position + Vector3.up * EyeHeight;
+            var halfAngle = config.visionAngle * 0.5f;
+
+            _coneVertices[0] = Vector3.zero;
+            for (var i = 0; i <= ConeSegments; i++)
+            {
+                var angle = Mathf.Lerp(-halfAngle, halfAngle, i / (float)ConeSegments);
+                var localDirection = Quaternion.Euler(0f, angle, 0f) * Vector3.forward;
+                var worldDirection = transform.rotation * localDirection;
+
+                var distance = config.visionRange;
+                if (Physics.Raycast(eye, worldDirection, out var hit, config.visionRange, ~0, QueryTriggerInteraction.Ignore))
+                {
+                    distance = hit.distance;
+                }
+
+                _coneVertices[i + 1] = localDirection * distance;
+            }
+
+            _coneMesh.vertices = _coneVertices;
+            _coneMesh.RecalculateBounds();
         }
 
         private void SetConeAlarmed(bool alarmed)

@@ -16,6 +16,7 @@ The twist: you know the patrol perfectly, because it's your own route. Search th
 house in phase 1 and the sentry is spread thin over a long loop; beeline to the keys and
 it camps a short, tight circuit. How you search *is* the difficulty you inherit.
 
-Press **F3** to see both routes — blue is the patrol, orange is your sneak route.
+The sentry projects its vision cone on the floor — the cone is its true sightline, cut
+off by walls, so trust it. **F3** toggles a debug view of the recorded trails.
 
 See [SETUP.md](SETUP.md) to get running.

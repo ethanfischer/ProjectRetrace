@@ -3,9 +3,8 @@ using UnityEngine;
 namespace ProjectRetrace
 {
     /// <summary>
-    /// End-of-run banner, compact because Results is a walkable phase: input stays on and the
-    /// debug trail view is forced visible, so the player can wander the house comparing the
-    /// sentry's patrol route with the sneak route they actually took.
+    /// End-of-run banner, compact because Results is a walkable phase: input stays on, so
+    /// the outcome reads as a banner over the world rather than a hard cut to a menu.
     /// </summary>
     public class ResultsScreen : MonoBehaviour
     {
@@ -26,7 +25,7 @@ namespace ProjectRetrace
             HudScale.Apply();
             EnsureStyles();
 
-            var panel = new Rect(HudScale.Width * 0.5f - 260f, 12f, 520f, 92f);
+            var panel = new Rect(HudScale.Width * 0.5f - 260f, 12f, 520f, 72f);
             GUI.Box(panel, GUIContent.none);
 
             GUILayout.BeginArea(new Rect(panel.x + 20f, panel.y + 10f, panel.width - 40f, panel.height - 20f));
@@ -35,7 +34,6 @@ namespace ProjectRetrace
                 ? new Color(0.5f, 1f, 0.55f)
                 : new Color(1f, 0.35f, 0.3f);
             GUILayout.Label(director.Won ? "YOU GOT AWAY WITH IT" : "CAUGHT", _title);
-            GUILayout.Label("Walk around and compare:  blue = the patrol, orange = your sneak route.", _line);
             GUILayout.Label("[R] run again", _line);
 
             GUILayout.EndArea();

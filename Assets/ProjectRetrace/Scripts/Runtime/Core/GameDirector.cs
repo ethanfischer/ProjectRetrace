@@ -214,11 +214,10 @@ namespace ProjectRetrace
             if (trail != null) trail.Stop();
             if (sentry != null) sentry.StopPatrol();
 
-            // Input stays enabled either way: Results is a walkable view where the player
-            // wanders the house comparing the patrol route with their own sneak route.
+            // Input stays enabled either way, so the end of a run is a banner over the
+            // world rather than a hard cut.
             SetPlayerInputEnabled(true);
             SetPhase(GamePhase.Results);
-            DebugVisible = true;
         }
 
         private static bool WasPressedThisFrame(Key key)

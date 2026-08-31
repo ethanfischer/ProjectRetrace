@@ -57,7 +57,7 @@ point wherever you stand still for `dwellSeconds`. On the transition:
   walking away — and follows it in the direction you did, at its own constant speed,
   pausing for a fixed `lookAroundSeconds` at each recorded dwell. When it reaches the
   route's end it cuts straight back to the start and loops. Your recorded route (the blue
-  arrows) is hidden during the stealth phase; it returns on the results screen.
+  debug arrows) is never shown during the stealth phase, even with the debug view on.
 
 Detection is cone + line-of-sight (head and chest checked separately, so furniture can
 hide you). Getting spotted ends the attempt — the short chase that follows is just
@@ -77,9 +77,10 @@ Everything lives on a `RetraceSettings` asset — right-click in the Project win
 sensible defaults are used, so a missing asset never blocks a playtest.
 
 The difficulty curve is `sentrySpeed` (2.8, below your 3.4 walk speed), `visionRange`
-(11m — indoors, walls do most of the limiting) and `visionAngle` (80°). The floor cone the
-sentry projects is deliberately drawn short: it's a facing indicator, not a range ruler,
-so don't assume you're safe just outside it.
+(11m — indoors, walls do most of the limiting, but an open doorway doesn't) and
+`visionAngle` (80°). The floor cone the sentry projects is its true sightline: full range
+and angle, re-cut against the walls every frame. If the cone touches your feet, it can
+see you.
 
 `dwellRadius` / `dwellSeconds` control what counts as a stop in phase 1;
 `lookAroundSeconds` is how long the sentry honours each one.

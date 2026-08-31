@@ -4,11 +4,9 @@ using UnityEngine;
 namespace ProjectRetrace
 {
     /// <summary>
-    /// Draws both trails as flat floor arrows pointing the direction the player walked:
-    /// round 1 in one colour, round 2 in another. Hidden by default -- phase 2 is meant to be
-    /// blind -- and toggled with the debug key; the Results phase forces it on so the player
-    /// can walk the house comparing the two routes side by side. Uses real renderers rather
-    /// than editor gizmos so it also works in a build.
+    /// Debug view: draws both trails as flat floor arrows pointing the direction the player
+    /// walked, round 1 in one colour, round 2 in another, toggled with the debug key. Uses
+    /// real renderers rather than editor gizmos so it also works in a build.
     /// </summary>
     [RequireComponent(typeof(BreadcrumbTrail))]
     public class TrailVisualizer : MonoBehaviour
@@ -69,13 +67,20 @@ namespace ProjectRetrace
             }
 
             // The round-1 trail is the sentry's script: showing it during the stealth phase
-            // would hand the player a minimap of the threat. It returns in Results, where
-            // comparing the patrol with the sneak route is the whole point of the walkabout.
+            // would hand the player a minimap of the threat, so it stays hidden from the
+            // transition onward even with the debug view on. Results shows neither trail --
+            // the run is over and the arrows would just be clutter over the banner.
             var phase = GameDirector.Instance != null ? GameDirector.Instance.Phase : GamePhase.Search;
-            var round1Visible = phase != GamePhase.Transition && phase != GamePhase.Stealth;
+            var round1Visible = phase == GamePhase.Search;
+            var round2Visible = phase != GamePhase.Results;
             if (_round1Root.gameObject.activeSelf != round1Visible)
             {
                 _round1Root.gameObject.SetActive(round1Visible);
+            }
+
+            if (_round2Root.gameObject.activeSelf != round2Visible)
+            {
+                _round2Root.gameObject.SetActive(round2Visible);
             }
         }
 
