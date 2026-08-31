@@ -58,9 +58,11 @@ transition:
   search route; round 3: that one plus a second sentry on the sneak route you took in
   round 2 (specifically the attempt that succeeded). Each follows its route in the
   direction you walked it, at its own constant speed, pausing for a fixed
-  `lookAroundSeconds` at each recorded dwell, and loops back to the route's start from
-  the end. You only ever see the trail you are currently drawing; older trails are patrol
-  scripts and stay hidden even with the debug view on.
+  `lookAroundSeconds` at each recorded dwell. At the route's end it stands for 3 seconds
+  fading out, then reappears at the start and fades back in — frozen and blind until
+  fully materialised, so the restart is never an ambush. You only ever see the trail you
+  are currently drawing; older trails are patrol scripts and stay hidden even with the
+  debug view on.
 
 Detection is cone + line-of-sight (head and chest checked separately, so furniture can
 hide you). Getting spotted ends the attempt — the short chase that follows is just

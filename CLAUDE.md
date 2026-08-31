@@ -81,9 +81,10 @@ patrol route captures geometry, not pacing, and jump-spam can't distort it. Stan
 no crumbs, so the trail also records `DwellPoint`s (position + facing yaw) wherever the player
 lingers — one per stop no matter how long, which is deliberate anti-exploit design (see below).
 
-`PatrolSentry` (`Runtime/AI/`) is the whole NPC on one component: NavMeshAgent patrol over the
-phase-1 crumbs in the player's direction (looping back to crumb 0 at the end), a fixed-length
-look-around at each dwell point, cone + line-of-sight detection (head and chest samples, the
+`PatrolSentry` (`Runtime/AI/`) is the whole NPC on one component: NavMeshAgent patrol over a
+recorded route in the player's direction (at the end it fades out, teleports back to the
+start, and fades in — frozen and blind during both fades), a fixed-length look-around at each
+dwell point, cone + line-of-sight detection (head and chest samples, the
 RaycastAll-skip-own-root idiom from `PlayerInteractor` — no tags or layers), and a time-capped
 chase that only sells the catch. It deliberately never replays the player's *timing*: pace and
 pause lengths are its own, or players would camp in phase 1 to pad the patrol and soften

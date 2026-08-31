@@ -9,6 +9,10 @@ namespace ProjectRetrace
         Inactive,
         Patrolling,
         Looking,
+        /// <summary>Standing at the route's end, fading out, about to restart.</summary>
+        Waiting,
+        /// <summary>Just (re)spawned at the route start: frozen and blind until fully faded in.</summary>
+        Materializing,
         Chasing
     }
 
@@ -37,6 +41,15 @@ namespace ProjectRetrace
         private const float HeadStartMetres = 2f;
 
         private const float WaypointReachedDistance = 0.6f;
+
+        /// <summary>Pause at the route's end before teleporting back to its start. The
+        /// sentry fades out over this window (and stops seeing -- a half-vanished ghost
+        /// catching you reads as a bug, not a loss).</summary>
+        private const float RestartDelaySeconds = 3f;
+
+        /// <summary>Fade-in after (re)spawning at the route start. Shorter than the grace
+        /// period, so the sentry is never fully visible yet unfairly blind, or vice versa.</summary>
+        private const float FadeInSeconds = 1.5f;
         private const float ChaseCapSeconds = 2.5f;
         private const float LookSweepDegrees = 45f;
         private const float LookTurnDegreesPerSecond = 120f;
@@ -64,11 +77,15 @@ namespace ProjectRetrace
         private float _lookYaw;
         private float _graceUntil;
         private float _chaseDeadline;
+        private float _restartAt;
         private MeshFilter _coneFilter;
         private Renderer _coneRenderer;
         private Material _coneMaterial;
+        private Material _bodyMaterial;
         private Mesh _coneMesh;
         private Vector3[] _coneVertices;
+        private Color _coneColor = new Color(1f, 0.85f, 0.3f);
+        private float _alpha = 1f;
 
         public SentryState State { get; private set; }
         public int TargetIndex => _targetIndex;
@@ -90,23 +107,53 @@ namespace ProjectRetrace
             TintBody();
         }
 
-        /// <summary>Property block rather than material instances: the capsule and nose share
-        /// the stock primitive material, and instancing it per sentry would leak on restarts.</summary>
+        /// <summary>One owned, transparency-capable material for the whole body, so the
+        /// route-restart fade can drive a real alpha -- the stock primitive material is
+        /// opaque and ignores it.</summary>
         private void TintBody()
         {
-            var block = new MaterialPropertyBlock();
-            block.SetColor("_BaseColor", bodyTint);
-            block.SetColor("_Color", bodyTint);
+            var shader = Shader.Find("Universal Render Pipeline/Lit");
+            if (shader == null) shader = Shader.Find("Standard");
+            _bodyMaterial = new Material(shader) { name = "SentryBody" };
+            MakeTransparent(_bodyMaterial);
             foreach (var renderer in GetComponentsInChildren<MeshRenderer>(true))
             {
                 if (renderer == _coneRenderer) continue;
-                renderer.SetPropertyBlock(block);
+                renderer.sharedMaterial = _bodyMaterial;
             }
+
+            MakeTransparent(_coneMaterial);
+            ApplyAlpha();
+        }
+
+        private static void MakeTransparent(Material material)
+        {
+            material.SetFloat("_Surface", 1f);
+            material.SetOverrideTag("RenderType", "Transparent");
+            material.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            material.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            material.SetFloat("_ZWrite", 0f);
+            material.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+        }
+
+        private void ApplyAlpha()
+        {
+            var body = bodyTint;
+            body.a = _alpha;
+            if (_bodyMaterial.HasProperty("_BaseColor")) _bodyMaterial.SetColor("_BaseColor", body);
+            if (_bodyMaterial.HasProperty("_Color")) _bodyMaterial.SetColor("_Color", body);
+
+            var cone = _coneColor;
+            cone.a = _alpha;
+            if (_coneMaterial.HasProperty("_BaseColor")) _coneMaterial.SetColor("_BaseColor", cone);
+            if (_coneMaterial.HasProperty("_Color")) _coneMaterial.SetColor("_Color", cone);
         }
 
         private void OnDestroy()
         {
             if (_coneMaterial != null) Destroy(_coneMaterial);
+            if (_bodyMaterial != null) Destroy(_bodyMaterial);
             if (_coneMesh != null) Destroy(_coneMesh);
         }
 
@@ -153,12 +200,13 @@ namespace ProjectRetrace
             _agent.Warp(route[_targetIndex].Position);
             transform.rotation = Quaternion.LookRotation(route[_targetIndex].Direction, Vector3.up);
             _lookedAtTarget = true;
-            AdvanceWaypoint(route);
 
             _graceUntil = Time.time + config.graceSeconds;
+            _alpha = 0f;
             SetConeAlarmed(false);
             UpdateConeVisual();
-            State = SentryState.Patrolling;
+            State = SentryState.Materializing;
+            _agent.isStopped = true;
         }
 
         /// <summary>Called by GameDirector on run end and restart.</summary>
@@ -177,6 +225,7 @@ namespace ProjectRetrace
         {
             if (State == SentryState.Inactive) return;
 
+            UpdateFade();
             UpdateConeVisual();
 
             if (State == SentryState.Chasing)
@@ -185,7 +234,20 @@ namespace ProjectRetrace
                 return;
             }
 
-            if (State == SentryState.Looking)
+            if (State == SentryState.Waiting)
+            {
+                if (Time.time >= _restartAt) RestartFromBeginning();
+            }
+            else if (State == SentryState.Materializing)
+            {
+                if (_alpha >= 1f)
+                {
+                    State = SentryState.Patrolling;
+                    _agent.isStopped = false;
+                    AdvanceOrRestart();
+                }
+            }
+            else if (State == SentryState.Looking)
             {
                 UpdateLook();
             }
@@ -208,7 +270,7 @@ namespace ProjectRetrace
                 return;
             }
 
-            AdvanceWaypoint(_route);
+            AdvanceOrRestart();
         }
 
         private void BeginLook(DwellPoint dwell)
@@ -236,23 +298,65 @@ namespace ProjectRetrace
             State = SentryState.Patrolling;
             _agent.updateRotation = true;
             _agent.isStopped = false;
-            AdvanceWaypoint(_route);
+            AdvanceOrRestart();
         }
 
-        /// <summary>
-        /// Always forward, wrapping to crumb 0 after the last: the return leg cuts directly
-        /// across the house, which reads as the sentry heading back to the trail head rather
-        /// than moonwalking the route in reverse.
-        /// </summary>
-        private void AdvanceWaypoint(IReadOnlyList<Breadcrumb> crumbs)
+        /// <summary>At the route's end the sentry pauses, then teleports back to the start
+        /// and walks it all over again -- no return leg, so it only ever moves along ground
+        /// the player actually covered.</summary>
+        private void AdvanceOrRestart()
         {
-            _targetIndex = (_targetIndex + 1) % crumbs.Count;
+            if (_targetIndex >= _route.Count - 1)
+            {
+                State = SentryState.Waiting;
+                _agent.isStopped = true;
+                _restartAt = Time.time + RestartDelaySeconds;
+                return;
+            }
+
+            _targetIndex++;
             _lookedAtTarget = false;
-            _agent.SetDestination(crumbs[_targetIndex].Position);
+            _agent.SetDestination(_route[_targetIndex].Position);
+        }
+
+        /// <summary>Same placement as the initial spawn, grace period included: the player
+        /// may be standing near the route's start, and materialising mid-room should never
+        /// be an instant catch.</summary>
+        private void RestartFromBeginning()
+        {
+            _targetIndex = FirstCrumbOnMesh(_route, StartIndex(_route));
+            if (_targetIndex < 0)
+            {
+                State = SentryState.Waiting;
+                _restartAt = Time.time + RestartDelaySeconds;
+                return;
+            }
+
+            _agent.Warp(_route[_targetIndex].Position);
+            transform.rotation = Quaternion.LookRotation(_route[_targetIndex].Direction, Vector3.up);
+            _lookedAtTarget = true;
+            _graceUntil = Time.time + EffectiveSettings.graceSeconds;
+            _alpha = 0f;
+            ApplyAlpha();
+            State = SentryState.Materializing;
+            _agent.isStopped = true;
+        }
+
+        private void UpdateFade()
+        {
+            var alpha = State == SentryState.Waiting
+                ? Mathf.Clamp01((_restartAt - Time.time) / RestartDelaySeconds)
+                : Mathf.Min(1f, _alpha + Time.deltaTime / FadeInSeconds);
+            if (Mathf.Approximately(alpha, _alpha)) return;
+
+            _alpha = alpha;
+            ApplyAlpha();
         }
 
         private void TrySpotPlayer()
         {
+            // No catches from a half-vanished ghost, in either direction of the fade.
+            if (State == SentryState.Waiting || State == SentryState.Materializing) return;
             if (player == null || Time.time < _graceUntil) return;
 
             var config = EffectiveSettings;
@@ -426,9 +530,8 @@ namespace ProjectRetrace
 
         private void SetConeAlarmed(bool alarmed)
         {
-            var color = alarmed ? new Color(1f, 0.25f, 0.2f) : new Color(1f, 0.85f, 0.3f, 1f);
-            if (_coneMaterial.HasProperty("_BaseColor")) _coneMaterial.SetColor("_BaseColor", color);
-            if (_coneMaterial.HasProperty("_Color")) _coneMaterial.SetColor("_Color", color);
+            _coneColor = alarmed ? new Color(1f, 0.25f, 0.2f) : new Color(1f, 0.85f, 0.3f);
+            ApplyAlpha();
         }
     }
 }
