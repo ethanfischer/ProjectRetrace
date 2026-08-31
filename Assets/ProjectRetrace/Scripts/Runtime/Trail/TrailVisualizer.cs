@@ -20,6 +20,8 @@ namespace ProjectRetrace
 
         private BreadcrumbTrail _trail;
         private Transform _root;
+        private Transform _round1Root;
+        private Transform _round2Root;
         private readonly List<Renderer> _round1Dots = new List<Renderer>();
         private readonly List<Renderer> _round2Dots = new List<Renderer>();
         private Material _round1Material;
@@ -34,6 +36,11 @@ namespace ProjectRetrace
             var rootObject = new GameObject("BreadcrumbArrows");
             _root = rootObject.transform;
             _root.SetParent(transform, false);
+
+            _round1Root = new GameObject("Round1").transform;
+            _round1Root.SetParent(_root, false);
+            _round2Root = new GameObject("Round2").transform;
+            _round2Root.SetParent(_root, false);
 
             _round1Material = CreateUnlitMaterial(round1Color);
             _round2Material = CreateUnlitMaterial(round2Color);
@@ -51,8 +58,8 @@ namespace ProjectRetrace
 
         private void LateUpdate()
         {
-            SyncArrows(_trail.Phase1Crumbs, _round1Dots, _round1Material);
-            SyncArrows(_trail.Phase2Crumbs, _round2Dots, _round2Material);
+            SyncArrows(_trail.Phase1Crumbs, _round1Dots, _round1Material, _round1Root);
+            SyncArrows(_trail.Phase2Crumbs, _round2Dots, _round2Material, _round2Root);
 
             var visible = GameDirector.DebugVisible;
             if (visible != _lastVisible)
@@ -60,10 +67,20 @@ namespace ProjectRetrace
                 _root.gameObject.SetActive(visible);
                 _lastVisible = visible;
             }
+
+            // The round-1 trail is the sentry's script: showing it during the stealth phase
+            // would hand the player a minimap of the threat. It returns in Results, where
+            // comparing the patrol with the sneak route is the whole point of the walkabout.
+            var phase = GameDirector.Instance != null ? GameDirector.Instance.Phase : GamePhase.Search;
+            var round1Visible = phase != GamePhase.Transition && phase != GamePhase.Stealth;
+            if (_round1Root.gameObject.activeSelf != round1Visible)
+            {
+                _round1Root.gameObject.SetActive(round1Visible);
+            }
         }
 
         /// <summary>Adds arrows for newly dropped crumbs, and clears when a run restarts.</summary>
-        private void SyncArrows(IReadOnlyList<Breadcrumb> crumbs, List<Renderer> arrows, Material material)
+        private void SyncArrows(IReadOnlyList<Breadcrumb> crumbs, List<Renderer> arrows, Material material, Transform parent)
         {
             if (crumbs.Count < arrows.Count)
             {
@@ -72,14 +89,14 @@ namespace ProjectRetrace
 
             for (var i = arrows.Count; i < crumbs.Count; i++)
             {
-                arrows.Add(CreateArrow(crumbs[i], material));
+                arrows.Add(CreateArrow(crumbs[i], material, parent));
             }
         }
 
-        private Renderer CreateArrow(Breadcrumb crumb, Material material)
+        private Renderer CreateArrow(Breadcrumb crumb, Material material, Transform parent)
         {
             var arrow = new GameObject("Crumb");
-            arrow.transform.SetParent(_root, false);
+            arrow.transform.SetParent(parent, false);
             arrow.transform.SetPositionAndRotation(
                 crumb.Position + Vector3.up * heightOffset,
                 Quaternion.LookRotation(crumb.Direction, Vector3.up));

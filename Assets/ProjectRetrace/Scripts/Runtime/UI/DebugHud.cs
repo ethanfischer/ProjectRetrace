@@ -123,16 +123,21 @@ namespace ProjectRetrace
             if (director == null) return;
 
             string banner;
+            var maxLives = director.EffectiveSettings.stealthLives;
             switch (director.Phase)
             {
                 case GamePhase.Search:
                     banner = "Find your keys";
                     break;
                 case GamePhase.Transition:
-                    banner = "Someone's coming to retrace your steps...";
+                    banner = director.LivesRemaining < maxLives
+                        ? string.Format("Caught! {0} {1} left...",
+                            director.LivesRemaining, director.LivesRemaining == 1 ? "try" : "tries")
+                        : "Someone's coming to retrace your steps...";
                     break;
                 case GamePhase.Stealth:
-                    banner = "Steal the keys back. Don't get seen.";
+                    banner = string.Format("Steal the keys back. Don't get seen.   [{0}/{1} tries]",
+                        director.LivesRemaining, maxLives);
                     break;
                 default:
                     return;

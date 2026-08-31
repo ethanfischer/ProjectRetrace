@@ -29,9 +29,11 @@ namespace ProjectRetrace
     {
         private const float EyeHeight = 1.6f;
 
-        /// <summary>Path distance along the route the sentry starts at, so it never begins on
-        /// top of the player -- crumb 0 and the phase-2 spawn are the same place.</summary>
-        private const float HeadStartMetres = 5f;
+        /// <summary>Path distance along the route the sentry starts at. Short on purpose: it
+        /// begins right in front of the player, already walking away -- an unmissable "that
+        /// thing is following my route" beat -- while keeping the two capsules from
+        /// overlapping at spawn.</summary>
+        private const float HeadStartMetres = 2f;
 
         private const float WaypointReachedDistance = 0.6f;
         private const float ChaseCapSeconds = 2.5f;
@@ -111,7 +113,17 @@ namespace ProjectRetrace
                 _dwellByCrumb[Mathf.Max(0, dwell.CrumbIndex)] = dwell;
             }
 
-            _targetIndex = StartIndex(crumbs);
+            // The route can begin off the mesh -- the spawn point may sit outside the baked
+            // house -- so start at the first crumb past the head start that actually lands
+            // on it. Warping to an off-mesh point would strand the agent entirely.
+            _targetIndex = FirstCrumbOnMesh(crumbs, StartIndex(crumbs));
+            if (_targetIndex < 0)
+            {
+                Debug.LogWarning("[PatrolSentry] No crumb of the route is on the navmesh -- staying inactive.", this);
+                gameObject.SetActive(false);
+                return;
+            }
+
             _agent.Warp(crumbs[_targetIndex].Position);
             transform.rotation = Quaternion.LookRotation(crumbs[_targetIndex].Direction, Vector3.up);
             _lookedAtTarget = true;
@@ -276,6 +288,16 @@ namespace ProjectRetrace
             {
                 if (GameDirector.Instance != null) GameDirector.Instance.OnPlayerCaught();
             }
+        }
+
+        private static int FirstCrumbOnMesh(IReadOnlyList<Breadcrumb> crumbs, int from)
+        {
+            for (var i = from; i < crumbs.Count; i++)
+            {
+                if (NavMesh.SamplePosition(crumbs[i].Position, out _, 1f, NavMesh.AllAreas)) return i;
+            }
+
+            return -1;
         }
 
         /// <summary>Route distance from crumb 0 decides the spawn crumb, giving the player a

@@ -28,6 +28,10 @@ namespace ProjectRetrace
         [Min(0.1f)]
         public float catchDistance = 1.1f;
 
+        [Tooltip("Times the player can be caught before the run is lost. Each catch restarts the stealth phase with the keys in the same spot.")]
+        [Min(1)]
+        public int stealthLives = 3;
+
         [Header("Vision")]
         [Tooltip("How far the sentry can see. Indoors the walls do most of the limiting via line of sight, so this mostly matters down corridors.")]
         [Min(0.5f)]

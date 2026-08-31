@@ -46,10 +46,12 @@ namespace ProjectRetrace
 
         private RetraceSettings _fallbackSettings;
         private int _seed;
+        private Transform _phase1KeySpot;
 
         public GamePhase Phase { get; private set; } = GamePhase.Search;
         public bool Won { get; private set; }
         public int Seed => _seed;
+        public int LivesRemaining { get; private set; }
 
         public RetraceSettings EffectiveSettings
         {
@@ -82,6 +84,7 @@ namespace ProjectRetrace
 
             DebugVisible = debugVisibleByDefault;
             Won = false;
+            LivesRemaining = EffectiveSettings.stealthLives;
 
             _seed = randomiseSeed ? UnityEngine.Random.Range(int.MinValue, int.MaxValue) : fixedSeed;
 
@@ -126,14 +129,38 @@ namespace ProjectRetrace
             SetPhase(GamePhase.Transition);
             SetPlayerInputEnabled(false);
 
+            // The phase-1 hiding spot is remembered here, not read back later: after the
+            // stealth placement runs, LastSpot becomes the phase-2 spot, and a retry that
+            // excluded *that* would silently move the keys between attempts.
+            _phase1KeySpot = keySpawner != null ? keySpawner.LastSpot : null;
+
             yield return new WaitForSeconds(transitionPause);
 
+            BeginStealthAttempt();
+        }
+
+        /// <summary>Called after a catch that still leaves lives. Same beat as the original
+        /// transition: house resets, player returns to spawn, sentry restarts its patrol.</summary>
+        private IEnumerator RetryStealth()
+        {
+            SetPhase(GamePhase.Transition);
+            if (sentry != null) sentry.StopPatrol();
+
+            yield return new WaitForSeconds(transitionPause);
+
+            BeginStealthAttempt();
+        }
+
+        private void BeginStealthAttempt()
+        {
             // Restore first, then move the keys: RestoreAll snaps them back to the phase-1
-            // spot they were captured under, so the new placement must come after it.
+            // spot they were captured under, so the new placement must come after it. The
+            // stealth seed is the same on every attempt, so a retry re-hides the keys in the
+            // same spot -- what the player learned before getting caught stays true.
             InteractableRegistry.RestoreAll();
             if (keySpawner != null)
             {
-                keySpawner.PlaceKey(StealthSeed(), keySpawner.LastSpot);
+                keySpawner.PlaceKey(StealthSeed(), _phase1KeySpot);
             }
 
             MovePlayerToSpawn();
@@ -162,7 +189,15 @@ namespace ProjectRetrace
         public void OnPlayerCaught()
         {
             if (Phase != GamePhase.Stealth) return;
-            FinishRun(won: false);
+
+            LivesRemaining--;
+            if (LivesRemaining <= 0)
+            {
+                FinishRun(won: false);
+                return;
+            }
+
+            StartCoroutine(RetryStealth());
         }
 
         /// <summary>Derived rather than random so a fixed seed reproduces both hiding spots.</summary>

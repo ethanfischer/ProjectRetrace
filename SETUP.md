@@ -53,14 +53,18 @@ point wherever you stand still for `dwellSeconds`. On the transition:
 - The house resets to its opening state, and you return to spawn.
 - The keys are re-hidden at a **different** spot (same run seed, derived, so a fixed seed
   reproduces both hides).
-- The sentry spawns ~5m along your recorded route and walks it in the direction you did,
-  at its own constant speed, pausing for a fixed `lookAroundSeconds` at each recorded
-  dwell. When it reaches the route's end it cuts straight back to the start and loops.
+- The sentry spawns just ~2m along your recorded route — right in front of you, already
+  walking away — and follows it in the direction you did, at its own constant speed,
+  pausing for a fixed `lookAroundSeconds` at each recorded dwell. When it reaches the
+  route's end it cuts straight back to the start and loops. Your recorded route (the blue
+  arrows) is hidden during the stealth phase; it returns on the results screen.
 
 Detection is cone + line-of-sight (head and chest checked separately, so furniture can
-hide you). Getting spotted loses the run instantly — the short chase that follows is just
-presentation. A `graceSeconds` window after the transition keeps degenerate short routes
-fair, since the patrol starts near spawn when the route is short.
+hide you). Getting spotted ends the attempt — the short chase that follows is just
+presentation. You get `stealthLives` attempts (3 by default); each catch resets the house
+and returns you to spawn, with the keys still hidden in the **same** phase-2 spot, so what
+you learned before getting caught stays true. Run out of attempts and the run is lost. A
+`graceSeconds` window after each attempt starts keeps the near-spawn patrol start fair.
 
 Two deliberate anti-exploit choices: the sentry never replays your *timing* (camping in a
 corner during phase 1 records one dwell, not a long pause), and pause length is fixed no

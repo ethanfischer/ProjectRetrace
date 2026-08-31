@@ -70,8 +70,10 @@ seed (excluding the phase-1 spot — placement must come after RestoreAll, which
 back to their captured spot), teleports the player to the identical spawn transform, and starts
 the sentry. Same house, new hiding spot: that pairing is the game. `StartRun` restores *before*
 capturing on purpose, so a mid-run restart doesn't bake open drawers in as the new initial
-state. Getting spotted routes through `OnPlayerSpotted` (freezes input — the run is decided) and
-`OnPlayerCaught` (ends it); both are sentry-driven.
+state. Getting spotted routes through `OnPlayerSpotted` (freezes input — the attempt is decided)
+and `OnPlayerCaught`; both are sentry-driven. A catch spends one of `stealthLives` (3): with
+lives left it re-runs the stealth setup with the *same* derived seed — same phase-2 hiding spot,
+so knowledge survives a retry — and only the last life ends the run.
 
 `BreadcrumbTrail` samples by distance travelled, not by time, and only on the XZ plane, so the
 patrol route captures geometry, not pacing, and jump-spam can't distort it. Standing still drops
