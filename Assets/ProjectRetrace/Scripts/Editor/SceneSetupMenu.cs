@@ -147,6 +147,8 @@ namespace ProjectRetrace.EditorTools
             sentry.SetActive(false);
             var patrol = sentry.AddComponent<PatrolSentry>();
             patrol.bodyTint = tint;
+            patrol.spottedClip = AssetDatabase.LoadAssetAtPath<AudioClip>(
+                "Assets/ProjectRetrace/Audio/whistle.wav");
             return patrol;
         }
 

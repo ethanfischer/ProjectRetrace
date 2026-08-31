@@ -3679,6 +3679,7 @@ MonoBehaviour:
   player: {fileID: 1455007735}
   settings: {fileID: 11400000, guid: 855b885ef7fc944b4b90face58fdabae, type: 2}
   bodyTint: {r: 0.75, g: 0.55, b: 0.95, a: 1}
+  spottedClip: {fileID: 8300000, guid: d9b6291dde35142d591fdb379ec83803, type: 3}
 --- !u!195 &171248860
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -9513,6 +9514,7 @@ MonoBehaviour:
   player: {fileID: 1455007735}
   settings: {fileID: 11400000, guid: 855b885ef7fc944b4b90face58fdabae, type: 2}
   bodyTint: {r: 1, g: 1, b: 1, a: 1}
+  spottedClip: {fileID: 8300000, guid: d9b6291dde35142d591fdb379ec83803, type: 3}
 --- !u!195 &625525232
 NavMeshAgent:
   m_ObjectHideFlags: 0

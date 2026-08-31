@@ -51,6 +51,9 @@ namespace ProjectRetrace
         [Tooltip("Body colour, so two sentries on different routes read as two characters.")]
         public Color bodyTint = Color.white;
 
+        [Tooltip("Played once at the moment of detection.")]
+        public AudioClip spottedClip;
+
         private RetraceSettings _fallbackSettings;
         private NavMeshAgent _agent;
         private IReadOnlyList<Breadcrumb> _route;
@@ -297,6 +300,13 @@ namespace ProjectRetrace
             _agent.isStopped = false;
             _agent.speed = EffectiveSettings.chaseSpeed;
             SetConeAlarmed(true);
+
+            // PlayClipAtPoint rather than an owned AudioSource: the whistle must outlive the
+            // sentry, which gets deactivated moments later when the catch ends the attempt.
+            if (spottedClip != null)
+            {
+                AudioSource.PlayClipAtPoint(spottedClip, transform.position + Vector3.up * EyeHeight);
+            }
 
             if (GameDirector.Instance != null) GameDirector.Instance.OnPlayerSpotted();
         }
