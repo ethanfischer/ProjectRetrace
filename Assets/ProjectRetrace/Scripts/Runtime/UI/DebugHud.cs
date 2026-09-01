@@ -12,8 +12,6 @@ namespace ProjectRetrace
         public GameDirector director;
         public PlayerInteractor interactor;
         public BreadcrumbTrail trail;
-        public PatrolSentry sentry;
-        public PatrolSentry sentry2;
 
         private KeyItem _key;
 
@@ -140,14 +138,14 @@ namespace ProjectRetrace
                     {
                         banner = director.StealthRound <= 1
                             ? "Someone's coming to retrace your steps..."
-                            : "Your sneak left a trail too. Now there are two of them...";
+                            : string.Format("Your last run left a trail too. Now there are {0} of them...",
+                                director.StealthRound);
                     }
                     break;
                 case GamePhase.Stealth:
-                    banner = string.Format("{0}   [{1}/{2} tries]",
-                        director.StealthRound <= 1
-                            ? "Steal the keys back. Don't get seen."
-                            : "Again -- but now two of them walk your routes.",
+                    banner = string.Format("Round {0}: don't get seen -- {1} of you {2} out there.   [{3}/{4} tries]",
+                        director.StealthRound + 1, director.StealthRound,
+                        director.StealthRound == 1 ? "is" : "are",
                         director.LivesRemaining, maxLives);
                     break;
                 default:
@@ -170,27 +168,40 @@ namespace ProjectRetrace
             GUILayout.Label("<b>DEBUG</b>  (" + settings.debugToggleKey + " to hide)", _label);
             GUILayout.Label("Phase: " + (director != null ? director.Phase.ToString() : "-")
                 + (director != null && director.StealthRound > 0 ? "  (round " + (director.StealthRound + 1) + ")" : ""), _label);
-            GUILayout.Label(string.Format("Route: {0} crumbs, {1} stops, {2:0.0}m",
-                trail.Phase1Crumbs.Count, trail.Phase1Dwells.Count, trail.Phase1Distance), _label);
-            GUILayout.Label(string.Format("Sneak: {0} crumbs, {1} stops, {2:0.0}m",
-                trail.Phase2Crumbs.Count, trail.Phase2Dwells.Count, trail.Phase2Distance), _label);
-            GUILayout.Label(SentryStatusLine("Sentry A", sentry), _label);
-            GUILayout.Label(SentryStatusLine("Sentry B", sentry2), _label);
+            var current = trail.CurrentRoute;
+            GUILayout.Label(string.Format("Routes recorded: {0}", trail.CompletedRouteCount)
+                + (current != null
+                    ? string.Format("   now: {0} crumbs, {1} stops, {2:0.0}m",
+                        current.Crumbs.Count, current.Dwells.Count, current.Distance)
+                    : ""), _label);
+            GUILayout.Label(SentryStatusLine(), _label);
             GUILayout.Label(string.Format("spacing {0:0.00}m", settings.dotSpacing), _label);
             GUILayout.Label(KeyStatusLine(), _label);
             GUILayout.EndArea();
         }
 
-        private static string SentryStatusLine(string name, PatrolSentry target)
+        private string SentryStatusLine()
         {
-            if (target == null) return name + ": NOT WIRED";
-            if (target.State == SentryState.Inactive) return name + ": inactive";
+            if (director == null) return "Sentries: -";
 
-            var distance = target.player != null
-                ? Vector3.Distance(target.transform.position, target.player.transform.position)
-                : -1f;
-            return string.Format("{0}: {1} -> crumb {2}, {3:0.0}m away",
-                name, target.State, target.TargetIndex, distance);
+            var active = 0;
+            var nearest = float.MaxValue;
+            SentryState nearestState = SentryState.Inactive;
+            foreach (var target in director.Sentries)
+            {
+                if (target == null || target.State == SentryState.Inactive) continue;
+                active++;
+                if (target.player == null) continue;
+                var distance = Vector3.Distance(target.transform.position, target.player.transform.position);
+                if (distance < nearest)
+                {
+                    nearest = distance;
+                    nearestState = target.State;
+                }
+            }
+
+            if (active == 0) return "Sentries: none active";
+            return string.Format("Sentries: {0} active, nearest {1:0.0}m ({2})", active, nearest, nearestState);
         }
     }
 }

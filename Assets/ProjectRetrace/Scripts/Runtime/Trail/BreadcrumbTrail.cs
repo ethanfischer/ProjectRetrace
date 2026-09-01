@@ -3,32 +3,26 @@ using UnityEngine;
 
 namespace ProjectRetrace
 {
-    public enum TrailMode
-    {
-        Idle,
-        Phase1,
-        Phase2
-    }
-
     /// <summary>
-    /// Records a breadcrumb trail for each phase: the search route in phase 1, which becomes
-    /// the sentry's patrol route, and the sneak route in phase 2, kept only so the Results
-    /// view can show both side by side.
+    /// Records the player's route through the house, one RecordedRoute per round, endlessly:
+    /// the search is route 0, each stealth round records the next. Every completed route
+    /// becomes a sentry's patrol script in the following round -- that accumulation is the
+    /// entire difficulty curve, so the trail never throws a completed route away.
     ///
-    /// Spacing is distance-based rather than time-based on purpose: sampling on a timer would
-    /// pile breadcrumbs up wherever the player stood still, and the patrol only needs the
-    /// route's geometry -- the sentry supplies its own pace.
+    /// Spacing is distance-based rather than time-based on purpose: sampling on a timer
+    /// would pile breadcrumbs up wherever the player stood still, and a patrol only needs
+    /// the route's geometry -- the sentry supplies its own pace.
     ///
     /// Dwells are recorded separately, because standing still drops no crumbs and lingering
-    /// would otherwise be invisible to the sentry. One DwellPoint per stop no matter how long
-    /// the stop lasts: the sentry pauses for a fixed duration at playback, so camping in
-    /// phase 1 cannot stretch the patrol and soften phase 2.
+    /// would otherwise be invisible to the sentries. One DwellPoint per stop no matter how
+    /// long the stop lasts: playback pauses for a fixed duration, so camping cannot stretch
+    /// a patrol and soften the next round.
     /// </summary>
     [DisallowMultipleComponent]
     public class BreadcrumbTrail : MonoBehaviour
     {
-        /// <summary>Ignore the first moments of each phase so the spawn freeze while input is
-        /// re-enabled does not read as a deliberate stop.</summary>
+        /// <summary>Ignore the first moments of each route so the spawn freeze while input
+        /// is re-enabled does not read as a deliberate stop.</summary>
         private const float DwellWarmupSeconds = 1f;
 
         [Tooltip("The player. Assigned by ProjectRetrace > Setup Scene Systems.")]
@@ -36,29 +30,27 @@ namespace ProjectRetrace
 
         public RetraceSettings settings;
 
-        private readonly List<Breadcrumb> _phase1 = new List<Breadcrumb>();
-        private readonly List<Breadcrumb> _phase2 = new List<Breadcrumb>();
-        private readonly List<DwellPoint> _dwells1 = new List<DwellPoint>();
-        private readonly List<DwellPoint> _dwells2 = new List<DwellPoint>();
+        private readonly List<RecordedRoute> _routes = new List<RecordedRoute>();
         private RetraceSettings _fallbackSettings;
-        private TrailMode _mode = TrailMode.Idle;
+        private bool _recording;
         private Vector3 _lastPosition;
         private Vector3 _lastCrumbPosition;
         private float _distanceSinceLastCrumb;
-        private float _phase1Distance;
-        private float _phase2Distance;
         private Vector3 _dwellAnchor;
         private float _dwellTime;
         private bool _dwellRecorded;
-        private float _phaseStartTime;
+        private float _routeStartTime;
 
-        public IReadOnlyList<Breadcrumb> Phase1Crumbs => _phase1;
-        public IReadOnlyList<Breadcrumb> Phase2Crumbs => _phase2;
-        public IReadOnlyList<DwellPoint> Phase1Dwells => _dwells1;
-        public IReadOnlyList<DwellPoint> Phase2Dwells => _dwells2;
-        public TrailMode Mode => _mode;
-        public float Phase1Distance => _phase1Distance;
-        public float Phase2Distance => _phase2Distance;
+        /// <summary>All routes, oldest first. The last entry is still being written while
+        /// Recording is true.</summary>
+        public IReadOnlyList<RecordedRoute> Routes => _routes;
+
+        public bool Recording => _recording;
+
+        public RecordedRoute CurrentRoute => _recording ? _routes[_routes.Count - 1] : null;
+
+        /// <summary>Routes finished being recorded -- the ones sentries may patrol.</summary>
+        public int CompletedRouteCount => _recording ? _routes.Count - 1 : _routes.Count;
 
         public RetraceSettings EffectiveSettings
         {
@@ -70,64 +62,57 @@ namespace ProjectRetrace
             }
         }
 
-        /// <summary>Phase 1: wipe any previous run and start recording the search trail.</summary>
-        public void BeginPhase1()
+        /// <summary>New run: wipe every route and start recording route 0 (the search).</summary>
+        public void BeginFirstRoute()
         {
-            _phase1.Clear();
-            _phase2.Clear();
-            _dwells1.Clear();
-            _dwells2.Clear();
-            _phase1Distance = 0f;
-            _phase2Distance = 0f;
-            _distanceSinceLastCrumb = 0f;
-            _dwellTime = 0f;
-            _dwellRecorded = false;
-            _phaseStartTime = Time.time;
-            _mode = TrailMode.Phase1;
+            _routes.Clear();
+            StartRoute();
+        }
 
+        /// <summary>New round: the route just walked is finalised as a patrol script and a
+        /// fresh one starts recording.</summary>
+        public void BeginNextRoute()
+        {
+            StartRoute();
+        }
+
+        /// <summary>Caught mid-round: throw away the failed attempt's recording and record
+        /// the round again, so a route that ends in a catch never becomes a patrol.</summary>
+        public void RestartRoute()
+        {
+            if (_recording) _routes.RemoveAt(_routes.Count - 1);
+            StartRoute();
+        }
+
+        public void Stop()
+        {
+            _recording = false;
+        }
+
+        private void StartRoute()
+        {
             if (tracked == null)
             {
                 Debug.LogError("[BreadcrumbTrail] No tracked transform assigned -- no trail will be recorded.", this);
-                _mode = TrailMode.Idle;
+                _recording = false;
                 return;
             }
 
+            _routes.Add(new RecordedRoute());
+            _recording = true;
+            _distanceSinceLastCrumb = 0f;
+            _dwellTime = 0f;
+            _dwellRecorded = false;
+            _routeStartTime = Time.time;
             _lastPosition = tracked.position;
             _lastCrumbPosition = tracked.position;
             _dwellAnchor = tracked.position;
             DropCrumb(tracked.position);
         }
 
-        /// <summary>Phase 2: keep the search trail for the patrol, record the sneak trail.
-        /// Clears any previous phase-2 recording, so after a caught-and-retry the trail holds
-        /// only the attempt that succeeded -- the one the next sentry will retrace.</summary>
-        public void BeginPhase2()
-        {
-            _phase2.Clear();
-            _dwells2.Clear();
-            _phase2Distance = 0f;
-            _distanceSinceLastCrumb = 0f;
-            _dwellTime = 0f;
-            _dwellRecorded = false;
-            _phaseStartTime = Time.time;
-            _mode = TrailMode.Phase2;
-            if (tracked != null)
-            {
-                _lastPosition = tracked.position;
-                _lastCrumbPosition = tracked.position;
-                _dwellAnchor = tracked.position;
-                DropCrumb(tracked.position);
-            }
-        }
-
-        public void Stop()
-        {
-            _mode = TrailMode.Idle;
-        }
-
         private void Update()
         {
-            if (_mode == TrailMode.Idle || tracked == null) return;
+            if (!_recording || tracked == null) return;
 
             var position = tracked.position;
 
@@ -139,18 +124,10 @@ namespace ProjectRetrace
             var travelled = delta.magnitude;
             _lastPosition = position;
 
-            _distanceSinceLastCrumb += travelled;
-            if (_mode == TrailMode.Phase1)
-            {
-                _phase1Distance += travelled;
-            }
-            else
-            {
-                _phase2Distance += travelled;
-            }
-
+            CurrentRoute.Distance += travelled;
             TrackDwell(position);
 
+            _distanceSinceLastCrumb += travelled;
             if (_distanceSinceLastCrumb >= EffectiveSettings.dotSpacing)
             {
                 DropCrumb(position);
@@ -160,7 +137,7 @@ namespace ProjectRetrace
 
         private void TrackDwell(Vector3 position)
         {
-            if (Time.time - _phaseStartTime < DwellWarmupSeconds)
+            if (Time.time - _routeStartTime < DwellWarmupSeconds)
             {
                 _dwellAnchor = position;
                 return;
@@ -182,9 +159,8 @@ namespace ProjectRetrace
             _dwellTime += Time.deltaTime;
             if (_dwellTime < EffectiveSettings.dwellSeconds) return;
 
-            var crumbs = _mode == TrailMode.Phase1 ? _phase1 : _phase2;
-            var dwells = _mode == TrailMode.Phase1 ? _dwells1 : _dwells2;
-            dwells.Add(new DwellPoint(_dwellAnchor, tracked.eulerAngles.y, crumbs.Count - 1));
+            var route = CurrentRoute;
+            route.Dwells.Add(new DwellPoint(_dwellAnchor, tracked.eulerAngles.y, route.Crumbs.Count - 1));
             _dwellRecorded = true;
         }
 
@@ -200,15 +176,7 @@ namespace ProjectRetrace
                 : (tracked != null ? Flatten(tracked.forward) : Vector3.forward);
             _lastCrumbPosition = position;
 
-            var crumb = new Breadcrumb(position, direction);
-            if (_mode == TrailMode.Phase1)
-            {
-                _phase1.Add(crumb);
-            }
-            else
-            {
-                _phase2.Add(crumb);
-            }
+            CurrentRoute.Crumbs.Add(new Breadcrumb(position, direction));
         }
 
         private static Vector3 Flatten(Vector3 vector)

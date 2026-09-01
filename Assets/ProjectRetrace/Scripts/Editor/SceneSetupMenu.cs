@@ -63,8 +63,6 @@ namespace ProjectRetrace.EditorTools
             hud.director = director;
             hud.interactor = interactor;
             hud.trail = trail;
-            hud.sentry = sentry;
-            hud.sentry2 = sentry2;
             results.director = director;
 
             controller.cameraPivot = cameraTransform;

@@ -8,10 +8,11 @@ namespace ProjectRetrace
         /// <summary>Brief beat while the house resets and the player returns to spawn.</summary>
         Transition,
 
-        /// <summary>Phase 2: find the re-hidden keys while the sentry retraces your route.</summary>
+        /// <summary>A stealth round: find the re-hidden keys while every past route's sentry
+        /// patrols. Survive one and another begins, one sentry richer.</summary>
         Stealth,
 
-        /// <summary>Won or caught. Debug view shows the patrol route beside your sneak route.</summary>
+        /// <summary>Out of lives. Shows how many rounds the run survived.</summary>
         Results
     }
 }

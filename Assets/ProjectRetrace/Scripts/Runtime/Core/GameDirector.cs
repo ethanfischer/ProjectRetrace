@@ -5,9 +5,10 @@ using UnityEngine.InputSystem;
 namespace ProjectRetrace
 {
     /// <summary>
-    /// Owns the run: Search -> Transition -> Stealth round 1 -> Transition -> Stealth
-    /// round 2 -> Results. Round 1 pits the player against a sentry retracing their search
-    /// route; round 2 adds a second sentry retracing the round-1 sneak route they just took.
+    /// Owns the run: Search, then stealth rounds forever -- every round survived turns the
+    /// route just walked into one more sentry's patrol script, so round N is played against
+    /// N sentries, each retracing one of the player's own past walks. There is no winning,
+    /// only how far you get; Results arrives when the lives run out.
     ///
     /// The Transition step is the one that has to be exactly right. Every interactable returns
     /// to its opening state and the player returns to the identical spawn transform, so the
@@ -47,21 +48,24 @@ namespace ProjectRetrace
         [Tooltip("Start each run with the breadcrumb debug view visible. Turn off for shipping builds; F3 still toggles it either way.")]
         [SerializeField] private bool debugVisibleByDefault = true;
 
-        /// <summary>Stealth rounds per run: round 2 against your search route's sentry, round 3
-        /// against it plus a second sentry retracing your round-2 sneak.</summary>
-        private const int StealthRounds = 2;
+        private readonly System.Collections.Generic.List<PatrolSentry> _sentries =
+            new System.Collections.Generic.List<PatrolSentry>();
 
         private RetraceSettings _fallbackSettings;
         private int _seed;
         private Transform _excludedSpot;
 
         public GamePhase Phase { get; private set; } = GamePhase.Search;
-        public bool Won { get; private set; }
         public int Seed => _seed;
         public int LivesRemaining { get; private set; }
 
-        /// <summary>1-based stealth round (1 = game round 2, 2 = game round 3); 0 during Search.</summary>
+        /// <summary>1-based stealth round (1 = game round 2, and so on); 0 during Search.
+        /// Also the number of sentries on patrol that round.</summary>
         public int StealthRound { get; private set; }
+
+        /// <summary>The sentry pool, scene pair first, runtime clones after. Grows as rounds
+        /// accumulate and is never trimmed -- StopPatrol just deactivates.</summary>
+        public System.Collections.Generic.IReadOnlyList<PatrolSentry> Sentries => _sentries;
 
         public RetraceSettings EffectiveSettings
         {
@@ -93,12 +97,12 @@ namespace ProjectRetrace
             StopAllCoroutines();
 
             DebugVisible = debugVisibleByDefault;
-            Won = false;
             StealthRound = 0;
             LivesRemaining = EffectiveSettings.stealthLives;
 
             _seed = randomiseSeed ? UnityEngine.Random.Range(int.MinValue, int.MaxValue) : fixedSeed;
 
+            EnsureSentries(0);
             StopSentries();
 
             // Restore before capturing: on a restart the house is mid-run, and capturing that
@@ -114,13 +118,14 @@ namespace ProjectRetrace
             if (trail != null)
             {
                 trail.settings = EffectiveSettings;
-                trail.BeginPhase1();
+                trail.BeginFirstRoute();
             }
 
             SetPhase(GamePhase.Search);
         }
 
-        /// <summary>Called by KeyItem. Ends phase 1, or wins the current stealth round.</summary>
+        /// <summary>Called by KeyItem. Ends the search, or survives the current stealth
+        /// round -- there is always a next one.</summary>
         public void OnKeyTaken()
         {
             if (Phase == GamePhase.Search)
@@ -131,14 +136,7 @@ namespace ProjectRetrace
 
             if (Phase != GamePhase.Stealth) return;
 
-            if (StealthRound < StealthRounds)
-            {
-                StartCoroutine(TransitionToStealthRound(StealthRound + 1));
-            }
-            else
-            {
-                FinishRun(won: true);
-            }
+            StartCoroutine(TransitionToStealthRound(StealthRound + 1));
         }
 
         private IEnumerator TransitionToStealthRound(int round)
@@ -156,7 +154,7 @@ namespace ProjectRetrace
 
             yield return new WaitForSeconds(transitionPause);
 
-            BeginStealthAttempt();
+            BeginStealthAttempt(retry: false);
         }
 
         /// <summary>Called after a catch that still leaves lives. Same beat as a round
@@ -168,10 +166,10 @@ namespace ProjectRetrace
 
             yield return new WaitForSeconds(transitionPause);
 
-            BeginStealthAttempt();
+            BeginStealthAttempt(retry: true);
         }
 
-        private void BeginStealthAttempt()
+        private void BeginStealthAttempt(bool retry)
         {
             // Restore first, then move the keys: RestoreAll snaps them back to the spot they
             // were captured under, so the new placement must come after it. The round seed is
@@ -187,27 +185,42 @@ namespace ProjectRetrace
 
             if (trail != null)
             {
-                // Round 1 re-records the sneak route each attempt, so the second sentry ends
-                // up retracing the attempt that actually succeeded. By round 2 that route is
-                // a sentry's script and nothing downstream needs a recording.
-                if (StealthRound == 1) trail.BeginPhase2();
-                else trail.Stop();
-            }
+                // Every stealth round records the route being walked -- it is the sentry
+                // added next round. A retry re-records from scratch, so only the attempt
+                // that actually survives ever becomes a patrol.
+                if (retry) trail.RestartRoute();
+                else trail.BeginNextRoute();
 
-            if (sentry != null && trail != null)
-            {
-                sentry.settings = EffectiveSettings;
-                sentry.BeginPatrol(trail.Phase1Crumbs, trail.Phase1Dwells);
-            }
-
-            if (sentry2 != null && trail != null && StealthRound >= 2)
-            {
-                sentry2.settings = EffectiveSettings;
-                sentry2.BeginPatrol(trail.Phase2Crumbs, trail.Phase2Dwells);
+                var patrols = trail.CompletedRouteCount;
+                EnsureSentries(patrols);
+                for (var i = 0; i < patrols && i < _sentries.Count; i++)
+                {
+                    _sentries[i].settings = EffectiveSettings;
+                    _sentries[i].BeginPatrol(trail.Routes[i].Crumbs, trail.Routes[i].Dwells);
+                }
             }
 
             SetPlayerInputEnabled(true);
             SetPhase(GamePhase.Stealth);
+        }
+
+        /// <summary>The scene carries two sentries; every round past that clones the first
+        /// one, hue-rotated so each ghost of a past round reads as its own character.</summary>
+        private void EnsureSentries(int count)
+        {
+            if (_sentries.Count == 0)
+            {
+                if (sentry != null) _sentries.Add(sentry);
+                if (sentry2 != null) _sentries.Add(sentry2);
+            }
+
+            while (_sentries.Count < count && sentry != null)
+            {
+                var clone = Instantiate(sentry.gameObject).GetComponent<PatrolSentry>();
+                clone.gameObject.name = "Sentry " + (_sentries.Count + 1);
+                clone.bodyTint = Color.HSVToRGB(_sentries.Count * 0.37f % 1f, 0.5f, 0.95f);
+                _sentries.Add(clone);
+            }
         }
 
         /// <summary>Called by PatrolSentry at the moment of detection. The run is already lost;
@@ -226,7 +239,7 @@ namespace ProjectRetrace
             LivesRemaining--;
             if (LivesRemaining <= 0)
             {
-                FinishRun(won: false);
+                FinishRun();
                 return;
             }
 
@@ -241,20 +254,21 @@ namespace ProjectRetrace
 
         private void StopSentries()
         {
-            if (sentry != null) sentry.StopPatrol();
-            if (sentry2 != null) sentry2.StopPatrol();
+            for (var i = 0; i < _sentries.Count; i++)
+            {
+                if (_sentries[i] != null) _sentries[i].StopPatrol();
+            }
         }
 
-        public void FinishRun(bool won)
+        public void FinishRun()
         {
             if (Phase == GamePhase.Results) return;
 
-            Won = won;
             if (trail != null) trail.Stop();
             StopSentries();
 
-            // Input stays enabled either way, so the end of a run is a banner over the
-            // world rather than a hard cut.
+            // Input stays enabled, so the end of a run is a banner over the world rather
+            // than a hard cut.
             SetPlayerInputEnabled(true);
             SetPhase(GamePhase.Results);
         }
@@ -283,9 +297,11 @@ namespace ProjectRetrace
             if (Phase != GamePhase.Stealth) return;
 
             // The escape hatch when a playtest goes sideways: skip straight to the win.
+            // The playtest escape hatch now skips ahead: with no win state left, "finish"
+            // means surviving the round without hunting the keys down.
             if (WasPressedThisFrame(config.manualFinishKey))
             {
-                FinishRun(won: true);
+                OnKeyTaken();
             }
         }
 
