@@ -33,11 +33,7 @@ namespace ProjectRetrace
 
             _title.normal.textColor = new Color(1f, 0.35f, 0.3f);
             GUILayout.Label("CAUGHT", _title);
-            GUILayout.Label(string.Format("You made it to round {0}, against {1} of your own past {2}.",
-                director.StealthRound + 1, director.StealthRound,
-                director.StealthRound == 1 ? "self" : "selves"), _line);
-            GUILayout.Label("[R] run again", _line);
-
+            GUILayout.Label($"You made it to round {director.StealthRound + 1}. Press [R] run again", _line);
             GUILayout.EndArea();
         }
 

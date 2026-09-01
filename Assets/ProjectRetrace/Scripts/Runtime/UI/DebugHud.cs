@@ -129,24 +129,12 @@ namespace ProjectRetrace
                     banner = "Find your keys";
                     break;
                 case GamePhase.Transition:
-                    if (director.LivesRemaining < maxLives)
-                    {
-                        banner = string.Format("Caught! {0} {1} left...",
-                            director.LivesRemaining, director.LivesRemaining == 1 ? "try" : "tries");
-                    }
-                    else
-                    {
-                        banner = director.StealthRound <= 1
-                            ? "Someone's coming to retrace your steps..."
-                            : string.Format("Your last run left a trail too. Now there are {0} of them...",
-                                director.StealthRound);
-                    }
+                    banner = director.LivesRemaining < maxLives
+                        ? $"Caught! {director.LivesRemaining} {(director.LivesRemaining == 1 ? "try" : "tries")} left..."
+                        : string.Empty;
                     break;
                 case GamePhase.Stealth:
-                    banner = string.Format("Round {0}: don't get seen -- {1} of you {2} out there.   [{3}/{4} tries]",
-                        director.StealthRound + 1, director.StealthRound,
-                        director.StealthRound == 1 ? "is" : "are",
-                        director.LivesRemaining, maxLives);
+                    banner = $"Round {director.StealthRound + 1}: find your keys without getting caught [{director.LivesRemaining}/{maxLives} tries]";
                     break;
                 default:
                     return;
