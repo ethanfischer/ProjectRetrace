@@ -86,6 +86,9 @@ namespace ProjectRetrace
             }
         }
 
+        private const float OptionStride = 52f;
+        private const float OptionsTop = 100f;
+
         private void OnGUI()
         {
             if (director == null || director.Phase != GamePhase.Menu) return;
@@ -93,7 +96,13 @@ namespace ProjectRetrace
             HudScale.Apply();
             EnsureStyles();
 
-            var panel = new Rect(HudScale.Width * 0.5f - 220f, HudScale.Height * 0.5f - 150f, 440f, 300f);
+            // The panel grows with its contents -- a fixed height is how the 4-player
+            // button ended up wearing the Back button as a hat.
+            var options = _screen == Screen.Root ? 2 : _screen == Screen.MultiplayerType ? 2 : 3;
+            var showBack = _screen != Screen.Root;
+            var height = OptionsTop + options * OptionStride
+                + (showBack ? 44f : 8f) + (_notice != null ? 30f : 0f) + 12f;
+            var panel = new Rect(HudScale.Width * 0.5f - 220f, HudScale.Height * 0.5f - height * 0.5f, 440f, height);
             GUI.Box(panel, GUIContent.none);
 
             GUI.Label(new Rect(panel.x, panel.y + 20f, panel.width, 40f), "PROJECT RETRACE", _title);
@@ -109,36 +118,37 @@ namespace ProjectRetrace
                 case Screen.MultiplayerType:
                     Option(panel, 0, "[1]  Local (one keyboard)", () => Choose(1));
                     Option(panel, 1, "[2]  Online", () => Choose(2));
-                    BackHint(panel);
                     break;
                 case Screen.LocalCount:
                 case Screen.OnlineCount:
                     Option(panel, 0, "[2]  2 players", () => Choose(2));
                     Option(panel, 1, "[3]  3 players", () => Choose(3));
                     Option(panel, 2, "[4]  4 players", () => Choose(4));
-                    BackHint(panel);
                     break;
+            }
+
+            var cursor = panel.y + OptionsTop + options * OptionStride;
+            if (showBack)
+            {
+                if (GUI.Button(new Rect(panel.x + 70f, cursor + 6f, 300f, 30f), "[Esc]  Back", _button))
+                {
+                    Back();
+                }
+
+                cursor += 44f;
             }
 
             if (_notice != null)
             {
-                GUI.Label(new Rect(panel.x, panel.y + panel.height - 46f, panel.width, 24f), _notice, _subtitle);
+                GUI.Label(new Rect(panel.x, cursor + 4f, panel.width, 24f), _notice, _subtitle);
             }
         }
 
         private void Option(Rect panel, int slot, string label, System.Action pick)
         {
-            if (GUI.Button(new Rect(panel.x + 70f, panel.y + 100f + slot * 52f, 300f, 42f), label, _button))
+            if (GUI.Button(new Rect(panel.x + 70f, panel.y + OptionsTop + slot * OptionStride, 300f, 42f), label, _button))
             {
                 pick();
-            }
-        }
-
-        private void BackHint(Rect panel)
-        {
-            if (GUI.Button(new Rect(panel.x + 70f, panel.y + panel.height - 78f, 300f, 30f), "[Esc]  Back", _button))
-            {
-                Back();
             }
         }
 
