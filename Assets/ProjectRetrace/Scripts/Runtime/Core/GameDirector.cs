@@ -207,6 +207,11 @@ namespace ProjectRetrace
             SetPlayerInputEnabled(false);
             StopSentries();
 
+            // The survived round's route is complete the moment the round ends -- without
+            // this, the handover screen counts it as still-in-progress and reports one
+            // ghost fewer than the incoming player is about to face.
+            if (trail != null) trail.Stop();
+
             // The outgoing hiding spot is remembered here, not read back later: after the
             // next placement runs, LastSpot becomes the new spot, and a retry that excluded
             // *that* would silently move the keys between attempts.
