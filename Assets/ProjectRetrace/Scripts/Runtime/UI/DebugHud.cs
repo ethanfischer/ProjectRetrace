@@ -173,7 +173,7 @@ namespace ProjectRetrace
             // drift apart, since a doomed final attempt never becomes a ghost.
             var ghosts = trail != null ? trail.CompletedRouteCount : director.StealthRound;
             GUI.Label(new Rect(box.x, box.y + 54f, box.width, 24f),
-                $"Round {director.StealthRound + 1}, {ghosts} ghost{(ghosts == 1 ? "" : "s")} on patrol -- press Space when ready",
+                $"{ghosts} ghost{(ghosts == 1 ? "" : "s")} on patrol -- press Space when ready",
                 _handover);
         }
 

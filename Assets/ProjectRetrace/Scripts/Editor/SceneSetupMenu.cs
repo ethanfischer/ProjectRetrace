@@ -41,8 +41,7 @@ namespace ProjectRetrace.EditorTools
             spawnPoint.position = new Vector3(0f, 0.05f, 0f);
 
             var keys = BuildKeys();
-            var sentry = BuildSentry("Sentry", Color.white);
-            var sentry2 = BuildSentry("Sentry B", new Color(0.75f, 0.55f, 0.95f));
+            var sentryTemplate = BuildSentry("Sentry Template", Color.white);
             CreateObject("NavMesh Baker", null).AddComponent<NavMeshRuntimeBaker>();
 
             // Wiring.
@@ -51,15 +50,13 @@ namespace ProjectRetrace.EditorTools
             director.trail = trail;
             director.keySpawner = keySpawner;
             director.spawnPoint = spawnPoint;
-            director.sentry = sentry;
-            director.sentry2 = sentry2;
+            director.sentryTemplate = sentryTemplate;
 
             trail.tracked = player.transform;
 
             keySpawner.key = keys;
 
-            sentry.player = controller;
-            sentry2.player = controller;
+            sentryTemplate.player = controller;
 
             hud.director = director;
             hud.interactor = interactor;

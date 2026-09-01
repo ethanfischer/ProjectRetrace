@@ -32,8 +32,9 @@ namespace ProjectRetrace
         public BreadcrumbTrail trail;
         public KeySpawner keySpawner;
         public Transform spawnPoint;
-        public PatrolSentry sentry;
-        public PatrolSentry sentry2;
+        [Tooltip("Inactive mold for the ghost pool -- never patrols itself. Every sentry on the field is a runtime clone of this, so the pool scales to any round count.")]
+        [UnityEngine.Serialization.FormerlySerializedAs("sentry")]
+        public PatrolSentry sentryTemplate;
 
         [Header("Config")]
         public RetraceSettings settings;
@@ -91,8 +92,8 @@ namespace ProjectRetrace
         /// Also the number of sentries on patrol that round.</summary>
         public int StealthRound { get; private set; }
 
-        /// <summary>The sentry pool, scene pair first, runtime clones after. Grows as rounds
-        /// accumulate and is never trimmed -- StopPatrol just deactivates.</summary>
+        /// <summary>The ghost pool: runtime clones of the template, one per patrolled route.
+        /// Grows as rounds accumulate and is never trimmed -- StopPatrol just deactivates.</summary>
         public System.Collections.Generic.IReadOnlyList<PatrolSentry> Sentries => _sentries;
 
         public RetraceSettings EffectiveSettings
@@ -126,7 +127,6 @@ namespace ProjectRetrace
         {
             StopAllCoroutines();
             AwaitingHandover = false;
-            EnsureSentries(0);
             StopSentries();
             if (trail != null) trail.Stop();
             SetPlayerInputEnabled(false);
@@ -164,7 +164,6 @@ namespace ProjectRetrace
 
             _seed = randomiseSeed ? UnityEngine.Random.Range(int.MinValue, int.MaxValue) : fixedSeed;
 
-            EnsureSentries(0);
             StopSentries();
 
             // Restore before capturing: on a restart the house is mid-run, and capturing that
@@ -299,21 +298,20 @@ namespace ProjectRetrace
             SetPhase(GamePhase.Stealth);
         }
 
-        /// <summary>The scene carries two sentries; every round past that clones the first
-        /// one, hue-rotated so each ghost of a past round reads as its own character.</summary>
+        /// <summary>Grows the ghost pool to at least the given size by cloning the template
+        /// -- the first ghost keeps the template's look, later ones are hue-rotated so each
+        /// past round reads as its own character.</summary>
         private void EnsureSentries(int count)
         {
-            if (_sentries.Count == 0)
+            while (_sentries.Count < count && sentryTemplate != null)
             {
-                if (sentry != null) _sentries.Add(sentry);
-                if (sentry2 != null) _sentries.Add(sentry2);
-            }
-
-            while (_sentries.Count < count && sentry != null)
-            {
-                var clone = Instantiate(sentry.gameObject).GetComponent<PatrolSentry>();
+                var clone = Instantiate(sentryTemplate.gameObject).GetComponent<PatrolSentry>();
                 clone.gameObject.name = "Sentry " + (_sentries.Count + 1);
-                clone.bodyTint = Color.HSVToRGB(_sentries.Count * 0.37f % 1f, 0.5f, 0.95f);
+                if (_sentries.Count > 0)
+                {
+                    clone.bodyTint = Color.HSVToRGB(_sentries.Count * 0.37f % 1f, 0.5f, 0.95f);
+                }
+
                 _sentries.Add(clone);
             }
         }
