@@ -35,13 +35,13 @@ namespace ProjectRetrace
             {
                 _title.normal.textColor = new Color(0.5f, 1f, 0.55f);
                 GUILayout.Label($"PLAYER {director.Winner} WINS", _title);
-                GUILayout.Label($"Player {director.CurrentPlayer} was caught in round {director.StealthRound + 1}. [R] rematch (searcher swaps)  [T] 1P", _line);
+                GUILayout.Label($"Player {director.CurrentPlayer} was caught in round {director.StealthRound + 1}. [R] rematch (searcher swaps)  [M] menu", _line);
             }
             else
             {
                 _title.normal.textColor = new Color(1f, 0.35f, 0.3f);
                 GUILayout.Label("CAUGHT", _title);
-                GUILayout.Label($"You made it to round {director.StealthRound + 1}. [R] run again  [T] couch 2P", _line);
+                GUILayout.Label($"You made it to round {director.StealthRound + 1}. [R] run again  [M] menu", _line);
             }
 
             GUILayout.EndArea();

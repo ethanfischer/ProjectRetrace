@@ -109,6 +109,30 @@ namespace ProjectRetrace
 
         private void Start()
         {
+            EnterMenu();
+        }
+
+        /// <summary>The idle state between games: no run live, input frozen, cursor free
+        /// for the menu. StartMenu drives the way out.</summary>
+        public void EnterMenu()
+        {
+            StopAllCoroutines();
+            AwaitingHandover = false;
+            EnsureSentries(0);
+            StopSentries();
+            if (trail != null) trail.Stop();
+            SetPlayerInputEnabled(false);
+            FirstPersonController.LockCursor(false);
+            SetPhase(GamePhase.Menu);
+        }
+
+        /// <summary>Menu entry point. A fresh mode choice also resets the couch rotation,
+        /// so player 1 always searches first in a new match.</summary>
+        public void StartGame(bool twoPlayers)
+        {
+            twoPlayerMode = twoPlayers;
+            _startingPlayer = 1;
+            _ranBefore = false;
             StartRun();
         }
 
@@ -351,10 +375,12 @@ namespace ProjectRetrace
                 DebugVisible = !DebugVisible;
             }
 
+            if (Phase == GamePhase.Menu) return;
+
             if (Phase == GamePhase.Results)
             {
                 if (WasPressedThisFrame(restartKey)) StartRun();
-                else if (WasPressedThisFrame(config.togglePlayersKey)) twoPlayerMode = !twoPlayerMode;
+                else if (WasPressedThisFrame(config.menuKey)) EnterMenu();
                 return;
             }
 

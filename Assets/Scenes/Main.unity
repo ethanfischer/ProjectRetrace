@@ -12695,6 +12695,7 @@ GameObject:
   - component: {fileID: 791878630}
   - component: {fileID: 791878629}
   - component: {fileID: 791878628}
+  - component: {fileID: 791878634}
   m_Layer: 0
   m_Name: ProjectRetrace Systems
   m_TagString: Untagged
@@ -12744,8 +12745,6 @@ MonoBehaviour:
   director: {fileID: 791878632}
   interactor: {fileID: 1455007736}
   trail: {fileID: 791878627}
-  sentry: {fileID: 625525231}
-  sentry2: {fileID: 171248859}
 --- !u!114 &791878630
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12773,8 +12772,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.TrailVisualizer
   arrowScale: 1
   heightOffset: 0.06
-  round1Color: {r: 0.25, g: 0.75, b: 1, a: 1}
-  round2Color: {r: 1, g: 0.55, b: 0.15, a: 1}
+  searchColor: {r: 0.25, g: 0.75, b: 1, a: 1}
+  sneakColor: {r: 1, g: 0.55, b: 0.15, a: 1}
 --- !u!114 &791878632
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12800,6 +12799,7 @@ MonoBehaviour:
   fixedSeed: 12345
   restartKey: 32
   debugVisibleByDefault: 0
+  twoPlayerMode: 0
 --- !u!4 &791878633
 Transform:
   m_ObjectHideFlags: 0
@@ -12815,6 +12815,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &791878634
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 791878626}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11d4db2f43d3d40869cf3166e01722ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.StartMenu
+  director: {fileID: 791878632}
 --- !u!1 &792636456
 GameObject:
   m_ObjectHideFlags: 0

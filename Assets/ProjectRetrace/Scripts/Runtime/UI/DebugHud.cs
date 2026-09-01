@@ -27,6 +27,8 @@ namespace ProjectRetrace
 
         private void OnGUI()
         {
+            if (director != null && director.Phase == GamePhase.Menu) return;
+
             HudScale.Apply();
             EnsureStyles();
 

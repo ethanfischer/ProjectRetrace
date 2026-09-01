@@ -64,8 +64,8 @@ namespace ProjectRetrace
 
         public Key debugToggleKey = Key.F3;
 
-        [Tooltip("On the results screen, switches between single player and couch (two player) mode.")]
-        public Key togglePlayersKey = Key.T;
+        [Tooltip("On the results screen, returns to the start menu.")]
+        public Key menuKey = Key.M;
 
         /// <summary>
         /// Runtime fallback so a missing asset never blocks a playtest -- every consumer

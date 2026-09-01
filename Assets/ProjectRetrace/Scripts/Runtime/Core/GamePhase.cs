@@ -2,6 +2,9 @@ namespace ProjectRetrace
 {
     public enum GamePhase
     {
+        /// <summary>Start menu: pick single player or couch 2P. No run is live.</summary>
+        Menu,
+
         /// <summary>Phase 1: hunt the house for the keys, leaving a trail as you go.</summary>
         Search,
 

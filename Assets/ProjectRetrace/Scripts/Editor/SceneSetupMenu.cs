@@ -34,6 +34,7 @@ namespace ProjectRetrace.EditorTools
             var keySpawner = systems.AddComponent<KeySpawner>();
             var hud = systems.AddComponent<DebugHud>();
             var results = systems.AddComponent<ResultsScreen>();
+            var menu = systems.AddComponent<StartMenu>();
 
             var player = BuildPlayer(out var controller, out var interactor, out var cameraTransform);
             var spawnPoint = CreateObject("SpawnPoint", null).transform;
@@ -64,6 +65,7 @@ namespace ProjectRetrace.EditorTools
             hud.interactor = interactor;
             hud.trail = trail;
             results.director = director;
+            menu.director = director;
 
             controller.cameraPivot = cameraTransform;
             interactor.rayOrigin = cameraTransform;
