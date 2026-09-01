@@ -1,11 +1,12 @@
 ## Project
 
-Unity 6 (`6000.3.17f1`) URP first-person stealth game. Three rounds: search a house for keys
-while the game silently records your route; steal them back — re-hidden somewhere new —
-while a sentry NPC retraces your search route; then steal them once more against two
-sentries, the second retracing the sneak route you just took. Catches on sight, three lives
-per stealth round, no score. See [README.md](README.md) for the pitch and
-[SETUP.md](SETUP.md) for scene setup, controls, and tuning guidance.
+Unity 6 (`6000.3.17f1`) URP first-person stealth game, endless: search a house for keys
+while the game silently records your route, then steal them back — re-hidden each round —
+against an ever-growing pool of sentry NPCs, each retracing one of your own past routes.
+Round N has N ghosts; the run ends when a round's lives run out. Couch 2P mode alternates
+rounds between two players on one keyboard, every route haunting both, first caught out
+loses. See [README.md](README.md) for the pitch and [SETUP.md](SETUP.md) for scene setup,
+controls, and tuning guidance.
 
 ## Commands
 

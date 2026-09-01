@@ -42,8 +42,10 @@ there is nothing to wire.
 | Space | jump |
 | E | interact |
 | **F3** | **toggle the debug trail view** |
-| Enter | instantly win the stealth phase (escape hatch while playtesting) |
+| Enter | instantly survive the current stealth round (escape hatch while playtesting) |
 | R | run again (on the results screen) |
+| T | toggle single player / couch 2P (on the results screen) |
+| Space | couch mode: take the keyboard at a round handover |
 
 ## 4. How the stealth rounds work
 
@@ -54,15 +56,22 @@ transition:
 - The house resets to its opening state, and you return to spawn.
 - The keys are re-hidden at a **different** spot (seeds derived from the run seed, so a
   fixed seed reproduces every hide).
-- A sentry spawns just ~2m along the recorded route it owns — round 2: one sentry on your
-  search route; round 3: that one plus a second sentry on the sneak route you took in
-  round 2 (specifically the attempt that succeeded). Each follows its route in the
-  direction you walked it, at its own constant speed, pausing for a fixed
-  `lookAroundSeconds` at each recorded dwell. At the route's end it stands for 3 seconds
-  fading out, then reappears at the start and fades back in — frozen and blind until
-  fully materialised, so the restart is never an ambush. You only ever see the trail you
-  are currently drawing; older trails are patrol scripts and stay hidden even with the
-  debug view on.
+- One more sentry joins the patrol — every completed route so far gets its own, each
+  spawning ~2m along the route it owns (only the attempt that survived a round ever
+  becomes a patrol). Round N has N sentries; there is no cap and no winning, only how
+  deep the run gets. Each follows its route in the direction it was walked, at its own
+  constant speed, pausing for a fixed `lookAroundSeconds` at each recorded dwell. At the
+  route's end it stands for 3 seconds fading out, then reappears at the start and fades
+  back in — frozen and blind until fully materialised, so the restart is never an ambush.
+  You only ever see the trail you are currently drawing; older trails are patrol scripts
+  and stay hidden even with the debug view on.
+
+**Couch mode** ([T] on the results screen, or the checkbox on the GameDirector): two
+players alternate rounds on one keyboard — the searcher plays the even stealth rounds,
+their opponent the odd ones — and every route haunts both of them. P1's ghosts wear cool
+tints, P2's warm ones. Round transitions hold on a "Player N, you're up — press Space"
+screen so the keyboard can change hands. First player caught out loses; [R] rematches
+with the searcher role swapped, since the search round is the threat-free one.
 
 Detection is cone + line-of-sight (head and chest checked separately, so furniture can
 hide you). Getting spotted ends the attempt — the short chase that follows is just

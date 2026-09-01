@@ -17,6 +17,7 @@ namespace ProjectRetrace
 
         private GUIStyle _label;
         private GUIStyle _centered;
+        private GUIStyle _handover;
 
         private void Reset()
         {
@@ -95,6 +96,7 @@ namespace ProjectRetrace
             _label.normal.textColor = Color.white;
 
             _centered = new GUIStyle(_label) { alignment = TextAnchor.MiddleCenter, fontSize = 20 };
+            _handover = new GUIStyle(_label) { alignment = TextAnchor.MiddleCenter };
         }
 
         private void DrawReticle()
@@ -121,12 +123,19 @@ namespace ProjectRetrace
         {
             if (director == null) return;
 
+            if (director.AwaitingHandover)
+            {
+                DrawHandover();
+                return;
+            }
+
             string banner;
             var maxLives = director.EffectiveSettings.stealthLives;
+            var who = director.TwoPlayerMode ? $"P{director.CurrentPlayer} -- " : string.Empty;
             switch (director.Phase)
             {
                 case GamePhase.Search:
-                    banner = "Find your keys";
+                    banner = who + "Find your keys";
                     break;
                 case GamePhase.Transition:
                     banner = director.LivesRemaining < maxLives
@@ -134,13 +143,26 @@ namespace ProjectRetrace
                         : string.Empty;
                     break;
                 case GamePhase.Stealth:
-                    banner = $"Round {director.StealthRound + 1}: find your keys without getting caught [{director.LivesRemaining}/{maxLives} tries]";
+                    banner = $"{who}Round {director.StealthRound + 1}: find your keys without getting caught [{director.LivesRemaining}/{maxLives} tries]";
                     break;
                 default:
                     return;
             }
 
             GUI.Label(new Rect(0f, 24f, HudScale.Width, 30f), banner, _centered);
+        }
+
+        /// <summary>Couch handover: the world stays frozen until whoever plays next takes
+        /// the keyboard and says so.</summary>
+        private void DrawHandover()
+        {
+            var box = new Rect(HudScale.Width * 0.5f - 220f, HudScale.Height * 0.5f - 50f, 440f, 100f);
+            GUI.Box(box, GUIContent.none);
+            GUI.Label(new Rect(box.x, box.y + 16f, box.width, 30f),
+                $"Player {director.CurrentPlayer}, you're up", _centered);
+            GUI.Label(new Rect(box.x, box.y + 54f, box.width, 24f),
+                $"Round {director.StealthRound + 1}, {director.StealthRound} ghost{(director.StealthRound == 1 ? "" : "s")} on patrol -- press Space when ready",
+                _handover);
         }
 
         private void DrawStats()

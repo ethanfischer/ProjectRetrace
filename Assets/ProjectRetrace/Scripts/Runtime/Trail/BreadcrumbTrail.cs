@@ -63,25 +63,31 @@ namespace ProjectRetrace
         }
 
         /// <summary>New run: wipe every route and start recording route 0 (the search).</summary>
-        public void BeginFirstRoute()
+        public void BeginFirstRoute(int owner = 1)
         {
             _routes.Clear();
-            StartRoute();
+            StartRoute(owner);
         }
 
         /// <summary>New round: the route just walked is finalised as a patrol script and a
         /// fresh one starts recording.</summary>
-        public void BeginNextRoute()
+        public void BeginNextRoute(int owner = 1)
         {
-            StartRoute();
+            StartRoute(owner);
         }
 
         /// <summary>Caught mid-round: throw away the failed attempt's recording and record
         /// the round again, so a route that ends in a catch never becomes a patrol.</summary>
         public void RestartRoute()
         {
-            if (_recording) _routes.RemoveAt(_routes.Count - 1);
-            StartRoute();
+            var owner = 1;
+            if (_recording)
+            {
+                owner = _routes[_routes.Count - 1].Owner;
+                _routes.RemoveAt(_routes.Count - 1);
+            }
+
+            StartRoute(owner);
         }
 
         public void Stop()
@@ -89,7 +95,7 @@ namespace ProjectRetrace
             _recording = false;
         }
 
-        private void StartRoute()
+        private void StartRoute(int owner)
         {
             if (tracked == null)
             {
@@ -98,7 +104,7 @@ namespace ProjectRetrace
                 return;
             }
 
-            _routes.Add(new RecordedRoute());
+            _routes.Add(new RecordedRoute { Owner = owner });
             _recording = true;
             _distanceSinceLastCrumb = 0f;
             _dwellTime = 0f;

@@ -59,10 +59,13 @@ namespace ProjectRetrace
         public float lookAroundSeconds = 3f;
 
         [Header("Debug")]
-        [Tooltip("Escape hatch while playtesting: instantly wins the stealth phase.")]
+        [Tooltip("Escape hatch while playtesting: instantly survives the current stealth round.")]
         public Key manualFinishKey = Key.Enter;
 
         public Key debugToggleKey = Key.F3;
+
+        [Tooltip("On the results screen, switches between single player and couch (two player) mode.")]
+        public Key togglePlayersKey = Key.T;
 
         /// <summary>
         /// Runtime fallback so a missing asset never blocks a playtest -- every consumer

@@ -7,8 +7,10 @@ namespace ProjectRetrace
     /// <summary>
     /// Owns the run: Search, then stealth rounds forever -- every round survived turns the
     /// route just walked into one more sentry's patrol script, so round N is played against
-    /// N sentries, each retracing one of the player's own past walks. There is no winning,
-    /// only how far you get; Results arrives when the lives run out.
+    /// N sentries, each retracing a past walk. Solo there is no winning, only how far you
+    /// get. In couch mode the rounds alternate between two players on one keyboard, every
+    /// route haunting both of them, and the first player caught out hands the other the
+    /// win; the rematch swaps who gets the threat-free search round.
     ///
     /// The Transition step is the one that has to be exactly right. Every interactable returns
     /// to its opening state and the player returns to the identical spawn transform, so the
@@ -48,16 +50,34 @@ namespace ProjectRetrace
         [Tooltip("Start each run with the breadcrumb debug view visible. Turn off for shipping builds; F3 still toggles it either way.")]
         [SerializeField] private bool debugVisibleByDefault = true;
 
+        [Tooltip("Couch mode: rounds alternate between two players on one keyboard, every route haunting both. First player caught out loses. Toggleable on the results screen.")]
+        [SerializeField] private bool twoPlayerMode;
+
         private readonly System.Collections.Generic.List<PatrolSentry> _sentries =
             new System.Collections.Generic.List<PatrolSentry>();
 
         private RetraceSettings _fallbackSettings;
         private int _seed;
         private Transform _excludedSpot;
+        private int _startingPlayer = 1;
+        private bool _ranBefore;
 
         public GamePhase Phase { get; private set; } = GamePhase.Search;
         public int Seed => _seed;
         public int LivesRemaining { get; private set; }
+
+        public bool TwoPlayerMode => twoPlayerMode;
+
+        /// <summary>Whose round it is (always 1 in single player).</summary>
+        public int CurrentPlayer { get; private set; } = 1;
+
+        /// <summary>Couch mode: set when the run ends -- the player who was NOT caught out.
+        /// 0 in single player or while a run is live.</summary>
+        public int Winner { get; private set; }
+
+        /// <summary>Couch mode: the transition is holding for the incoming player to take
+        /// the keyboard and press Space.</summary>
+        public bool AwaitingHandover { get; private set; }
 
         /// <summary>1-based stealth round (1 = game round 2, and so on); 0 during Search.
         /// Also the number of sentries on patrol that round.</summary>
@@ -99,6 +119,14 @@ namespace ProjectRetrace
             DebugVisible = debugVisibleByDefault;
             StealthRound = 0;
             LivesRemaining = EffectiveSettings.stealthLives;
+            Winner = 0;
+            AwaitingHandover = false;
+
+            // The rematch swaps who searches first: the searcher gets a threat-free round,
+            // so fairness across a couch match is "play twice, swap the free round".
+            if (twoPlayerMode && _ranBefore) _startingPlayer = Other(_startingPlayer);
+            _ranBefore = true;
+            CurrentPlayer = twoPlayerMode ? _startingPlayer : 1;
 
             _seed = randomiseSeed ? UnityEngine.Random.Range(int.MinValue, int.MaxValue) : fixedSeed;
 
@@ -118,7 +146,7 @@ namespace ProjectRetrace
             if (trail != null)
             {
                 trail.settings = EffectiveSettings;
-                trail.BeginFirstRoute();
+                trail.BeginFirstRoute(CurrentPlayer);
             }
 
             SetPhase(GamePhase.Search);
@@ -151,10 +179,34 @@ namespace ProjectRetrace
             _excludedSpot = keySpawner != null ? keySpawner.LastSpot : null;
             StealthRound = round;
             LivesRemaining = EffectiveSettings.stealthLives;
+            CurrentPlayer = RoundOwner(round);
 
             yield return new WaitForSeconds(transitionPause);
 
+            // Couch mode: hold the frozen world until the incoming player takes the
+            // keyboard -- rounds always change hands, so every round transition is a
+            // handover.
+            if (twoPlayerMode)
+            {
+                AwaitingHandover = true;
+                while (!WasPressedThisFrame(Key.Space)) yield return null;
+                AwaitingHandover = false;
+            }
+
             BeginStealthAttempt(retry: false);
+        }
+
+        /// <summary>The searcher plays the even stealth rounds, their opponent the odd ones
+        /// -- so the ghost pool always contains the round owner's own past walks too.</summary>
+        private int RoundOwner(int round)
+        {
+            if (!twoPlayerMode) return 1;
+            return round % 2 == 1 ? Other(_startingPlayer) : _startingPlayer;
+        }
+
+        private static int Other(int playerNumber)
+        {
+            return playerNumber == 1 ? 2 : 1;
         }
 
         /// <summary>Called after a catch that still leaves lives. Same beat as a round
@@ -189,14 +241,16 @@ namespace ProjectRetrace
                 // added next round. A retry re-records from scratch, so only the attempt
                 // that actually survives ever becomes a patrol.
                 if (retry) trail.RestartRoute();
-                else trail.BeginNextRoute();
+                else trail.BeginNextRoute(CurrentPlayer);
 
                 var patrols = trail.CompletedRouteCount;
                 EnsureSentries(patrols);
                 for (var i = 0; i < patrols && i < _sentries.Count; i++)
                 {
+                    var route = trail.Routes[i];
+                    if (twoPlayerMode) _sentries[i].bodyTint = GhostTint(route.Owner, i);
                     _sentries[i].settings = EffectiveSettings;
-                    _sentries[i].BeginPatrol(trail.Routes[i].Crumbs, trail.Routes[i].Dwells);
+                    _sentries[i].BeginPatrol(route.Crumbs, route.Dwells);
                 }
             }
 
@@ -221,6 +275,14 @@ namespace ProjectRetrace
                 clone.bodyTint = Color.HSVToRGB(_sentries.Count * 0.37f % 1f, 0.5f, 0.95f);
                 _sentries.Add(clone);
             }
+        }
+
+        /// <summary>Couch mode: cool hues for player 1's ghosts, warm for player 2's, so a
+        /// glance says whose past self is rounding the corner.</summary>
+        private static Color GhostTint(int owner, int index)
+        {
+            var baseHue = owner == 1 ? 0.55f : 0.03f;
+            return Color.HSVToRGB((baseHue + index * 0.04f) % 1f, 0.55f, 0.95f);
         }
 
         /// <summary>Called by PatrolSentry at the moment of detection. The run is already lost;
@@ -264,6 +326,7 @@ namespace ProjectRetrace
         {
             if (Phase == GamePhase.Results) return;
 
+            if (twoPlayerMode) Winner = Other(CurrentPlayer);
             if (trail != null) trail.Stop();
             StopSentries();
 
@@ -291,6 +354,7 @@ namespace ProjectRetrace
             if (Phase == GamePhase.Results)
             {
                 if (WasPressedThisFrame(restartKey)) StartRun();
+                else if (WasPressedThisFrame(config.togglePlayersKey)) twoPlayerMode = !twoPlayerMode;
                 return;
             }
 

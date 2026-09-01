@@ -12,5 +12,10 @@ namespace ProjectRetrace
         public readonly List<Breadcrumb> Crumbs = new List<Breadcrumb>();
         public readonly List<DwellPoint> Dwells = new List<DwellPoint>();
         public float Distance;
+
+        /// <summary>Which player walked it (1 in single player). In couch mode your own
+        /// past routes hunt you and your opponent alike -- the tint tells whose ghost is
+        /// whose.</summary>
+        public int Owner = 1;
     }
 }
