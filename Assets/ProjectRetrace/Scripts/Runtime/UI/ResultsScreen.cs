@@ -31,11 +31,15 @@ namespace ProjectRetrace
 
             GUILayout.BeginArea(new Rect(panel.x + 20f, panel.y + 10f, panel.width - 40f, panel.height - 20f));
 
-            if (director.TwoPlayerMode && director.Winner != 0)
+            if (director.Multiplayer && director.Loser != 0)
             {
+                // Two players have a clear winner to crown; with more, the loser is the
+                // one story worth telling.
                 _title.normal.textColor = new Color(0.5f, 1f, 0.55f);
-                GUILayout.Label($"PLAYER {director.Winner} WINS", _title);
-                GUILayout.Label($"Player {director.CurrentPlayer} was caught in round {director.StealthRound + 1}. [R] rematch (searcher swaps)  [M] menu", _line);
+                GUILayout.Label(director.PlayerCount == 2
+                    ? $"PLAYER {(director.Loser == 1 ? 2 : 1)} WINS"
+                    : $"PLAYER {director.Loser} IS OUT", _title);
+                GUILayout.Label($"Player {director.Loser} was caught in round {director.StealthRound + 1}. [R] rematch (searcher rotates)  [M] menu", _line);
             }
             else
             {

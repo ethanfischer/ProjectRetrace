@@ -1,8 +1,9 @@
 ## Project
 
 Unity 6 (`6000.3.17f1`) URP first-person stealth game, endless: search a house for keys
-while the game silently records your route, then steal them back — re-hidden each round —
-against an ever-growing pool of sentry NPCs, each retracing one of your own past routes.
+while the game silently records your route, then keep hunting them down — re-hidden each
+round — without being caught by an ever-growing pool of sentry NPCs, each retracing one of
+your own past routes.
 Round N has N ghosts; the run ends when a round's lives run out. Couch 2P mode alternates
 rounds between two players on one keyboard, every route haunting both, first caught out
 loses. See [README.md](README.md) for the pitch and [SETUP.md](SETUP.md) for scene setup,

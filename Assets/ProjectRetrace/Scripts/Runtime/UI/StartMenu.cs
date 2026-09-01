@@ -4,14 +4,25 @@ using UnityEngine.InputSystem;
 namespace ProjectRetrace
 {
     /// <summary>
-    /// The start menu: pick single player or couch 2P. IMGUI like the rest of the UI, drawn
-    /// over the live scene (the empty house makes its own title screen). Buttons for the
-    /// mouse, 1/2 for the keyboard.
+    /// The start menu: Singleplayer, or Multiplayer -> Local / Online -> player count.
+    /// IMGUI like the rest of the UI, drawn over the live scene (the empty house makes its
+    /// own title screen). Buttons for the mouse, number keys for the keyboard, Escape to
+    /// go back. Online is navigable but not built yet -- picking a count says so.
     /// </summary>
     public class StartMenu : MonoBehaviour
     {
+        private enum Screen
+        {
+            Root,
+            MultiplayerType,
+            LocalCount,
+            OnlineCount
+        }
+
         public GameDirector director;
 
+        private Screen _screen = Screen.Root;
+        private string _notice;
         private GUIStyle _title;
         private GUIStyle _subtitle;
         private GUIStyle _button;
@@ -31,8 +42,48 @@ namespace ProjectRetrace
 
             var keyboard = Keyboard.current;
             if (keyboard == null) return;
-            if (keyboard.digit1Key.wasPressedThisFrame) director.StartGame(twoPlayers: false);
-            else if (keyboard.digit2Key.wasPressedThisFrame) director.StartGame(twoPlayers: true);
+            if (keyboard.digit1Key.wasPressedThisFrame) Choose(1);
+            else if (keyboard.digit2Key.wasPressedThisFrame) Choose(2);
+            else if (keyboard.digit3Key.wasPressedThisFrame) Choose(3);
+            else if (keyboard.digit4Key.wasPressedThisFrame) Choose(4);
+            else if (keyboard.escapeKey.wasPressedThisFrame) Back();
+        }
+
+        private void Choose(int option)
+        {
+            _notice = null;
+            switch (_screen)
+            {
+                case Screen.Root:
+                    if (option == 1) director.StartGame(1);
+                    else if (option == 2) _screen = Screen.MultiplayerType;
+                    break;
+                case Screen.MultiplayerType:
+                    if (option == 1) _screen = Screen.LocalCount;
+                    else if (option == 2) _screen = Screen.OnlineCount;
+                    break;
+                case Screen.LocalCount:
+                    if (option >= 2 && option <= 4) director.StartGame(option);
+                    break;
+                case Screen.OnlineCount:
+                    if (option >= 2 && option <= 4) _notice = "Online play isn't built yet -- see ONLINE.md for the plan.";
+                    break;
+            }
+        }
+
+        private void Back()
+        {
+            _notice = null;
+            switch (_screen)
+            {
+                case Screen.MultiplayerType:
+                    _screen = Screen.Root;
+                    break;
+                case Screen.LocalCount:
+                case Screen.OnlineCount:
+                    _screen = Screen.MultiplayerType;
+                    break;
+            }
         }
 
         private void OnGUI()
@@ -42,21 +93,52 @@ namespace ProjectRetrace
             HudScale.Apply();
             EnsureStyles();
 
-            var panel = new Rect(HudScale.Width * 0.5f - 220f, HudScale.Height * 0.5f - 130f, 440f, 260f);
+            var panel = new Rect(HudScale.Width * 0.5f - 220f, HudScale.Height * 0.5f - 150f, 440f, 300f);
             GUI.Box(panel, GUIContent.none);
 
-            GUI.Label(new Rect(panel.x, panel.y + 22f, panel.width, 40f), "PROJECT RETRACE", _title);
-            GUI.Label(new Rect(panel.x, panel.y + 64f, panel.width, 24f),
-                "Steal your keys back from your own past selves", _subtitle);
+            GUI.Label(new Rect(panel.x, panel.y + 20f, panel.width, 40f), "PROJECT RETRACE", _title);
+            GUI.Label(new Rect(panel.x, panel.y + 60f, panel.width, 24f),
+                "Find your keys. Don't get caught by your past selves.", _subtitle);
 
-            if (GUI.Button(new Rect(panel.x + 70f, panel.y + 110f, 300f, 44f), "[1]  Single player", _button))
+            switch (_screen)
             {
-                director.StartGame(twoPlayers: false);
+                case Screen.Root:
+                    Option(panel, 0, "[1]  Singleplayer", () => Choose(1));
+                    Option(panel, 1, "[2]  Multiplayer", () => Choose(2));
+                    break;
+                case Screen.MultiplayerType:
+                    Option(panel, 0, "[1]  Local (one keyboard)", () => Choose(1));
+                    Option(panel, 1, "[2]  Online", () => Choose(2));
+                    BackHint(panel);
+                    break;
+                case Screen.LocalCount:
+                case Screen.OnlineCount:
+                    Option(panel, 0, "[2]  2 players", () => Choose(2));
+                    Option(panel, 1, "[3]  3 players", () => Choose(3));
+                    Option(panel, 2, "[4]  4 players", () => Choose(4));
+                    BackHint(panel);
+                    break;
             }
 
-            if (GUI.Button(new Rect(panel.x + 70f, panel.y + 166f, 300f, 44f), "[2]  Couch 2P", _button))
+            if (_notice != null)
             {
-                director.StartGame(twoPlayers: true);
+                GUI.Label(new Rect(panel.x, panel.y + panel.height - 46f, panel.width, 24f), _notice, _subtitle);
+            }
+        }
+
+        private void Option(Rect panel, int slot, string label, System.Action pick)
+        {
+            if (GUI.Button(new Rect(panel.x + 70f, panel.y + 100f + slot * 52f, 300f, 42f), label, _button))
+            {
+                pick();
+            }
+        }
+
+        private void BackHint(Rect panel)
+        {
+            if (GUI.Button(new Rect(panel.x + 70f, panel.y + panel.height - 78f, 300f, 30f), "[Esc]  Back", _button))
+            {
+                Back();
             }
         }
 

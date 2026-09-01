@@ -133,7 +133,7 @@ namespace ProjectRetrace
 
             string banner;
             var maxLives = director.EffectiveSettings.stealthLives;
-            var who = director.TwoPlayerMode ? $"P{director.CurrentPlayer} -- " : string.Empty;
+            var who = director.Multiplayer ? $"P{director.CurrentPlayer} -- " : string.Empty;
             switch (director.Phase)
             {
                 case GamePhase.Search:

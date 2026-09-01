@@ -44,8 +44,9 @@ there is nothing to wire.
 | **F3** | **toggle the debug trail view** |
 | Enter | instantly survive the current stealth round (escape hatch while playtesting) |
 | R | run again (on the results screen) |
-| T | toggle single player / couch 2P (on the results screen) |
-| Space | couch mode: take the keyboard at a round handover |
+| M | back to the start menu (on the results screen) |
+| 1-4 / Esc | navigate the start menu |
+| Space | local multiplayer: take the keyboard at a round handover |
 
 ## 4. How the stealth rounds work
 
@@ -66,12 +67,14 @@ transition:
   You only ever see the trail you are currently drawing; older trails are patrol scripts
   and stay hidden even with the debug view on.
 
-**Couch mode** ([T] on the results screen, or the checkbox on the GameDirector): two
-players alternate rounds on one keyboard — the searcher plays the even stealth rounds,
-their opponent the odd ones — and every route haunts both of them. P1's ghosts wear cool
-tints, P2's warm ones. Round transitions hold on a "Player N, you're up — press Space"
-screen so the keyboard can change hands. First player caught out loses; [R] rematches
-with the searcher role swapped, since the search round is the threat-free one.
+**Local multiplayer** (from the start menu, 2–4 players): rounds rotate through the
+players on one keyboard, starting from whoever searched, and every route haunts everyone.
+Each player's ghosts share a hue family — blue, orange, green, purple — so a glance says
+whose past self is rounding the corner. Round transitions hold on a "Player N, you're up
+— press Space" screen so the keyboard can change hands. The first player caught out ends
+the match as its loser; [R] rematches with the searcher role rotated, since the search
+round is the threat-free one. Online is on the menu but not built — see
+[ONLINE.md](ONLINE.md).
 
 Detection is cone + line-of-sight (head and chest checked separately, so furniture can
 hide you). Getting spotted ends the attempt — the short chase that follows is just

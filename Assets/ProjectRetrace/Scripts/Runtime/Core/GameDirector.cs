@@ -8,9 +8,9 @@ namespace ProjectRetrace
     /// Owns the run: Search, then stealth rounds forever -- every round survived turns the
     /// route just walked into one more sentry's patrol script, so round N is played against
     /// N sentries, each retracing a past walk. Solo there is no winning, only how far you
-    /// get. In couch mode the rounds alternate between two players on one keyboard, every
-    /// route haunting both of them, and the first player caught out hands the other the
-    /// win; the rematch swaps who gets the threat-free search round.
+    /// get. In local multiplayer (2-4 players, one keyboard) the rounds rotate through the
+    /// players, every route haunting all of them, and the first player caught out ends the
+    /// match as its loser; the rematch rotates who gets the threat-free search round.
     ///
     /// The Transition step is the one that has to be exactly right. Every interactable returns
     /// to its opening state and the player returns to the identical spawn transform, so the
@@ -50,8 +50,9 @@ namespace ProjectRetrace
         [Tooltip("Start each run with the breadcrumb debug view visible. Turn off for shipping builds; F3 still toggles it either way.")]
         [SerializeField] private bool debugVisibleByDefault = true;
 
-        [Tooltip("Couch mode: rounds alternate between two players on one keyboard, every route haunting both. First player caught out loses. Toggleable on the results screen.")]
-        [SerializeField] private bool twoPlayerMode;
+        [Tooltip("Players in the match (1 = single player). Local multiplayer rotates rounds between players on one keyboard, every route haunting everyone. First player caught out loses. Set from the start menu.")]
+        [Range(1, 4)]
+        [SerializeField] private int playerCount = 1;
 
         private readonly System.Collections.Generic.List<PatrolSentry> _sentries =
             new System.Collections.Generic.List<PatrolSentry>();
@@ -66,14 +67,16 @@ namespace ProjectRetrace
         public int Seed => _seed;
         public int LivesRemaining { get; private set; }
 
-        public bool TwoPlayerMode => twoPlayerMode;
+        public int PlayerCount => playerCount;
+
+        public bool Multiplayer => playerCount > 1;
 
         /// <summary>Whose round it is (always 1 in single player).</summary>
         public int CurrentPlayer { get; private set; } = 1;
 
-        /// <summary>Couch mode: set when the run ends -- the player who was NOT caught out.
-        /// 0 in single player or while a run is live.</summary>
-        public int Winner { get; private set; }
+        /// <summary>Multiplayer: the player whose catch ended the match. Everyone else
+        /// outlasted them. 0 in single player or while a run is live.</summary>
+        public int Loser { get; private set; }
 
         /// <summary>Couch mode: the transition is holding for the incoming player to take
         /// the keyboard and press Space.</summary>
@@ -126,11 +129,11 @@ namespace ProjectRetrace
             SetPhase(GamePhase.Menu);
         }
 
-        /// <summary>Menu entry point. A fresh mode choice also resets the couch rotation,
-        /// so player 1 always searches first in a new match.</summary>
-        public void StartGame(bool twoPlayers)
+        /// <summary>Menu entry point (1 = single player). A fresh mode choice also resets
+        /// the rotation, so player 1 always searches first in a new match.</summary>
+        public void StartGame(int players)
         {
-            twoPlayerMode = twoPlayers;
+            playerCount = Mathf.Clamp(players, 1, 4);
             _startingPlayer = 1;
             _ranBefore = false;
             StartRun();
@@ -143,14 +146,14 @@ namespace ProjectRetrace
             DebugVisible = debugVisibleByDefault;
             StealthRound = 0;
             LivesRemaining = EffectiveSettings.stealthLives;
-            Winner = 0;
+            Loser = 0;
             AwaitingHandover = false;
 
-            // The rematch swaps who searches first: the searcher gets a threat-free round,
-            // so fairness across a couch match is "play twice, swap the free round".
-            if (twoPlayerMode && _ranBefore) _startingPlayer = Other(_startingPlayer);
+            // The rematch rotates who searches first: the searcher gets a threat-free
+            // round, so fairness across a match is "everyone gets the free round once".
+            if (Multiplayer && _ranBefore) _startingPlayer = _startingPlayer % playerCount + 1;
             _ranBefore = true;
-            CurrentPlayer = twoPlayerMode ? _startingPlayer : 1;
+            CurrentPlayer = Multiplayer ? _startingPlayer : 1;
 
             _seed = randomiseSeed ? UnityEngine.Random.Range(int.MinValue, int.MaxValue) : fixedSeed;
 
@@ -207,10 +210,10 @@ namespace ProjectRetrace
 
             yield return new WaitForSeconds(transitionPause);
 
-            // Couch mode: hold the frozen world until the incoming player takes the
-            // keyboard -- rounds always change hands, so every round transition is a
+            // Local multiplayer: hold the frozen world until the incoming player takes
+            // the keyboard -- rounds always change hands, so every round transition is a
             // handover.
-            if (twoPlayerMode)
+            if (Multiplayer)
             {
                 AwaitingHandover = true;
                 while (!WasPressedThisFrame(Key.Space)) yield return null;
@@ -220,17 +223,13 @@ namespace ProjectRetrace
             BeginStealthAttempt(retry: false);
         }
 
-        /// <summary>The searcher plays the even stealth rounds, their opponent the odd ones
-        /// -- so the ghost pool always contains the round owner's own past walks too.</summary>
+        /// <summary>Rounds rotate through the players in order, starting from whoever
+        /// searched -- so the ghost pool always contains the round owner's own past walks
+        /// alongside everyone else's.</summary>
         private int RoundOwner(int round)
         {
-            if (!twoPlayerMode) return 1;
-            return round % 2 == 1 ? Other(_startingPlayer) : _startingPlayer;
-        }
-
-        private static int Other(int playerNumber)
-        {
-            return playerNumber == 1 ? 2 : 1;
+            if (!Multiplayer) return 1;
+            return (_startingPlayer - 1 + round) % playerCount + 1;
         }
 
         /// <summary>Called after a catch that still leaves lives. Same beat as a round
@@ -272,7 +271,7 @@ namespace ProjectRetrace
                 for (var i = 0; i < patrols && i < _sentries.Count; i++)
                 {
                     var route = trail.Routes[i];
-                    if (twoPlayerMode) _sentries[i].bodyTint = GhostTint(route.Owner, i);
+                    if (Multiplayer) _sentries[i].bodyTint = GhostTint(route.Owner, i);
                     _sentries[i].settings = EffectiveSettings;
                     _sentries[i].BeginPatrol(route.Crumbs, route.Dwells);
                 }
@@ -301,11 +300,12 @@ namespace ProjectRetrace
             }
         }
 
-        /// <summary>Couch mode: cool hues for player 1's ghosts, warm for player 2's, so a
-        /// glance says whose past self is rounding the corner.</summary>
+        /// <summary>Each player's ghosts share a hue family -- blue, orange, green, purple
+        /// -- so a glance says whose past self is rounding the corner.</summary>
         private static Color GhostTint(int owner, int index)
         {
-            var baseHue = owner == 1 ? 0.55f : 0.03f;
+            var hues = new[] { 0.55f, 0.03f, 0.33f, 0.80f };
+            var baseHue = hues[Mathf.Clamp(owner - 1, 0, hues.Length - 1)];
             return Color.HSVToRGB((baseHue + index * 0.04f) % 1f, 0.55f, 0.95f);
         }
 
@@ -350,7 +350,7 @@ namespace ProjectRetrace
         {
             if (Phase == GamePhase.Results) return;
 
-            if (twoPlayerMode) Winner = Other(CurrentPlayer);
+            if (Multiplayer) Loser = CurrentPlayer;
             if (trail != null) trail.Stop();
             StopSentries();
 
