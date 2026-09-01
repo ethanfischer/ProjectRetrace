@@ -177,6 +177,11 @@ namespace ProjectRetrace
             _agent.autoBraking = false;
             _agent.stoppingDistance = 0f;
 
+            // Ghosts pass through each other: agent avoidance would shove them off their
+            // recorded routes wherever the player's walks overlapped -- doorways, the
+            // stairs -- which is exactly where fidelity matters most.
+            _agent.obstacleAvoidanceType = UnityEngine.AI.ObstacleAvoidanceType.NoObstacleAvoidance;
+
             _dwellByCrumb.Clear();
             if (dwells != null)
             {

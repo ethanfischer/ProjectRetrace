@@ -9363,7 +9363,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.3
-  m_Speed: 1.5
+  m_Speed: 1
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
@@ -9405,7 +9405,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.FootstepEmitter
   clip: {fileID: 8300000, guid: 021dcde34f2e240d285304c2aa1e7589, type: 3}
-  strideMetres: 0.8
+  strideMetres: 0.4
   volume: 0.8
   pitchJitter: 0.2
 --- !u!1 &627953594
