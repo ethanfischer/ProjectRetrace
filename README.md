@@ -17,8 +17,8 @@ route you walk is also the trap you set for your future self.
 
 **Local multiplayer** (2–4 players, from the start menu): one keyboard, rounds rotating
 through the players — everyone's routes haunt whoever's up, each player's ghosts in their
-own colour. First player caught out loses; the rematch rotates who gets the threat-free
-search round.
+own colour. Run out of tries and you're eliminated, but your ghosts keep fighting; last
+one standing wins. The rematch rotates who gets the threat-free search round.
 
 The sentries project their vision cones on the floor — the cone is the true sightline,
 cut off by walls, so trust it. Their footsteps are 3D: faint means far. **F3** toggles a

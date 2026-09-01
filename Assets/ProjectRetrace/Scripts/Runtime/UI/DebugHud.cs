@@ -140,9 +140,16 @@ namespace ProjectRetrace
                     banner = who + "Find your keys";
                     break;
                 case GamePhase.Transition:
-                    banner = director.LivesRemaining < maxLives
-                        ? $"Caught! {director.LivesRemaining} {(director.LivesRemaining == 1 ? "try" : "tries")} left..."
-                        : string.Empty;
+                    if (director.JustEliminated != 0)
+                    {
+                        banner = $"Player {director.JustEliminated} is out! Their ghosts fight on...";
+                    }
+                    else
+                    {
+                        banner = director.LivesRemaining < maxLives
+                            ? $"Caught! {director.LivesRemaining} {(director.LivesRemaining == 1 ? "try" : "tries")} left..."
+                            : string.Empty;
+                    }
                     break;
                 case GamePhase.Stealth:
                     banner = $"{who}Round {director.StealthRound + 1}: find your keys without getting caught [{director.LivesRemaining}/{maxLives} tries]";
@@ -162,8 +169,11 @@ namespace ProjectRetrace
             GUI.Box(box, GUIContent.none);
             GUI.Label(new Rect(box.x, box.y + 16f, box.width, 30f),
                 $"Player {director.CurrentPlayer}, you're up", _centered);
+            // Actual patrol count, not the round number: after an elimination the two
+            // drift apart, since a doomed final attempt never becomes a ghost.
+            var ghosts = trail != null ? trail.CompletedRouteCount : director.StealthRound;
             GUI.Label(new Rect(box.x, box.y + 54f, box.width, 24f),
-                $"Round {director.StealthRound + 1}, {director.StealthRound} ghost{(director.StealthRound == 1 ? "" : "s")} on patrol -- press Space when ready",
+                $"Round {director.StealthRound + 1}, {ghosts} ghost{(ghosts == 1 ? "" : "s")} on patrol -- press Space when ready",
                 _handover);
         }
 

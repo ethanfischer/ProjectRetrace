@@ -71,9 +71,11 @@ transition:
 players on one keyboard, starting from whoever searched, and every route haunts everyone.
 Each player's ghosts share a hue family — blue, orange, green, purple — so a glance says
 whose past self is rounding the corner. Round transitions hold on a "Player N, you're up
-— press Space" screen so the keyboard can change hands. The first player caught out ends
-the match as its loser; [R] rematches with the searcher role rotated, since the search
-round is the threat-free one. Online is on the menu but not built — see
+— press Space" screen so the keyboard can change hands. Running out of tries eliminates
+you from the rotation — but every route you completed stays on patrol, so your ghosts
+keep fighting after you're out (your final, doomed attempt is discarded and never becomes
+one). Last player standing wins; [R] rematches with the searcher role rotated, since the
+search round is the threat-free one. Online is on the menu but not built — see
 [ONLINE.md](ONLINE.md).
 
 Detection is cone + line-of-sight (head and chest checked separately, so furniture can

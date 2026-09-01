@@ -62,6 +62,7 @@ namespace ProjectRetrace
         private Transform _excludedSpot;
         private int _startingPlayer = 1;
         private bool _ranBefore;
+        private readonly bool[] _eliminated = new bool[5];
 
         public GamePhase Phase { get; private set; } = GamePhase.Search;
         public int Seed => _seed;
@@ -74,9 +75,13 @@ namespace ProjectRetrace
         /// <summary>Whose round it is (always 1 in single player).</summary>
         public int CurrentPlayer { get; private set; } = 1;
 
-        /// <summary>Multiplayer: the player whose catch ended the match. Everyone else
-        /// outlasted them. 0 in single player or while a run is live.</summary>
-        public int Loser { get; private set; }
+        /// <summary>Multiplayer: the last one standing once everyone else is eliminated.
+        /// 0 in single player or while the match is live.</summary>
+        public int Winner { get; private set; }
+
+        /// <summary>Multiplayer: set while the transition after an elimination plays, so
+        /// the HUD can announce it. Cleared when the next round starts.</summary>
+        public int JustEliminated { get; private set; }
 
         /// <summary>Couch mode: the transition is holding for the incoming player to take
         /// the keyboard and press Space.</summary>
@@ -146,8 +151,10 @@ namespace ProjectRetrace
             DebugVisible = debugVisibleByDefault;
             StealthRound = 0;
             LivesRemaining = EffectiveSettings.stealthLives;
-            Loser = 0;
+            Winner = 0;
+            JustEliminated = 0;
             AwaitingHandover = false;
+            System.Array.Clear(_eliminated, 0, _eliminated.Length);
 
             // The rematch rotates who searches first: the searcher gets a threat-free
             // round, so fairness across a match is "everyone gets the free round once".
@@ -206,7 +213,7 @@ namespace ProjectRetrace
             _excludedSpot = keySpawner != null ? keySpawner.LastSpot : null;
             StealthRound = round;
             LivesRemaining = EffectiveSettings.stealthLives;
-            CurrentPlayer = RoundOwner(round);
+            CurrentPlayer = Multiplayer ? NextPlayer(CurrentPlayer) : 1;
 
             yield return new WaitForSeconds(transitionPause);
 
@@ -220,16 +227,22 @@ namespace ProjectRetrace
                 AwaitingHandover = false;
             }
 
+            JustEliminated = 0;
             BeginStealthAttempt(retry: false);
         }
 
-        /// <summary>Rounds rotate through the players in order, starting from whoever
-        /// searched -- so the ghost pool always contains the round owner's own past walks
-        /// alongside everyone else's.</summary>
-        private int RoundOwner(int round)
+        /// <summary>The next still-standing player after the given one, in table order --
+        /// eliminated players drop out of the rotation but their ghosts stay on patrol.</summary>
+        private int NextPlayer(int after)
         {
-            if (!Multiplayer) return 1;
-            return (_startingPlayer - 1 + round) % playerCount + 1;
+            var candidate = after;
+            for (var i = 0; i < playerCount; i++)
+            {
+                candidate = candidate % playerCount + 1;
+                if (!_eliminated[candidate]) return candidate;
+            }
+
+            return after;
         }
 
         /// <summary>Called after a catch that still leaves lives. Same beat as a round
@@ -323,13 +336,41 @@ namespace ProjectRetrace
             if (Phase != GamePhase.Stealth) return;
 
             LivesRemaining--;
-            if (LivesRemaining <= 0)
+            if (LivesRemaining > 0)
+            {
+                StartCoroutine(RetryStealth());
+                return;
+            }
+
+            if (!Multiplayer)
             {
                 FinishRun();
                 return;
             }
 
-            StartCoroutine(RetryStealth());
+            // Elimination: the caught player drops from the rotation, but every route they
+            // completed stays on patrol -- their ghosts keep fighting after they're out.
+            _eliminated[CurrentPlayer] = true;
+            JustEliminated = CurrentPlayer;
+            if (trail != null) trail.DiscardRoute();
+
+            var remaining = 0;
+            var lastStanding = 0;
+            for (var p = 1; p <= playerCount; p++)
+            {
+                if (_eliminated[p]) continue;
+                remaining++;
+                lastStanding = p;
+            }
+
+            if (remaining <= 1)
+            {
+                Winner = lastStanding;
+                FinishRun();
+                return;
+            }
+
+            StartCoroutine(TransitionToStealthRound(StealthRound + 1));
         }
 
         /// <summary>Derived rather than random so a fixed seed reproduces every hiding spot.</summary>
@@ -350,7 +391,6 @@ namespace ProjectRetrace
         {
             if (Phase == GamePhase.Results) return;
 
-            if (Multiplayer) Loser = CurrentPlayer;
             if (trail != null) trail.Stop();
             StopSentries();
 
