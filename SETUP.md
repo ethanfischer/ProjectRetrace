@@ -45,8 +45,8 @@ there is nothing to wire.
 | Enter | instantly survive the current stealth round (escape hatch while playtesting) |
 | R | run again (on the results screen) |
 | M | back to the start menu (on the results screen) |
-| 1-4 / Esc | navigate the start menu |
-| Space | local multiplayer: take the keyboard at a round handover |
+| 1 / 2 | start menu: singleplayer / multiplayer |
+| Space | multiplayer: take the keyboard at a round handover |
 
 ## 4. How the stealth rounds work
 
@@ -67,8 +67,10 @@ transition:
   You only ever see the trail you are currently drawing; older trails are patrol scripts
   and stay hidden even with the debug view on.
 
-**Local multiplayer** (from the start menu, 2–4 players): rounds rotate through the
-players on one keyboard, starting from whoever searched, and every route haunts everyone.
+**Multiplayer** (from the start menu; two players on one keyboard — the director supports
+up to 4 via its playerCount field, and online is sketched in ONLINE.md, but only local 2P
+is surfaced in the menu for now): rounds rotate through the players, starting from
+whoever searched, and every route haunts everyone.
 Each player's ghosts share a hue family — blue, orange, green, purple — so a glance says
 whose past self is rounding the corner. Round transitions hold on a "Player N, you're up
 — press Space" screen so the keyboard can change hands. Running out of tries eliminates

@@ -15,10 +15,10 @@ how deep you get before your tries run out.
 The twist: you know every patrol perfectly, because they're all your own routes. Every
 route you walk is also the trap you set for your future self.
 
-**Local multiplayer** (2–4 players, from the start menu): one keyboard, rounds rotating
-through the players — everyone's routes haunt whoever's up, each player's ghosts in their
-own colour. Run out of tries and you're eliminated, but your ghosts keep fighting; last
-one standing wins. The rematch rotates who gets the threat-free search round.
+**Multiplayer** (from the start menu): two players, one keyboard, rounds alternating —
+everyone's routes haunt whoever's up, each player's ghosts in their own colour. Run out
+of tries and you're eliminated, but your ghosts keep fighting; last one standing wins.
+The rematch rotates who gets the threat-free search round.
 
 The sentries project their vision cones on the floor — the cone is the true sightline,
 cut off by walls, so trust it. Their footsteps are 3D: faint means far. **F3** toggles a
