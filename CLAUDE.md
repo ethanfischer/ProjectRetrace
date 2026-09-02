@@ -100,7 +100,9 @@ walk through them rather than being stranded by one that restored closed.
 Use climbs in and shuts it; while hidden `PlayerInteractor.Hiding` routes every Use to
 "Leave". Hiding is only as safe as the route that got you there: a `DwellPoint` carries the
 `Prop` that was used, and a ghost pausing at one calls `HidingSpot.OpenedBy`, which opens
-the door and hauls out (and spots) anyone inside. Ghosts never hide themselves.
+the door and hauls out (and spots) anyone inside. Ghosts never hide themselves. With
+`sentriesOpenFurniture` on, a ghost also re-opens whatever `IOpenable` the player used at
+each stop; off, furniture only opens when a hider is found.
 ProjectRetrace > Furniture > Add Hiding Spots To Cupboards retrofits an older scene.
 
 `DoorInteractable` can be round-locked (`unlocksAtRound`, a displayed round number, read

@@ -5,5 +5,8 @@ namespace ProjectRetrace
     public interface IOpenable
     {
         bool IsOpen { get; }
+
+        /// <summary>Open without a player: a ghost rummaging where its past self did.</summary>
+        void Open();
     }
 }

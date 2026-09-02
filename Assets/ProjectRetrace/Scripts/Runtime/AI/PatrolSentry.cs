@@ -254,12 +254,20 @@ namespace ProjectRetrace
             _agent.updateRotation = false;
             _lookTimer = 0f;
             _lookYaw = dwell.FacingYaw;
-            ReopenHidingSpot(dwell);
+            Rummage(dwell);
         }
 
-        private void ReopenHidingSpot(DwellPoint dwell)
+        /// <summary>The ghost repeats the player's use of whatever they touched here. The
+        /// visible rummage is optional; checking a cupboard for a hider never is.</summary>
+        private void Rummage(DwellPoint dwell)
         {
             if (dwell.Prop == null) return;
+
+            if (RetraceConfig.Current.sentriesOpenFurniture && dwell.Prop.TryGetComponent<IOpenable>(out var openable))
+            {
+                openable.Open();
+            }
+
             var spot = dwell.Prop.GetComponentInParent<HidingSpot>();
             if (spot != null) spot.OpenedBy(this);
         }

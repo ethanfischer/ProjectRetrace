@@ -55,6 +55,10 @@ namespace ProjectRetrace
         public float lookSweepDegrees = 45f;
         public float lookTurnDegreesPerSecond = 120f;
 
+        // Ghosts re-open whatever the player used at each stop -- drawers, lids, doors.
+        // Off, a cupboard is only opened when someone is hiding in it.
+        public bool sentriesOpenFurniture = false;
+
         // Vision
         public float visionRange = 11f;
         public float visionAngle = 80f;

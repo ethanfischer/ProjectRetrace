@@ -48,11 +48,12 @@ namespace ProjectRetrace
             else Enter(interactor);
         }
 
-        /// <summary>A ghost whose route opened this prop opens it again. Anyone inside is
-        /// hauled out and spotted on the spot: the chase then connects at arm's length.</summary>
+        /// <summary>A ghost whose route opened this prop checks it again. Anyone inside is
+        /// hauled out and spotted on the spot: the chase then connects at arm's length. An
+        /// empty cupboard is left alone -- whether the ghost visibly opens furniture is the
+        /// sentry's setting, not this component's.</summary>
         public void OpenedBy(PatrolSentry ghost)
         {
-            if (_door != null) _door.SetOpen(true);
             if (!Occupied) return;
 
             Leave();

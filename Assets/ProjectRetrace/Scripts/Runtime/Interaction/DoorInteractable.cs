@@ -48,6 +48,8 @@ namespace ProjectRetrace
 
         public bool IsOpen => _isOpen;
 
+        public void Open() => SetOpen(true);
+
         public void SetOpen(bool open)
         {
             if (Locked) return;

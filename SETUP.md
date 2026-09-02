@@ -128,6 +128,8 @@ and angle, re-cut against the walls every frame. If the cone touches your feet, 
 see you.
 
 `peekYawDegrees` / `peekSlitHeight` shape the door-crack view while hiding.
+`sentriesOpenFurniture` makes ghosts visibly re-open drawers, lids, and cupboards at
+their stops (default off: a cupboard only opens if you are hiding in it).
 `dwellRadius` folds interactions close to the previous stop into it;
 `lookAroundSeconds` is how long the sentry honours each one. Keybinds are Input System
 `Key` names (`E`, `Backquote`, `Enter`); an unrecognised name falls back to the default.
