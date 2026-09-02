@@ -5,8 +5,9 @@ while the game silently records your route, then keep hunting them down — re-h
 round — without being caught by an ever-growing pool of sentry NPCs, each retracing one of
 your own past routes.
 Round N has N ghosts; the run ends when a round's lives run out. Couch 2P mode alternates
-rounds between two players on one keyboard, every route haunting both, first caught out
-loses. See [README.md](README.md) for the pitch and [SETUP.md](SETUP.md) for scene setup,
+rounds between two players on one keyboard, each haunted only by the other's routes (round
+4 is P2 against P1's two ghosts, round 5 is P1 against P2's two), first to run out of
+tries loses. See [README.md](README.md) for the pitch and [SETUP.md](SETUP.md) for scene setup,
 controls, and tuning guidance.
 
 ## Commands

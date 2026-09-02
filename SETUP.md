@@ -74,16 +74,14 @@ transition:
   retrace routes and never operate doors, and a closed door would otherwise strand a
   ghost whose route runs upstairs.
 
-**Multiplayer** (from the start menu; two players on one keyboard — the director supports
-up to 4 via its playerCount field, and online is sketched in ONLINE.md, but only local 2P
-is surfaced in the menu for now): rounds rotate through the players, starting from
-whoever searched, and every route haunts everyone.
-Each player's ghosts share a hue family — blue, orange, green, purple — so a glance says
-whose past self is rounding the corner. Round transitions hold on a "Player N, you're up
-— press Space" screen so the keyboard can change hands. Running out of tries eliminates
-you from the rotation — but every route you completed stays on patrol, so your ghosts
-keep fighting after you're out (your final, doomed attempt is discarded and never becomes
-one). Last player standing wins; [R] rematches with the searcher role rotated, since the
+**Multiplayer** (from the start menu; two players on one keyboard — online is sketched in
+ONLINE.md): rounds alternate, starting from whoever searched, and only your opponent's
+routes haunt you. Round 2 is P2 against P1's search; round 3 is P1 against P2's sneak;
+round 4 is P2 against both of P1's routes, and so on -- each player faces one more ghost
+every other round. Each player's ghosts share a hue family so a glance says whose past self
+is rounding the corner. Round transitions hold on a "Player N, you're up — press Space"
+screen so the keyboard can change hands. Running out of tries ends the match and the other
+player wins; [R] rematches with the searcher role rotated, since the
 search round is the threat-free one. Online is on the menu but not built — see
 [ONLINE.md](ONLINE.md).
 

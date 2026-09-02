@@ -36,8 +36,8 @@ namespace ProjectRetrace
         [UnityEngine.Serialization.FormerlySerializedAs("sentry")]
         public PatrolSentry sentryTemplate;
 
-        [Tooltip("Players in the match (1 = single player). Local multiplayer rotates rounds between players on one keyboard, every route haunting everyone. First player caught out loses. Set from the start menu.")]
-        [Range(1, 4)]
+        [Tooltip("Players in the match (1 = single player). Couch 2P alternates rounds on one keyboard; only your opponent's routes haunt you. First to run out of tries loses. Set from the start menu.")]
+        [Range(1, 2)]
         [SerializeField] private int playerCount = 1;
 
         private readonly System.Collections.Generic.List<PatrolSentry> _sentries =
@@ -47,7 +47,6 @@ namespace ProjectRetrace
         private Transform _excludedSpot;
         private int _startingPlayer = 1;
         private bool _ranBefore;
-        private readonly bool[] _eliminated = new bool[5];
 
         public GamePhase Phase { get; private set; } = GamePhase.Search;
         public int Seed => _seed;
@@ -60,21 +59,37 @@ namespace ProjectRetrace
         /// <summary>Whose round it is (always 1 in single player).</summary>
         public int CurrentPlayer { get; private set; } = 1;
 
-        /// <summary>Multiplayer: the last one standing once everyone else is eliminated.
-        /// 0 in single player or while the match is live.</summary>
+        /// <summary>Multiplayer: whoever was still standing when the other ran out of
+        /// tries. 0 in single player or while the match is live.</summary>
         public int Winner { get; private set; }
-
-        /// <summary>Multiplayer: set while the transition after an elimination plays, so
-        /// the HUD can announce it. Cleared when the next round starts.</summary>
-        public int JustEliminated { get; private set; }
 
         /// <summary>Couch mode: the transition is holding for the incoming player to take
         /// the keyboard and press Space.</summary>
         public bool AwaitingHandover { get; private set; }
 
         /// <summary>1-based stealth round (1 = game round 2, and so on); 0 during Search.
-        /// Also the number of sentries on patrol that round.</summary>
+        /// In single player also the number of sentries on patrol that round.</summary>
         public int StealthRound { get; private set; }
+
+        /// <summary>Ghosts the current player faces: every completed route in single player,
+        /// only the opponent's in couch mode -- your own past never haunts you, so the
+        /// two players trade traps rather than each drowning in their own.</summary>
+        public int GhostCount
+        {
+            get
+            {
+                if (trail == null) return 0;
+                var count = 0;
+                for (var i = 0; i < trail.CompletedRouteCount; i++)
+                {
+                    if (Haunts(trail.Routes[i])) count++;
+                }
+
+                return count;
+            }
+        }
+
+        private bool Haunts(RecordedRoute route) => !Multiplayer || route.Owner != CurrentPlayer;
 
         /// <summary>The ghost pool: runtime clones of the template, one per patrolled route.
         /// Grows as rounds accumulate and is never trimmed -- StopPatrol just deactivates.</summary>
@@ -112,7 +127,7 @@ namespace ProjectRetrace
         /// the rotation, so player 1 always searches first in a new match.</summary>
         public void StartGame(int players)
         {
-            playerCount = Mathf.Clamp(players, 1, 4);
+            playerCount = Mathf.Clamp(players, 1, 2);
             _startingPlayer = 1;
             _ranBefore = false;
             StartRun();
@@ -131,9 +146,7 @@ namespace ProjectRetrace
             StealthRound = 0;
             LivesRemaining = config.stealthLives;
             Winner = 0;
-            JustEliminated = 0;
             AwaitingHandover = false;
-            System.Array.Clear(_eliminated, 0, _eliminated.Length);
 
             // The rematch rotates who searches first: the searcher gets a threat-free
             // round, so fairness across a match is "everyone gets the free round once".
@@ -195,7 +208,7 @@ namespace ProjectRetrace
             _excludedSpot = keySpawner != null ? keySpawner.LastSpot : null;
             StealthRound = round;
             LivesRemaining = RetraceConfig.Current.stealthLives;
-            CurrentPlayer = Multiplayer ? NextPlayer(CurrentPlayer) : 1;
+            CurrentPlayer = Multiplayer ? Opponent(CurrentPlayer) : 1;
 
             yield return new WaitForSeconds(RetraceConfig.Current.transitionPause);
 
@@ -209,23 +222,10 @@ namespace ProjectRetrace
                 AwaitingHandover = false;
             }
 
-            JustEliminated = 0;
             BeginStealthAttempt(retry: false);
         }
 
-        /// <summary>The next still-standing player after the given one, in table order --
-        /// eliminated players drop out of the rotation but their ghosts stay on patrol.</summary>
-        private int NextPlayer(int after)
-        {
-            var candidate = after;
-            for (var i = 0; i < playerCount; i++)
-            {
-                candidate = candidate % playerCount + 1;
-                if (!_eliminated[candidate]) return candidate;
-            }
-
-            return after;
-        }
+        private static int Opponent(int player) => player == 1 ? 2 : 1;
 
         /// <summary>Called after a catch that still leaves lives. Same beat as a round
         /// transition: house resets, player returns to spawn, the sentries restart.</summary>
@@ -261,13 +261,16 @@ namespace ProjectRetrace
                 if (retry) trail.RestartRoute();
                 else trail.BeginNextRoute(CurrentPlayer);
 
-                var patrols = trail.CompletedRouteCount;
-                EnsureSentries(patrols);
-                for (var i = 0; i < patrols && i < _sentries.Count; i++)
+                EnsureSentries(GhostCount);
+                var next = 0;
+                for (var i = 0; i < trail.CompletedRouteCount && next < _sentries.Count; i++)
                 {
                     var route = trail.Routes[i];
-                    if (Multiplayer) _sentries[i].bodyTint = GhostTint(route.Owner, i);
-                    _sentries[i].BeginPatrol(route.Crumbs, route.Dwells);
+                    if (!Haunts(route)) continue;
+
+                    if (Multiplayer) _sentries[next].bodyTint = GhostTint(route.Owner, next);
+                    _sentries[next].BeginPatrol(route.Crumbs, route.Dwells);
+                    next++;
                 }
             }
 
@@ -322,35 +325,8 @@ namespace ProjectRetrace
                 return;
             }
 
-            if (!Multiplayer)
-            {
-                FinishRun();
-                return;
-            }
-
-            // Elimination: the caught player drops from the rotation, but every route they
-            // completed stays on patrol -- their ghosts keep fighting after they're out.
-            _eliminated[CurrentPlayer] = true;
-            JustEliminated = CurrentPlayer;
-            if (trail != null) trail.DiscardRoute();
-
-            var remaining = 0;
-            var lastStanding = 0;
-            for (var p = 1; p <= playerCount; p++)
-            {
-                if (_eliminated[p]) continue;
-                remaining++;
-                lastStanding = p;
-            }
-
-            if (remaining <= 1)
-            {
-                Winner = lastStanding;
-                FinishRun();
-                return;
-            }
-
-            StartCoroutine(TransitionToStealthRound(StealthRound + 1));
+            if (Multiplayer) Winner = Opponent(CurrentPlayer);
+            FinishRun();
         }
 
         /// <summary>Derived rather than random so a fixed seed reproduces every hiding spot.</summary>

@@ -17,10 +17,11 @@ you've earned it.
 The twist: you know every patrol perfectly, because they're all your own routes. Every
 route you walk is also the trap you set for your future self.
 
-**Multiplayer** (from the start menu): two players, one keyboard, rounds alternating —
-everyone's routes haunt whoever's up, each player's ghosts in their own colour. Run out
-of tries and you're eliminated, but your ghosts keep fighting; last one standing wins.
-The rematch rotates who gets the threat-free search round.
+**Multiplayer** (from the start menu): two players, one keyboard, rounds alternating.
+Only your opponent's routes haunt you: every route you walk is a trap for *them*, and
+every one they walk is a trap for you, so the ghost pool you face grows by one every
+other round. Run out of tries and the other player wins. The rematch rotates who gets
+the threat-free search round.
 
 The sentries project their vision cones on the floor — the cone is the true sightline,
 cut off by walls, so trust it. Their footsteps are 3D: faint means far. **`** (backquote) toggles a

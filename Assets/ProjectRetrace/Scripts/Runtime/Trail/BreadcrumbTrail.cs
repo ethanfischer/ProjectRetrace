@@ -76,16 +76,6 @@ namespace ProjectRetrace
             _recording = false;
         }
 
-        /// <summary>Eliminated mid-round: the failed attempt's recording is thrown away
-        /// without a replacement -- an eliminated player's last, doomed walk never becomes
-        /// a patrol. Their earlier routes stay.</summary>
-        public void DiscardRoute()
-        {
-            if (!_recording) return;
-            _routes.RemoveAt(_routes.Count - 1);
-            _recording = false;
-        }
-
         private void OnDisable()
         {
             ListenTo(null);
