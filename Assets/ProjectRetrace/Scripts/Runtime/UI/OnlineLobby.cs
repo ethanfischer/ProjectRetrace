@@ -47,7 +47,7 @@ namespace ProjectRetrace
                     DrawEntry(panel, ref y);
                     break;
                 case NetState.Connecting:
-                    GUI.Label(new Rect(panel.x, y, panel.width, 24f), "Connecting to " + RetraceConfig.Current.relayUrl + "...", _line);
+                    GUI.Label(new Rect(panel.x, y, panel.width, 24f), "Connecting to " + OnlineSession.RelayUrl + "...", _line);
                     y += 40f;
                     break;
                 case NetState.InRoom:

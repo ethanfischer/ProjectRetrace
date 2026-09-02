@@ -8,7 +8,9 @@ npm install
 npm start          # ws://localhost:8787, or PORT=9000 npm start
 ```
 
-Point the game at it with `relayUrl` in `retrace-config.json` (default `ws://localhost:8787`).
+A browser build served from the same machine finds it on its own (empty `relayUrl` means
+"the page's host, port 8787"); the editor defaults to `ws://localhost:8787`. Set `relayUrl`
+in `retrace-config.json` to override either.
 
 ## What it does
 

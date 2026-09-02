@@ -42,7 +42,8 @@ Unity side: `OnlineSession` owns the socket, the seat, the handshake and the tra
 between wire messages and director calls. `INetTransport` has three backends --
 `WebGLWebSocketTransport` over `Plugins/WebGL/RetraceWebSocket.jslib` (browser),
 `DotNetWebSocketTransport` (editor/standalone) and `LoopbackTransport` (tests and evals).
-`relayUrl` in `retrace-config.json` points at the relay; an https page needs `wss://`.
+An empty `relayUrl` in `retrace-config.json` means the page's own host on port 8787 (or
+localhost in the editor); set it explicitly to point elsewhere, and an https page needs `wss://`.
 
 ## Protocol
 

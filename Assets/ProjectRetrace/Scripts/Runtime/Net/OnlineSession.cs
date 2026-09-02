@@ -115,7 +115,27 @@ namespace ProjectRetrace
             _helloSent = _helloMatched = false;
             LastError = string.Empty;
             State = NetState.Connecting;
-            _transport.Connect(RetraceConfig.Current.relayUrl);
+            _transport.Connect(RelayUrl);
+        }
+
+        /// <summary>An explicit relayUrl wins; otherwise the relay is assumed to live where
+        /// the page was served from (a browser build), or on this machine (the editor).</summary>
+        public static string RelayUrl
+        {
+            get
+            {
+                var configured = RetraceConfig.Current.relayUrl;
+                if (!string.IsNullOrWhiteSpace(configured)) return configured.Trim();
+
+                var page = Application.absoluteURL;
+                if (!string.IsNullOrEmpty(page) && System.Uri.TryCreate(page, System.UriKind.Absolute, out var uri) && !string.IsNullOrEmpty(uri.Host))
+                {
+                    var scheme = uri.Scheme == "https" ? "wss" : "ws";
+                    return $"{scheme}://{uri.Host}:8787";
+                }
+
+                return "ws://localhost:8787";
+            }
         }
 
         private INetTransport CreateTransport()
