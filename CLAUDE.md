@@ -54,18 +54,18 @@ Run tests headlessly:
 /Applications/Unity/Hub/Editor/6000.3.17f1/Unity.app/Contents/MacOS/Unity -batchmode -runTests -testPlatform EditMode -projectPath "$PWD" -testResults ./TestResults.xml -logFile -
 ```
 
-`com.unity.test-framework` is installed but no test assembly exists yet. Adding one means a new
-`.asmdef` under `Assets/ProjectRetrace/Scripts/Tests/` referencing `ProjectRetrace.Runtime` plus
-the nunit/test-framework references. `-testFilter` narrows a run to a single test.
+The EditMode test assembly is `ProjectRetrace.Tests` under `Assets/ProjectRetrace/Scripts/Tests/`.
+`-testFilter` narrows a run to a single test; with the editor open use `unity cmd run_tests`.
 
 Batchmode fails if the editor already has the project open — use the Unity CLI instead in that
 case.
 
 ## Architecture
 
-Two assemblies, both under `Assets/ProjectRetrace/Scripts/`:
-`ProjectRetrace.Runtime` (namespace `ProjectRetrace`) and `ProjectRetrace.Editor`
-(namespace `ProjectRetrace.EditorTools`, editor-only, references Runtime).
+Three assemblies, all under `Assets/ProjectRetrace/Scripts/`:
+`ProjectRetrace.Runtime` (namespace `ProjectRetrace`), `ProjectRetrace.Editor`
+(namespace `ProjectRetrace.EditorTools`, editor-only, references Runtime) and
+`ProjectRetrace.Tests` (EditMode NUnit tests).
 
 `GameDirector` owns the run as a state machine over `GamePhase` (Search, Transition, Stealth,
 Results), exposing a static `Instance`. The Transition step is the load-bearing one: it calls
@@ -110,6 +110,16 @@ ProjectRetrace > Furniture > Add Hiding Spots To Cupboards retrofits an older sc
 against `GameDirector.Instance.StealthRound`) and carries a `sealedArea`; `KeySpawner`
 skips any hiding spot inside a locked door's sealed volume. The generated house uses this
 to keep the upper floor shut until round 4.
+
+Online (`Runtime/Net/`, design in [ONLINE.md](ONLINE.md)) is couch mode split across two
+machines. `OnlineSession` owns the socket and translates wire messages into director
+calls; the director's only new question per beat is `IsLocalTurn`. The turn owner runs
+the round unchanged and streams snapshots; the other client sits in `GamePhase.Spectate`
+where `SpectatorRig` puppets the player rig and the ghost pool from the stream and
+simulates nothing. Routes cross the wire as `RouteData`, props are named by
+`HierarchyPath` ids, and `hello` refuses a peer whose `HouseIdentity` differs. The relay
+is `relay/server.js`, dumb by design. Test against the editor with `LoopbackTransport` or
+any scripted peer; `OnlineContractTests` covers the contracts.
 
 `InteractableRegistry` is a static list that self-populates from `InteractableBase.OnEnable`, so
 the director resets the whole house without holding scene references to individual props. It

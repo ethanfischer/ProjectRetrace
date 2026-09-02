@@ -65,8 +65,11 @@ namespace ProjectRetrace
         private Color _coneColor = new Color(1f, 0.85f, 0.3f);
         private float _alpha = 1f;
 
+        private bool _puppet;
+
         public SentryState State { get; private set; }
         public int TargetIndex => _targetIndex;
+        public float Alpha => _alpha;
 
         private void Awake()
         {
@@ -191,12 +194,55 @@ namespace ProjectRetrace
                 _agent.isStopped = true;
             }
 
+            // A puppet had its agent switched off; the next real patrol needs it back on
+            // before Warp.
+            _puppet = false;
+            if (_agent != null) _agent.enabled = true;
             gameObject.SetActive(false);
+        }
+
+        /// <summary>Spectator side: same body, cone, and tint, but no agent, no eyes, and
+        /// no route -- every pose comes from the turn owner's stream. Running the patrol
+        /// locally instead would drift from the truth and eventually show a catch that
+        /// never happened.</summary>
+        public void BeginPuppet()
+        {
+            // Activate first: a fresh clone of the inactive template has not run Awake yet.
+            gameObject.SetActive(true);
+            _puppet = true;
+            _agent.enabled = false;
+            _alpha = 0f;
+            ApplyAlpha();
+            State = SentryState.Materializing;
+            SetConeAlarmed(false);
+        }
+
+        public void ApplyPuppet(Vector3 position, float yaw, SentryState state, float alpha)
+        {
+            if (!_puppet) return;
+            transform.SetPositionAndRotation(position, Quaternion.Euler(0f, yaw, 0f));
+            if (state != State)
+            {
+                State = state;
+                SetConeAlarmed(state == SentryState.Chasing);
+            }
+
+            if (!Mathf.Approximately(alpha, _alpha))
+            {
+                _alpha = alpha;
+                ApplyAlpha();
+            }
         }
 
         private void Update()
         {
             if (State == SentryState.Inactive) return;
+
+            if (_puppet)
+            {
+                UpdateConeVisual();
+                return;
+            }
 
             UpdateFade();
             UpdateConeVisual();

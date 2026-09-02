@@ -4,16 +4,14 @@ using UnityEngine.InputSystem;
 namespace ProjectRetrace
 {
     /// <summary>
-    /// The start menu: Singleplayer or Multiplayer (local, two players). IMGUI like the
-    /// rest of the UI, drawn over the live scene -- the empty house makes its own title
-    /// screen. Buttons for the mouse, 1/2 for the keyboard.
-    ///
-    /// The director supports 3-4 players and ONLINE.md sketches online play, but neither
-    /// is surfaced here yet: one hidden mode that works beats a menu tree of stubs.
+    /// The start menu: Singleplayer, Multiplayer (couch, two players), or Online. IMGUI
+    /// like the rest of the UI, drawn over the live scene -- the empty house makes its own
+    /// title screen. Buttons for the mouse, 1/2/3 for the keyboard.
     /// </summary>
     public class StartMenu : MonoBehaviour
     {
         public GameDirector director;
+        public OnlineSession online;
 
         private GUIStyle _title;
         private GUIStyle _subtitle;
@@ -26,7 +24,7 @@ namespace ProjectRetrace
 
         private void Update()
         {
-            if (director == null || director.Phase != GamePhase.Menu || ConfigMenu.IsOpen) return;
+            if (director == null || director.Phase != GamePhase.Menu || ConfigMenu.IsOpen || LobbyOpen) return;
 
             // Something else may lock the cursor after EnterMenu runs (the player
             // controller locks it in its own Start); the menu needs it free every frame.
@@ -36,16 +34,19 @@ namespace ProjectRetrace
             if (keyboard == null) return;
             if (keyboard.digit1Key.wasPressedThisFrame) director.StartGame(1);
             else if (keyboard.digit2Key.wasPressedThisFrame) director.StartGame(2);
+            else if (keyboard.digit3Key.wasPressedThisFrame && online != null) online.OpenLobby();
         }
+
+        private bool LobbyOpen => online != null && online.State != NetState.Idle;
 
         private void OnGUI()
         {
-            if (director == null || director.Phase != GamePhase.Menu || ConfigMenu.IsOpen) return;
+            if (director == null || director.Phase != GamePhase.Menu || ConfigMenu.IsOpen || LobbyOpen) return;
 
             HudScale.Apply();
             EnsureStyles();
 
-            var panel = new Rect(HudScale.Width * 0.5f - 220f, HudScale.Height * 0.5f - 142f, 440f, 284f);
+            var panel = new Rect(HudScale.Width * 0.5f - 220f, HudScale.Height * 0.5f - 168f, 440f, 336f);
             GUI.Box(panel, GUIContent.none);
 
             GUI.Label(new Rect(panel.x, panel.y + 20f, panel.width, 40f), "PROJECT RETRACE", _title);
@@ -62,8 +63,13 @@ namespace ProjectRetrace
                 director.StartGame(2);
             }
 
+            if (online != null && GUI.Button(new Rect(panel.x + 70f, panel.y + 204f, 300f, 42f), "[3]  Online", _button))
+            {
+                online.OpenLobby();
+            }
+
             var configKey = RetraceConfig.Current.ConfigMenuKey;
-            if (GUI.Button(new Rect(panel.x + 70f, panel.y + 204f, 300f, 42f), "[" + configKey + "]  Settings", _button))
+            if (GUI.Button(new Rect(panel.x + 70f, panel.y + 256f, 300f, 42f), "[" + configKey + "]  Settings", _button))
             {
                 ConfigMenu.Toggle();
             }

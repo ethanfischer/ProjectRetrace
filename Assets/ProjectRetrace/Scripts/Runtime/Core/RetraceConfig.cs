@@ -76,6 +76,13 @@ namespace ProjectRetrace
         public float footstepVolume = 0.8f;
         public float footstepPitchJitter = 0.1f;
 
+        // Online. The relay is the tiny Node process in relay/; a browser build on an https
+        // page needs a wss:// address. Spectators draw the turn owner's stream this far
+        // behind real time so there is always a next snapshot to interpolate towards.
+        public string relayUrl = "ws://localhost:8787";
+        public float snapshotHz = 12f;
+        public float spectatorDelaySeconds = 0.15f;
+
         // Keys
         public string interactKey = "E";
         public bool interactWithLeftClick = true;
@@ -84,6 +91,7 @@ namespace ProjectRetrace
         public string debugToggleKey = "Backquote";
         public string menuKey = "M";
         public string configMenuKey = "Tab";
+        public string spectatorCameraKey = "C";
 
         public Key InteractKey => ParseKey(interactKey, Key.E);
         public Key RestartKey => ParseKey(restartKey, Key.R);
@@ -91,6 +99,7 @@ namespace ProjectRetrace
         public Key DebugToggleKey => ParseKey(debugToggleKey, Key.Backquote);
         public Key MenuKey => ParseKey(menuKey, Key.M);
         public Key ConfigMenuKey => ParseKey(configMenuKey, Key.Tab);
+        public Key SpectatorCameraKey => ParseKey(spectatorCameraKey, Key.C);
 
         private static RetraceConfig _current;
 

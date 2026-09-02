@@ -24,6 +24,8 @@ namespace ProjectRetrace
         private bool _movementEnabled = true;
         private bool _peeking;
         private float _peekCentreYaw;
+        private bool _puppet;
+        private Vector3? _eyeLocalPosition;
 
         private void Awake()
         {
@@ -92,9 +94,34 @@ namespace ProjectRetrace
             }
         }
 
+        /// <summary>Spectating: the rig stops being a body and becomes a camera mount. The
+        /// CharacterController comes off so streamed poses are not fought by physics, and
+        /// the camera slides back and up into a chase view of the streamed avatar.</summary>
+        public void SetPuppet(bool puppet)
+        {
+            _puppet = puppet;
+            _controller.enabled = !puppet;
+            if (!puppet) SetCameraOffset(Vector3.zero);
+        }
+
+        public void SetPuppetPose(Vector3 position, float yaw, float pitch)
+        {
+            transform.SetPositionAndRotation(position, Quaternion.Euler(0f, yaw, 0f));
+            _pitch = pitch;
+            if (cameraPivot != null) cameraPivot.localRotation = Quaternion.Euler(pitch, 0f, 0f);
+        }
+
+        /// <summary>Offset from eye height, in the rig's local space.</summary>
+        public void SetCameraOffset(Vector3 localOffset)
+        {
+            if (cameraPivot == null) return;
+            if (_eyeLocalPosition == null) _eyeLocalPosition = cameraPivot.localPosition;
+            cameraPivot.localPosition = _eyeLocalPosition.Value + localOffset;
+        }
+
         private void Update()
         {
-            if (!_inputEnabled) return;
+            if (!_inputEnabled || _puppet) return;
 
             Look();
             if (_movementEnabled) Move();

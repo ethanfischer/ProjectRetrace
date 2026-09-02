@@ -34,8 +34,10 @@ namespace ProjectRetrace
             if (director.Multiplayer && director.Winner != 0)
             {
                 _title.normal.textColor = new Color(0.5f, 1f, 0.55f);
-                GUILayout.Label($"PLAYER {director.Winner} WINS", _title);
-                GUILayout.Label($"Last one standing after round {director.StealthRound + 1}. [R] rematch (searcher rotates)  [M] menu", _line);
+                var you = director.Online ? (director.Winner == director.LocalPlayer ? "YOU WIN" : "YOU LOSE") : $"PLAYER {director.Winner} WINS";
+                GUILayout.Label(you, _title);
+                var rematch = director.Online && !director.online.IsHost ? "[R] ask for a rematch" : "[R] rematch (searcher rotates)";
+                GUILayout.Label($"Player {director.Winner} was last standing after round {director.StealthRound + 1}. {rematch}  [M] menu", _line);
             }
             else
             {

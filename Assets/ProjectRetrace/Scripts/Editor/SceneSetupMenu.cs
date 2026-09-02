@@ -37,6 +37,9 @@ namespace ProjectRetrace.EditorTools
             var menu = systems.AddComponent<StartMenu>();
             var configMenu = systems.AddComponent<ConfigMenu>();
             configMenu.director = director;
+            var online = systems.AddComponent<OnlineSession>();
+            var spectator = systems.AddComponent<SpectatorRig>();
+            var lobby = systems.AddComponent<OnlineLobby>();
 
             var player = BuildPlayer(out var controller, out var interactor, out var cameraTransform);
             var spawnPoint = CreateObject("SpawnPoint", null).transform;
@@ -53,6 +56,16 @@ namespace ProjectRetrace.EditorTools
             director.keySpawner = keySpawner;
             director.spawnPoint = spawnPoint;
             director.sentryTemplate = sentryTemplate;
+            director.online = online;
+            director.spectator = spectator;
+
+            online.director = director;
+            online.spectator = spectator;
+            spectator.director = director;
+            spectator.player = controller;
+            lobby.director = director;
+            lobby.session = online;
+            menu.online = online;
 
             trail.tracked = player.transform;
 

@@ -38,7 +38,7 @@ namespace ProjectRetrace
                 DrawKeyLocator();
             }
 
-            if (director == null || director.Phase != GamePhase.Results)
+            if (director == null || (director.Phase != GamePhase.Results && director.Phase != GamePhase.Spectate))
             {
                 DrawReticle();
                 DrawPrompt();
@@ -132,6 +132,12 @@ namespace ProjectRetrace
                 return;
             }
 
+            if (director.AwaitingOpponent)
+            {
+                DrawWaitingForOpponent();
+                return;
+            }
+
             string banner;
             var maxLives = RetraceConfig.Current.stealthLives;
             var who = director.Multiplayer ? $"P{director.CurrentPlayer} -- " : string.Empty;
@@ -149,11 +155,44 @@ namespace ProjectRetrace
                     banner = $"{who}Round {director.StealthRound + 1}: find your keys without getting caught [{director.LivesRemaining}/{maxLives} tries]";
                     if (AnyDoorUnlocksThisRound()) banner += " -- 2nd floor unlocked!";
                     break;
+                case GamePhase.Spectate:
+                    banner = $"Spectating Player {director.CurrentPlayer} -- round {director.StealthRound + 1} [{director.LivesRemaining}/{maxLives} tries]";
+                    banner += director.spectator != null && director.spectator.FreeFly
+                        ? $"  [{RetraceConfig.Current.SpectatorCameraKey}] chase cam"
+                        : $"  [{RetraceConfig.Current.SpectatorCameraKey}] free camera";
+                    break;
                 default:
                     return;
             }
 
             GUI.Label(new Rect(0f, 24f, HudScale.Width, 30f), banner, _centered);
+            DrawConnection();
+        }
+
+        /// <summary>Online only: a quiet line so a stalled stream reads as "they dropped",
+        /// not "the game froze".</summary>
+        private void DrawConnection()
+        {
+            var online = director.online;
+            if (online == null || online.State == NetState.Idle || online.State == NetState.Lobby) return;
+
+            string line;
+            if (online.State == NetState.Disconnected || online.State == NetState.Error) line = "Connection lost -- [M] menu, then Resume";
+            else if (!online.PeerPresent) line = "Opponent disconnected...";
+            else if (online.RematchRequested && online.IsHost) line = "Opponent wants a rematch -- [R]";
+            else line = $"Online -- room {online.Room} -- {online.RttMs:0} ms";
+            GUI.Label(new Rect(0f, 52f, HudScale.Width, 24f), line, _handover);
+        }
+
+        private void DrawWaitingForOpponent()
+        {
+            var box = new Rect(HudScale.Width * 0.5f - 220f, HudScale.Height * 0.5f - 50f, 440f, 100f);
+            GUI.Box(box, GUIContent.none);
+            GUI.Label(new Rect(box.x, box.y + 16f, box.width, 30f), $"Player {director.CurrentPlayer}'s round", _centered);
+            var ghosts = director.GhostCount;
+            GUI.Label(new Rect(box.x, box.y + 54f, box.width, 24f),
+                $"{ghosts} ghost{(ghosts == 1 ? "" : "s")} on patrol -- waiting for them to start...", _handover);
+            DrawConnection();
         }
 
         private static bool AnyDoorUnlocksThisRound()
@@ -178,6 +217,7 @@ namespace ProjectRetrace
             GUI.Label(new Rect(box.x, box.y + 54f, box.width, 24f),
                 $"{ghosts} ghost{(ghosts == 1 ? "" : "s")} on patrol -- press Space when ready",
                 _handover);
+            DrawConnection();
         }
 
         private void DrawStats()
