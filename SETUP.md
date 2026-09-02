@@ -66,6 +66,12 @@ transition:
   back in — frozen and blind until fully materialised, so the restart is never an ambush.
   You only ever see the trail you are currently drawing; older trails are patrol scripts
   and stay hidden even with the debug view on.
+- The generated house walls the stairs into a closet behind a door whose
+  `DoorInteractable.unlocksAtRound` is 4. Until then it prompts "Locked", blocks the
+  player, and the keys are never hidden inside its `sealedArea` (the whole upper floor).
+  Doors are left out of the navmesh bake, so sentries walk straight through them — they
+  retrace routes and never operate doors, and a closed door would otherwise strand a
+  ghost whose route runs upstairs.
 
 **Multiplayer** (from the start menu; two players on one keyboard — the director supports
 up to 4 via its playerCount field, and online is sketched in ONLINE.md, but only local 2P

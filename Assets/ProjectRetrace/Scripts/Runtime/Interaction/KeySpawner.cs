@@ -58,13 +58,26 @@ namespace ProjectRetrace
             // InstanceID sort keeps the order identical across the two PlaceKey calls in a run,
             // so a fixed seed reproduces both hiding spots exactly.
             var markers = Object.FindObjectsByType<KeySpotMarker>(FindObjectsSortMode.InstanceID);
+            var doors = Object.FindObjectsByType<DoorInteractable>(FindObjectsSortMode.InstanceID);
             var spots = new List<Transform>(markers.Length);
             for (var i = 0; i < markers.Length; i++)
             {
+                if (IsSealed(markers[i].transform.position, doors)) continue;
                 spots.Add(markers[i].transform);
             }
 
             return spots;
+        }
+
+        /// <summary>Keys behind a locked door would make the round unwinnable.</summary>
+        private static bool IsSealed(Vector3 point, DoorInteractable[] doors)
+        {
+            for (var i = 0; i < doors.Length; i++)
+            {
+                if (doors[i].Seals(point)) return true;
+            }
+
+            return false;
         }
     }
 }

@@ -103,7 +103,7 @@ namespace ProjectRetrace.EditorTools
             return root;
         }
 
-        private static void AddHinged(GameObject hinge, Vector3 axis, float angle, string label)
+        internal static DoorInteractable AddHinged(GameObject hinge, Vector3 axis, float angle, string label)
         {
             var interactable = hinge.AddComponent<DoorInteractable>();
             var serialized = new SerializedObject(interactable);
@@ -111,6 +111,7 @@ namespace ProjectRetrace.EditorTools
             serialized.FindProperty("openAngle").floatValue = angle;
             serialized.FindProperty("label").stringValue = label;
             serialized.ApplyModifiedPropertiesWithoutUndo();
+            return interactable;
         }
 
         private static GameObject NewRoot(string name)

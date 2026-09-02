@@ -92,6 +92,13 @@ chase that only sells the catch. It deliberately never replays the player's *tim
 pause lengths are its own, or players would camp in phase 1 to pad the patrol and soften
 phase 2. `NavMeshRuntimeBaker` bakes from live colliders in `Awake` (agent radius 0.3 to fit
 the generated 1.1m doorways) — no baked asset to go stale when the test house regenerates.
+Every `DoorInteractable` is excluded from that bake: ghosts never operate doors, so they
+walk through them rather than being stranded by one that restored closed.
+
+`DoorInteractable` can be round-locked (`unlocksAtRound`, a displayed round number, read
+against `GameDirector.Instance.StealthRound`) and carries a `sealedArea`; `KeySpawner`
+skips any hiding spot inside a locked door's sealed volume. The generated house uses this
+to keep the upper floor shut until round 4.
 
 `InteractableRegistry` is a static list that self-populates from `InteractableBase.OnEnable`, so
 the director resets the whole house without holding scene references to individual props. It

@@ -10,7 +10,9 @@ you take, including everywhere you stop to look around. Every round records.
 **Every round after — Hunt.** The house resets, the keys hide somewhere **new**, and one
 more sentry joins the patrol: each walks one of your past routes, in your direction,
 pausing to look around wherever you did. Round N has N ghosts. There is no winning — only
-how deep you get before your tries run out.
+how deep you get before your tries run out. The door to the stairs stays locked until
+round 4, so the early rounds play out on the ground floor and the house doubles once
+you've earned it.
 
 The twist: you know every patrol perfectly, because they're all your own routes. Every
 route you walk is also the trap you set for your future self.

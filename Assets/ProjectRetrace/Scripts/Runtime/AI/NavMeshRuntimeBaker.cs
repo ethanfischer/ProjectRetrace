@@ -57,16 +57,36 @@ namespace ProjectRetrace
             {
                 if (!root.name.StartsWith("TestHouse")) continue;
                 foundHouse = true;
+                IgnoreDoors(root.transform, markups);
                 NavMeshBuilder.CollectSources(root.transform, ~0, NavMeshCollectGeometry.PhysicsColliders, 0, markups, sources);
             }
 
             if (!foundHouse)
             {
                 Debug.LogWarning("[NavMeshRuntimeBaker] No TestHouse root in the scene -- baking from every collider instead.", null);
+                IgnoreDoors(null, markups);
                 NavMeshBuilder.CollectSources((Transform)null, ~0, NavMeshCollectGeometry.PhysicsColliders, 0, markups, sources);
             }
 
             return sources;
+        }
+
+        /// <summary>
+        /// Doors open and close at runtime but the bake happens once, and the sentries retrace
+        /// routes without ever operating a door. A closed door baked as a wall would strand a
+        /// ghost whose route runs through it, so doors are left out of the bake and the
+        /// agents simply walk through them -- fittingly for ghosts.
+        /// </summary>
+        private static void IgnoreDoors(Transform root, List<NavMeshBuildMarkup> markups)
+        {
+            var doors = root != null
+                ? root.GetComponentsInChildren<DoorInteractable>(true)
+                : FindObjectsByType<DoorInteractable>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+            foreach (var door in doors)
+            {
+                markups.Add(new NavMeshBuildMarkup { root = door.transform, ignoreFromBuild = true });
+            }
         }
     }
 }
