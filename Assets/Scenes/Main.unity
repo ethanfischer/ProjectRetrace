@@ -2041,6 +2041,7 @@ MonoBehaviour:
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
+  closable: 0
 --- !u!1 &120355541
 GameObject:
   m_ObjectHideFlags: 0
@@ -2563,6 +2564,7 @@ MonoBehaviour:
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
+  closable: 0
 --- !u!1 &174818821
 GameObject:
   m_ObjectHideFlags: 0
@@ -3289,6 +3291,7 @@ GameObject:
   m_Component:
   - component: {fileID: 235504046}
   - component: {fileID: 235504047}
+  - component: {fileID: 235504048}
   m_Layer: 0
   m_Name: Room Light
   m_TagString: Untagged
@@ -3376,6 +3379,35 @@ Light:
   m_LightUnit: 1
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
+--- !u!114 &235504048
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 235504045}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
+  m_UsePipelineSettings: 1
+  m_AdditionalLightsShadowResolutionTier: 2
+  m_CustomShadowLayers: 0
+  m_LightCookieSize: {x: 1, y: 1}
+  m_LightCookieOffset: {x: 0, y: 0}
+  m_SoftShadowQuality: 0
+  m_RenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_ShadowRenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_Version: 4
+  m_LightLayerMask: 1
+  m_ShadowLayerMask: 1
+  m_RenderingLayers: 1
+  m_ShadowRenderingLayers: 1
 --- !u!1 &235579589
 GameObject:
   m_ObjectHideFlags: 0
@@ -3863,6 +3895,7 @@ MonoBehaviour:
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
+  closable: 0
 --- !u!1 &274524717
 GameObject:
   m_ObjectHideFlags: 0
@@ -5680,6 +5713,7 @@ MonoBehaviour:
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
+  closable: 0
 --- !u!1 &452395703
 GameObject:
   m_ObjectHideFlags: 0
@@ -6572,6 +6606,7 @@ MonoBehaviour:
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
+  closable: 0
 --- !u!1 &511636042
 GameObject:
   m_ObjectHideFlags: 0
@@ -8153,6 +8188,7 @@ MonoBehaviour:
   sealedArea:
     m_Center: {x: 0, y: 3.4, z: 3}
     m_Extent: {x: 9.5, y: 2.4, z: 7.5}
+  closable: 1
 --- !u!1 &655408670
 GameObject:
   m_ObjectHideFlags: 0
@@ -8655,6 +8691,7 @@ MonoBehaviour:
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
+  closable: 0
 --- !u!1 &691131678
 GameObject:
   m_ObjectHideFlags: 0
@@ -10177,6 +10214,7 @@ MonoBehaviour:
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
+  closable: 0
 --- !u!1 &808221193
 GameObject:
   m_ObjectHideFlags: 0
@@ -10559,6 +10597,7 @@ MonoBehaviour:
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
+  closable: 0
 --- !u!1 &858021700
 GameObject:
   m_ObjectHideFlags: 0
@@ -11397,6 +11436,7 @@ MonoBehaviour:
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
+  closable: 0
 --- !u!1 &920858078
 GameObject:
   m_ObjectHideFlags: 0
@@ -11899,6 +11939,7 @@ GameObject:
   m_Component:
   - component: {fileID: 935445759}
   - component: {fileID: 935445760}
+  - component: {fileID: 935445761}
   m_Layer: 0
   m_Name: Room Light
   m_TagString: Untagged
@@ -11986,6 +12027,35 @@ Light:
   m_LightUnit: 1
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
+--- !u!114 &935445761
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 935445758}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
+  m_UsePipelineSettings: 1
+  m_AdditionalLightsShadowResolutionTier: 2
+  m_CustomShadowLayers: 0
+  m_LightCookieSize: {x: 1, y: 1}
+  m_LightCookieOffset: {x: 0, y: 0}
+  m_SoftShadowQuality: 0
+  m_RenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_ShadowRenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_Version: 4
+  m_LightLayerMask: 1
+  m_ShadowLayerMask: 1
+  m_RenderingLayers: 1
+  m_ShadowRenderingLayers: 1
 --- !u!1 &947436964
 GameObject:
   m_ObjectHideFlags: 0
@@ -12258,6 +12328,7 @@ GameObject:
   m_Component:
   - component: {fileID: 954459475}
   - component: {fileID: 954459476}
+  - component: {fileID: 954459477}
   m_Layer: 0
   m_Name: Room Light
   m_TagString: Untagged
@@ -12345,6 +12416,35 @@ Light:
   m_LightUnit: 1
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
+--- !u!114 &954459477
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 954459474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
+  m_UsePipelineSettings: 1
+  m_AdditionalLightsShadowResolutionTier: 2
+  m_CustomShadowLayers: 0
+  m_LightCookieSize: {x: 1, y: 1}
+  m_LightCookieOffset: {x: 0, y: 0}
+  m_SoftShadowQuality: 0
+  m_RenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_ShadowRenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_Version: 4
+  m_LightLayerMask: 1
+  m_ShadowLayerMask: 1
+  m_RenderingLayers: 1
+  m_ShadowRenderingLayers: 1
 --- !u!1 &963971959
 GameObject:
   m_ObjectHideFlags: 0
@@ -15203,6 +15303,7 @@ MonoBehaviour:
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
+  closable: 0
 --- !u!1 &1198997023
 GameObject:
   m_ObjectHideFlags: 0
@@ -15369,6 +15470,7 @@ MonoBehaviour:
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
+  closable: 0
 --- !u!1 &1234719222
 GameObject:
   m_ObjectHideFlags: 0
@@ -18641,6 +18743,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1495010728}
   - component: {fileID: 1495010729}
+  - component: {fileID: 1495010730}
   m_Layer: 0
   m_Name: Room Light
   m_TagString: Untagged
@@ -18728,6 +18831,35 @@ Light:
   m_LightUnit: 1
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
+--- !u!114 &1495010730
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1495010727}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
+  m_UsePipelineSettings: 1
+  m_AdditionalLightsShadowResolutionTier: 2
+  m_CustomShadowLayers: 0
+  m_LightCookieSize: {x: 1, y: 1}
+  m_LightCookieOffset: {x: 0, y: 0}
+  m_SoftShadowQuality: 0
+  m_RenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_ShadowRenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_Version: 4
+  m_LightLayerMask: 1
+  m_ShadowLayerMask: 1
+  m_RenderingLayers: 1
+  m_ShadowRenderingLayers: 1
 --- !u!1 &1496906782
 GameObject:
   m_ObjectHideFlags: 0
@@ -19342,6 +19474,7 @@ MonoBehaviour:
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
+  closable: 0
 --- !u!1 &1554648280
 GameObject:
   m_ObjectHideFlags: 0
@@ -19396,6 +19529,7 @@ MonoBehaviour:
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
+  closable: 0
 --- !u!1 &1555167175
 GameObject:
   m_ObjectHideFlags: 0
@@ -21578,6 +21712,7 @@ MonoBehaviour:
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
+  closable: 0
 --- !u!1 &1744641153
 GameObject:
   m_ObjectHideFlags: 0
@@ -21968,6 +22103,7 @@ MonoBehaviour:
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
+  closable: 0
 --- !u!1 &1785240005
 GameObject:
   m_ObjectHideFlags: 0
@@ -24816,6 +24952,7 @@ MonoBehaviour:
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
+  closable: 0
 --- !u!1 &1984210510
 GameObject:
   m_ObjectHideFlags: 0

@@ -17,15 +17,20 @@ namespace ProjectRetrace.EditorTools
         [MenuItem("ProjectRetrace/Furniture/Create Dresser", false, 20)]
         public static void CreateDresser() => Place(BuildDresser());
 
-        /// <summary>Retrofits cupboards built before hiding existed, so a saved house
-        /// need not be regenerated to get it.</summary>
-        [MenuItem("ProjectRetrace/Furniture/Add Hiding Spots To Cupboards", false, 40)]
-        public static void AddHidingSpotsToCupboards()
+        /// <summary>Retrofits furniture built by an older builder -- hiding spots on
+        /// cupboards, one-way furniture doors -- so a saved house need not be regenerated.</summary>
+        [MenuItem("ProjectRetrace/Furniture/Upgrade Placed Furniture", false, 40)]
+        public static void UpgradePlacedFurniture()
         {
             var added = 0;
             foreach (var door in Object.FindObjectsByType<DoorInteractable>(FindObjectsInactive.Include, FindObjectsSortMode.None))
             {
-                var label = new SerializedObject(door).FindProperty("label").stringValue;
+                var serialized = new SerializedObject(door);
+                var label = serialized.FindProperty("label").stringValue;
+                if (label == "door") continue;
+
+                serialized.FindProperty("closable").boolValue = false;
+                serialized.ApplyModifiedProperties();
                 if (label != "cupboard" || door.transform.parent == null) continue;
 
                 var root = door.transform.parent.gameObject;
@@ -156,13 +161,14 @@ namespace ProjectRetrace.EditorTools
             return root;
         }
 
-        internal static DoorInteractable AddHinged(GameObject hinge, Vector3 axis, float angle, string label)
+        internal static DoorInteractable AddHinged(GameObject hinge, Vector3 axis, float angle, string label, bool closable = false)
         {
             var interactable = hinge.AddComponent<DoorInteractable>();
             var serialized = new SerializedObject(interactable);
             serialized.FindProperty("hingeAxis").vector3Value = axis;
             serialized.FindProperty("openAngle").floatValue = angle;
             serialized.FindProperty("label").stringValue = label;
+            serialized.FindProperty("closable").boolValue = closable;
             serialized.ApplyModifiedPropertiesWithoutUndo();
             return interactable;
         }

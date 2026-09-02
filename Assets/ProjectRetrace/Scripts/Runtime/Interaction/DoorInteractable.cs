@@ -3,7 +3,7 @@ using UnityEngine;
 namespace ProjectRetrace
 {
     /// <summary>A hinged panel: room doors, cupboard doors, chest lids. Swings around hingeAxis.</summary>
-    public class DoorInteractable : InteractableBase
+    public class DoorInteractable : InteractableBase, IOpenable
     {
         [SerializeField] private float openAngle = 90f;
         [SerializeField] private float openSpeed = 3f;
@@ -21,6 +21,9 @@ namespace ProjectRetrace
         [Tooltip("World volume this door seals off while locked. The keys are never hidden inside it until the door unlocks.")]
         [SerializeField] private Bounds sealedArea;
 
+        [Tooltip("Room doors can be shut again; furniture stays open once searched.")]
+        [SerializeField] private bool closable = true;
+
         private Quaternion _closedLocalRotation;
         private bool _isOpen;
         private float _openAmount;
@@ -28,6 +31,8 @@ namespace ProjectRetrace
         public override string Prompt => Locked
             ? $"Locked (opens round {unlocksAtRound})"
             : (_isOpen ? "Close " : "Open ") + label;
+
+        public override bool CanInteract => base.CanInteract && (closable || !_isOpen);
 
         /// <summary>
         /// Gated on the round counter rather than a key item: it is the only clock the game
@@ -63,7 +68,7 @@ namespace ProjectRetrace
         public override void Interact(PlayerInteractor interactor)
         {
             if (Locked) return;
-            _isOpen = !_isOpen;
+            _isOpen = closable ? !_isOpen : true;
         }
 
         private void Update()
