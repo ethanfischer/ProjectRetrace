@@ -21,15 +21,17 @@ namespace ProjectRetrace
         public readonly int CrumbIndex;
 
         /// <summary>What was used here, so the ghost can use it again -- it is how a
-        /// hiding place the player once opened stops being safe.</summary>
-        public readonly Transform Prop;
+        /// hiding place the player once opened stops being safe. An id rather than a scene
+        /// reference so a route stays plain data a remote client can replay; resolve it
+        /// through InteractableRegistry.Find.</summary>
+        public readonly string PropId;
 
-        public DwellPoint(Vector3 position, float facingYaw, int crumbIndex, Transform prop)
+        public DwellPoint(Vector3 position, float facingYaw, int crumbIndex, string propId)
         {
             Position = position;
             FacingYaw = facingYaw;
             CrumbIndex = crumbIndex;
-            Prop = prop;
+            PropId = propId;
         }
     }
 }

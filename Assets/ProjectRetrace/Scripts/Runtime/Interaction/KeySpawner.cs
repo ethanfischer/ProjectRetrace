@@ -55,10 +55,11 @@ namespace ProjectRetrace
 
         private static List<Transform> ValidSpots()
         {
-            // InstanceID sort keeps the order identical across the two PlaceKey calls in a run,
-            // so a fixed seed reproduces both hiding spots exactly.
-            var markers = Object.FindObjectsByType<KeySpotMarker>(FindObjectsSortMode.InstanceID);
-            var doors = Object.FindObjectsByType<DoorInteractable>(FindObjectsSortMode.InstanceID);
+            // Sorted by hierarchy path rather than instance id: instance ids differ from one
+            // process to the next, and an online opponent must draw the same spot from the
+            // same seed on their own machine.
+            var markers = Object.FindObjectsByType<KeySpotMarker>(FindObjectsSortMode.None);
+            var doors = Object.FindObjectsByType<DoorInteractable>(FindObjectsSortMode.None);
             var spots = new List<Transform>(markers.Length);
             for (var i = 0; i < markers.Length; i++)
             {
@@ -66,6 +67,7 @@ namespace ProjectRetrace
                 spots.Add(markers[i].transform);
             }
 
+            spots.Sort((a, b) => string.CompareOrdinal(HierarchyPath.Of(a), HierarchyPath.Of(b)));
             return spots;
         }
 

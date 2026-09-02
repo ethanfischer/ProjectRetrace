@@ -261,14 +261,15 @@ namespace ProjectRetrace
         /// visible rummage is optional; checking a cupboard for a hider never is.</summary>
         private void Rummage(DwellPoint dwell)
         {
-            if (dwell.Prop == null) return;
+            var prop = InteractableRegistry.Find(dwell.PropId);
+            if (prop == null) return;
 
-            if (RetraceConfig.Current.sentriesOpenFurniture && dwell.Prop.TryGetComponent<IOpenable>(out var openable))
+            if (RetraceConfig.Current.sentriesOpenFurniture && prop is IOpenable openable)
             {
                 openable.Open();
             }
 
-            var spot = dwell.Prop.GetComponentInParent<HidingSpot>();
+            var spot = prop.GetComponentInParent<HidingSpot>();
             if (spot != null) spot.OpenedBy(this);
         }
 

@@ -19,6 +19,8 @@ namespace ProjectRetrace
 
         public void Open() => _isOpen = true;
 
+        public void SetOpen(bool open) => _isOpen = open;
+
         /// <summary>Opening is one-way: a search leaves the house visibly rummaged, and
         /// closing things back up would only be busywork between the player and the keys.</summary>
         public override bool CanInteract => base.CanInteract && !_isOpen;

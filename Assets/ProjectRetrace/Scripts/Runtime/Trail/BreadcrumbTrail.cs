@@ -76,6 +76,26 @@ namespace ProjectRetrace
             _recording = false;
         }
 
+        /// <summary>The most recently finished route -- the one to hand an opponent.</summary>
+        public RecordedRoute LastCompleted => CompletedRouteCount > 0 ? _routes[CompletedRouteCount - 1] : null;
+
+        /// <summary>A route walked on another machine joins the pool exactly as a local one
+        /// would: nothing downstream cares where a route came from.</summary>
+        public void AddCompletedRoute(RecordedRoute route)
+        {
+            if (route == null) return;
+            var insertAt = _recording ? _routes.Count - 1 : _routes.Count;
+            _routes.Insert(insertAt, route);
+        }
+
+        /// <summary>Reconnect: the whole pool arrives from the relay's log at once.</summary>
+        public void SetRoutes(IEnumerable<RecordedRoute> routes)
+        {
+            _recording = false;
+            _routes.Clear();
+            _routes.AddRange(routes);
+        }
+
         private void OnDisable()
         {
             ListenTo(null);
@@ -139,8 +159,8 @@ namespace ProjectRetrace
             var route = CurrentRoute;
             if (IsWithinLastDwell(route, tracked.position)) return;
 
-            var prop = used is Component component ? component.transform : null;
-            route.Dwells.Add(new DwellPoint(tracked.position, tracked.eulerAngles.y, route.Crumbs.Count - 1, prop));
+            var propId = InteractableRegistry.IdOf(used);
+            route.Dwells.Add(new DwellPoint(tracked.position, tracked.eulerAngles.y, route.Crumbs.Count - 1, propId));
         }
 
         /// <summary>A dresser's three drawers are one stop, not three: anything used within

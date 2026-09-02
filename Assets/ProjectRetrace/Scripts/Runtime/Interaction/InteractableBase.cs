@@ -11,7 +11,14 @@ namespace ProjectRetrace
     {
         [SerializeField] private string prompt = "Use";
 
+        private string _id;
+
         public virtual string Prompt => prompt;
+
+        /// <summary>Stable across machines running the same build, and fixed for the
+        /// component's lifetime: the keys are reparented into their hiding spot, and a
+        /// route that named them must still find them afterwards.</summary>
+        public string Id => _id ?? (_id = HierarchyPath.Of(transform));
         public virtual bool CanInteract => isActiveAndEnabled;
 
         protected virtual void OnEnable()
