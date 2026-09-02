@@ -21,6 +21,7 @@ namespace ProjectRetrace
         private float _pitch;
         private float _verticalVelocity;
         private bool _inputEnabled = true;
+        private bool _movementEnabled = true;
 
         private void Awake()
         {
@@ -41,6 +42,13 @@ namespace ProjectRetrace
         {
             _inputEnabled = inputEnabled;
             LockCursor(inputEnabled);
+        }
+
+        /// <summary>Hidden in a cupboard: you can still look around, you just can't walk
+        /// through its walls.</summary>
+        public void SetMovementEnabled(bool movementEnabled)
+        {
+            _movementEnabled = movementEnabled;
         }
 
         public static void LockCursor(bool locked)
@@ -72,7 +80,7 @@ namespace ProjectRetrace
             if (!_inputEnabled) return;
 
             Look();
-            Move();
+            if (_movementEnabled) Move();
         }
 
         private void Look()

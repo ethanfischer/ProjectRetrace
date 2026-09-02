@@ -16,6 +16,26 @@ namespace ProjectRetrace.EditorTools
         [MenuItem("ProjectRetrace/Furniture/Create Dresser", false, 20)]
         public static void CreateDresser() => Place(BuildDresser());
 
+        /// <summary>Retrofits cupboards built before hiding existed, so a saved house
+        /// need not be regenerated to get it.</summary>
+        [MenuItem("ProjectRetrace/Furniture/Add Hiding Spots To Cupboards", false, 40)]
+        public static void AddHidingSpotsToCupboards()
+        {
+            var added = 0;
+            foreach (var door in Object.FindObjectsByType<DoorInteractable>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                var label = new SerializedObject(door).FindProperty("label").stringValue;
+                if (label != "cupboard" || door.transform.parent == null) continue;
+
+                var root = door.transform.parent.gameObject;
+                if (root.GetComponent<HidingSpot>() != null) continue;
+                Undo.AddComponent<HidingSpot>(root);
+                added++;
+            }
+
+            Debug.Log($"[ProjectRetrace] Added HidingSpot to {added} cupboard(s).");
+        }
+
         [MenuItem("ProjectRetrace/Furniture/Create Cupboard", false, 21)]
         public static void CreateCupboard() => Place(BuildCupboard());
 
@@ -80,6 +100,7 @@ namespace ProjectRetrace.EditorTools
             var hinge = Child(root.transform, "Door", new Vector3(-0.39f, 0.9f, 0.25f));
             Panel(hinge, "Panel", new Vector3(0.39f, 0f, 0f), new Vector3(0.76f, 1.76f, 0.02f));
             AddHinged(hinge, Vector3.up, -110f, "cupboard");
+            root.AddComponent<HidingSpot>();
 
             KeySpot(root, new Vector3(0f, 0.96f, 0.1f));
             return root;

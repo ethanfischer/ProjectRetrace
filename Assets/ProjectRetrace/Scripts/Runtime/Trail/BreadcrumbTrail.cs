@@ -142,14 +142,15 @@ namespace ProjectRetrace
             }
         }
 
-        private void RecordDwell()
+        private void RecordDwell(IInteractable used)
         {
             if (!_recording) return;
 
             var route = CurrentRoute;
             if (IsWithinLastDwell(route, tracked.position)) return;
 
-            route.Dwells.Add(new DwellPoint(tracked.position, tracked.eulerAngles.y, route.Crumbs.Count - 1));
+            var prop = used is Component component ? component.transform : null;
+            route.Dwells.Add(new DwellPoint(tracked.position, tracked.eulerAngles.y, route.Crumbs.Count - 1, prop));
         }
 
         /// <summary>A dresser's three drawers are one stop, not three: anything used within

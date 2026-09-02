@@ -41,6 +41,14 @@ namespace ProjectRetrace
 
         public bool Seals(Vector3 worldPoint) => Locked && sealedArea.Contains(worldPoint);
 
+        public bool IsOpen => _isOpen;
+
+        public void SetOpen(bool open)
+        {
+            if (Locked) return;
+            _isOpen = open;
+        }
+
         /// <summary>True on the round this door first opens, so the HUD can call it out once.</summary>
         public bool UnlocksThisRound =>
             unlocksAtRound > 0

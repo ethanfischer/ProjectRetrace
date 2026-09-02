@@ -95,6 +95,10 @@ spot for that round, so what you learned before getting caught stays true. Run o
 attempts and the run is lost. A `graceSeconds` window after each attempt starts keeps the
 near-spawn patrol starts fair.
 
+**Hiding.** Open a cupboard and Use again to climb in; the door shuts behind you and
+sentries cannot see you. Use once more to step out. The catch: a ghost retracing a route
+that opened that cupboard opens it again on its pause and drags you out.
+
 Two deliberate anti-exploit choices: the sentry never replays your *timing* (standing
 still records nothing, and rattling one dresser records one dwell, not one per drawer),
 and pause length is fixed no matter how long you actually spent there.

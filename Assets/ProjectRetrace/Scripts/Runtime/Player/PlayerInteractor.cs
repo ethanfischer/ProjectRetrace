@@ -15,7 +15,12 @@ namespace ProjectRetrace
 
         /// <summary>Raised after the player uses something. The trail listens so a sentry
         /// later pauses exactly where the player rummaged.</summary>
-        public event Action Interacted;
+        public event Action<IInteractable> Interacted;
+
+        /// <summary>Set by the HidingSpot the player is inside. While hidden every Use press
+        /// means "get out": the reticle is pressed against the inside of a door, and the
+        /// door itself must not answer.</summary>
+        public HidingSpot Hiding { get; set; }
 
         private IInteractable _current;
         private bool _inputEnabled = true;
@@ -59,13 +64,14 @@ namespace ProjectRetrace
                 return;
             }
 
-            _current = FindTarget();
+            _current = Hiding != null ? Hiding : FindTarget();
             SetHighlighted(_current as Component);
 
             if (_current != null && InteractPressedThisFrame())
             {
-                _current.Interact(this);
-                Interacted?.Invoke();
+                var used = _current;
+                used.Interact(this);
+                Interacted?.Invoke(used);
             }
         }
 
@@ -117,7 +123,7 @@ namespace ProjectRetrace
         private IInteractable Resolve(RaycastHit hit)
         {
             var interactable = hit.collider.GetComponentInParent<IInteractable>();
-            if (interactable == null)
+            if (interactable == null || !interactable.CanInteract)
             {
                 interactable = LatchOntoNearestPart(hit);
             }

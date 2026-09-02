@@ -254,6 +254,22 @@ namespace ProjectRetrace
             _agent.updateRotation = false;
             _lookTimer = 0f;
             _lookYaw = dwell.FacingYaw;
+            ReopenHidingSpot(dwell);
+        }
+
+        private void ReopenHidingSpot(DwellPoint dwell)
+        {
+            if (dwell.Prop == null) return;
+            var spot = dwell.Prop.GetComponentInParent<HidingSpot>();
+            if (spot != null) spot.OpenedBy(this);
+        }
+
+        /// <summary>Detection by touch rather than sight: the ghost opened the door you
+        /// were behind.</summary>
+        public void SpotPlayer()
+        {
+            if (State == SentryState.Chasing || State == SentryState.Inactive) return;
+            OnPlayerSeen();
         }
 
         private void UpdateLook()

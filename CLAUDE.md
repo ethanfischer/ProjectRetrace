@@ -96,6 +96,13 @@ the generated 1.1m doorways) — no baked asset to go stale when the test house 
 Every `DoorInteractable` is excluded from that bake: ghosts never operate doors, so they
 walk through them rather than being stranded by one that restored closed.
 
+`HidingSpot` sits on a cupboard's root beside its `DoorInteractable`: with the door open,
+Use climbs in and shuts it; while hidden `PlayerInteractor.Hiding` routes every Use to
+"Leave". Hiding is only as safe as the route that got you there: a `DwellPoint` carries the
+`Prop` that was used, and a ghost pausing at one calls `HidingSpot.OpenedBy`, which opens
+the door and hauls out (and spots) anyone inside. Ghosts never hide themselves.
+ProjectRetrace > Furniture > Add Hiding Spots To Cupboards retrofits an older scene.
+
 `DoorInteractable` can be round-locked (`unlocksAtRound`, a displayed round number, read
 against `GameDirector.Instance.StealthRound`) and carries a `sealedArea`; `KeySpawner`
 skips any hiding spot inside a locked door's sealed volume. The generated house uses this
