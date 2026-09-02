@@ -65,7 +65,7 @@ namespace ProjectRetrace
             }
 
             _current = Hiding != null ? Hiding : FindTarget();
-            SetHighlighted(_current as Component);
+            SetHighlighted(Hiding != null ? null : _current as Component);
 
             if (_current != null && InteractPressedThisFrame())
             {

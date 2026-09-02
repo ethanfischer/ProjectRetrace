@@ -14,7 +14,7 @@ namespace ProjectRetrace
     public class HidingSpot : InteractableBase
     {
         [Tooltip("Where the player stands while hidden, in the prop's local space.")]
-        [SerializeField] private Vector3 hideLocalPosition = Vector3.zero;
+        [SerializeField] private Vector3 hideLocalPosition = new Vector3(0f, 0f, -0.08f);
 
         [Tooltip("Where the player steps out to, in the prop's local space.")]
         [SerializeField] private Vector3 exitLocalPosition = new Vector3(0f, 0f, 0.9f);
@@ -22,6 +22,12 @@ namespace ProjectRetrace
         private DoorInteractable _door;
         private PlayerInteractor _occupant;
         private FirstPersonController _occupantController;
+        private float _savedNearClip;
+        private Renderer[] _doorRenderers = System.Array.Empty<Renderer>();
+
+        /// <summary>The default near plane is wider than the cupboard is deep, so it cut
+        /// straight through the door and showed the room outside.</summary>
+        private const float HiddenNearClip = 0.03f;
 
         public bool Occupied => _occupant != null;
 
@@ -33,6 +39,7 @@ namespace ProjectRetrace
         private void Awake()
         {
             _door = GetComponentInChildren<DoorInteractable>();
+            if (_door != null) _doorRenderers = _door.GetComponentsInChildren<Renderer>();
         }
 
         public override void Interact(PlayerInteractor interactor)
@@ -61,6 +68,9 @@ namespace ProjectRetrace
             _occupantController = controller;
             controller.Teleport(transform.TransformPoint(hideLocalPosition), transform.rotation);
             controller.SetMovementEnabled(false);
+            controller.SetPeek(transform.eulerAngles.y);
+            SetHiddenCamera(true);
+            SetDoorVisible(false);
             interactor.Hiding = this;
             if (_door != null) _door.SetOpen(false);
         }
@@ -76,10 +86,64 @@ namespace ProjectRetrace
         /// player to spawn right after restoring, so a stray hop out would be pointless.</summary>
         private void Release()
         {
-            if (_occupantController != null) _occupantController.SetMovementEnabled(true);
+            if (_occupantController != null)
+            {
+                _occupantController.SetMovementEnabled(true);
+                _occupantController.ClearPeek();
+                SetHiddenCamera(false);
+                SetDoorVisible(true);
+            }
+
             if (_occupant != null) _occupant.Hiding = null;
             _occupant = null;
             _occupantController = null;
+        }
+
+        /// <summary>The door's collider keeps blocking sightlines; only its mesh goes, so
+        /// the crack you peek through actually shows the room. From outside the door reads
+        /// as missing for the duration, which nobody is positioned to see.</summary>
+        private void SetDoorVisible(bool visible)
+        {
+            foreach (var renderer in _doorRenderers)
+            {
+                if (renderer != null) renderer.enabled = visible;
+            }
+        }
+
+        private void SetHiddenCamera(bool hidden)
+        {
+            var camera = Camera.main;
+            if (camera == null) return;
+
+            if (hidden)
+            {
+                _savedNearClip = camera.nearClipPlane;
+                camera.nearClipPlane = HiddenNearClip;
+            }
+            else
+            {
+                camera.nearClipPlane = _savedNearClip;
+            }
+        }
+
+        /// <summary>Everything but a thin bright band goes dark: you are looking through
+        /// the crack of a door, and the crack is where the ghost will appear.</summary>
+        private void OnGUI()
+        {
+            if (!Occupied) return;
+
+            GUI.depth = 10;
+            HudScale.Apply();
+            var width = HudScale.Width;
+            var height = HudScale.Height;
+            var slit = height * RetraceConfig.Current.peekSlitHeight;
+            var slitTop = (height - slit) * 0.5f;
+
+            var previous = GUI.color;
+            GUI.color = Color.black;
+            GUI.DrawTexture(new Rect(0f, 0f, width, slitTop), Texture2D.whiteTexture);
+            GUI.DrawTexture(new Rect(0f, slitTop + slit, width, height - slitTop - slit), Texture2D.whiteTexture);
+            GUI.color = previous;
         }
 
         public override void CaptureInitialState()

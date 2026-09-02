@@ -22,6 +22,8 @@ namespace ProjectRetrace
         private float _verticalVelocity;
         private bool _inputEnabled = true;
         private bool _movementEnabled = true;
+        private bool _peeking;
+        private float _peekCentreYaw;
 
         private void Awake()
         {
@@ -49,6 +51,21 @@ namespace ProjectRetrace
         public void SetMovementEnabled(bool movementEnabled)
         {
             _movementEnabled = movementEnabled;
+        }
+
+        /// <summary>Peeking through a door crack: yaw is clamped around the crack and pitch
+        /// is pinned level, so the view stays inside the slit the overlay draws.</summary>
+        public void SetPeek(float centreYaw)
+        {
+            _peeking = true;
+            _peekCentreYaw = centreYaw;
+            _pitch = 0f;
+            if (cameraPivot != null) cameraPivot.localRotation = Quaternion.identity;
+        }
+
+        public void ClearPeek()
+        {
+            _peeking = false;
         }
 
         public static void LockCursor(bool locked)
@@ -92,12 +109,24 @@ namespace ProjectRetrace
             var look = mouse.delta.ReadValue() * (LegacyMouseAxisSensitivity * config.mouseSensitivity);
 
             transform.Rotate(Vector3.up, look.x, Space.Self);
+            if (_peeking)
+            {
+                ClampYawToPeek(config.peekYawDegrees);
+                return;
+            }
 
             _pitch = Mathf.Clamp(_pitch - look.y, -config.pitchLimit, config.pitchLimit);
             if (cameraPivot != null)
             {
                 cameraPivot.localRotation = Quaternion.Euler(_pitch, 0f, 0f);
             }
+        }
+
+        private void ClampYawToPeek(float halfRange)
+        {
+            var offset = Mathf.DeltaAngle(_peekCentreYaw, transform.eulerAngles.y);
+            offset = Mathf.Clamp(offset, -halfRange, halfRange);
+            transform.rotation = Quaternion.Euler(0f, _peekCentreYaw + offset, 0f);
         }
 
         private void Move()

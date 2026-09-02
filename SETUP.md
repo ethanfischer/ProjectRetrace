@@ -127,6 +127,7 @@ The difficulty curve is `sentrySpeed` (2.0, below your 3.4 `walkSpeed`), `vision
 and angle, re-cut against the walls every frame. If the cone touches your feet, it can
 see you.
 
+`peekYawDegrees` / `peekSlitHeight` shape the door-crack view while hiding.
 `dwellRadius` folds interactions close to the previous stop into it;
 `lookAroundSeconds` is how long the sentry honours each one. Keybinds are Input System
 `Key` names (`E`, `Backquote`, `Enter`); an unrecognised name falls back to the default.

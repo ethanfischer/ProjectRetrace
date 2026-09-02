@@ -36,6 +36,11 @@ namespace ProjectRetrace
         public float dotSpacing = 0.1f;
         public float dwellRadius = 0.9f;
 
+        // Hiding. Peeking through the door crack: how far you can turn, and how tall the
+        // crack is as a fraction of the screen.
+        public float peekYawDegrees = 20f;
+        public float peekSlitHeight = 0.08f;
+
         // Sentry. sentrySpeed sits below walkSpeed so being followed stays escapable; the
         // chase after a spot only sells a catch that is already decided.
         public float sentrySpeed = 2.0f;
