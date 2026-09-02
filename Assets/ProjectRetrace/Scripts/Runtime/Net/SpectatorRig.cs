@@ -6,12 +6,14 @@ namespace ProjectRetrace
     /// <summary>
     /// The spectator's whole job: draw the turn owner's stream. The player rig becomes a
     /// puppet wearing a visible avatar, the ghost pool becomes puppets, and the house
-    /// mirrors whatever the owner's snapshots say is open. Chase cam by default, because
-    /// watching your own ghost stalk your friend is the point; free-fly on a key for when
-    /// you'd rather see the whole floor.
+    /// mirrors whatever the owner's snapshots say is open. First person by default -- you
+    /// see exactly what your opponent sees, ghost rounding the corner included; a chase cam
+    /// for watching your own ghost stalk them, and free-fly for the whole floor.
     /// </summary>
     public class SpectatorRig : MonoBehaviour
     {
+        public enum View { FirstPerson, Chase, Free }
+
         private const float FreeFlySpeed = 6f;
         private const float FreeFlyLookScale = 0.1f;
         private static readonly Vector3 ChaseOffset = new Vector3(0f, 0.9f, -2.6f);
@@ -26,23 +28,19 @@ namespace ProjectRetrace
         private float _flyPitch;
 
         public bool Active { get; private set; }
-        public bool FreeFly { get; private set; }
+        public View CurrentView { get; private set; }
+        public View NextView => (View)(((int)CurrentView + 1) % 3);
+        private bool FreeFly => CurrentView == View.Free;
         public bool HasStream => _buffer.Count > 0;
 
         public void Begin()
         {
             if (Active) return;
             Active = true;
-            FreeFly = false;
             _buffer.Clear();
-            if (player != null)
-            {
-                player.SetPuppet(true);
-                player.SetCameraOffset(ChaseOffset);
-            }
-
-            EnsureAvatar().SetActive(true);
-            FirstPersonController.LockCursor(false);
+            if (player != null) player.SetPuppet(true);
+            EnsureAvatar();
+            ApplyView(View.FirstPerson);
         }
 
         public void End()
@@ -76,7 +74,7 @@ namespace ProjectRetrace
             var keyboard = Keyboard.current;
             if (keyboard != null && keyboard[RetraceConfig.Current.SpectatorCameraKey].wasPressedThisFrame)
             {
-                ToggleFreeFly();
+                ApplyView(NextView);
             }
 
             if (FreeFly) FlyInput();
@@ -96,7 +94,9 @@ namespace ProjectRetrace
             if (_avatar != null)
             {
                 _avatar.transform.SetPositionAndRotation(position, Quaternion.Euler(0f, yaw, 0f));
-                _avatar.SetActive(!next.hiding);
+                // In first person the avatar would sit inside the camera; a hider has no
+                // body to show in any view.
+                _avatar.SetActive(CurrentView != View.FirstPerson && !next.hiding);
             }
 
             if (player != null)
@@ -135,22 +135,22 @@ namespace ProjectRetrace
             return null;
         }
 
-        private void ToggleFreeFly()
+        private void ApplyView(View view)
         {
-            FreeFly = !FreeFly;
-            if (FreeFly && player != null)
+            CurrentView = view;
+            if (player != null)
             {
-                _flyPosition = player.transform.position + Vector3.up * 0.9f;
-                _flyYaw = player.transform.eulerAngles.y;
-                _flyPitch = 20f;
-                player.SetCameraOffset(Vector3.zero);
-            }
-            else if (player != null)
-            {
-                player.SetCameraOffset(ChaseOffset);
+                if (view == View.Free)
+                {
+                    _flyPosition = player.transform.position + Vector3.up * 0.9f;
+                    _flyYaw = player.transform.eulerAngles.y;
+                    _flyPitch = 20f;
+                }
+
+                player.SetCameraOffset(view == View.Chase ? ChaseOffset : Vector3.zero);
             }
 
-            FirstPersonController.LockCursor(FreeFly);
+            FirstPersonController.LockCursor(view == View.Free);
         }
 
         private void FlyInput()

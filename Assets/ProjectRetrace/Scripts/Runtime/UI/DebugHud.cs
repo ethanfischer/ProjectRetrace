@@ -157,9 +157,11 @@ namespace ProjectRetrace
                     break;
                 case GamePhase.Spectate:
                     banner = $"Spectating Player {director.CurrentPlayer} -- round {director.StealthRound + 1} [{director.LivesRemaining}/{maxLives} tries]";
-                    banner += director.spectator != null && director.spectator.FreeFly
-                        ? $"  [{RetraceConfig.Current.SpectatorCameraKey}] chase cam"
-                        : $"  [{RetraceConfig.Current.SpectatorCameraKey}] free camera";
+                    if (director.spectator != null)
+                    {
+                        banner += $"  [{RetraceConfig.Current.SpectatorCameraKey}] {ViewName(director.spectator.NextView)}";
+                    }
+
                     break;
                 default:
                     return;
@@ -193,6 +195,16 @@ namespace ProjectRetrace
             GUI.Label(new Rect(box.x, box.y + 54f, box.width, 24f),
                 $"{ghosts} ghost{(ghosts == 1 ? "" : "s")} on patrol -- waiting for them to start...", _handover);
             DrawConnection();
+        }
+
+        private static string ViewName(SpectatorRig.View view)
+        {
+            switch (view)
+            {
+                case SpectatorRig.View.FirstPerson: return "their eyes";
+                case SpectatorRig.View.Chase: return "chase cam";
+                default: return "free camera";
+            }
         }
 
         private static bool AnyDoorUnlocksThisRound()

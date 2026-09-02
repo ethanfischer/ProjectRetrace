@@ -85,8 +85,8 @@ search round is the threat-free one.
 
 **Online** ([3] on the start menu) is the same match across two machines: create a room
 and read the four-letter code out, or type a friend's. Whoever's round it is plays it
-exactly as above; the other watches it live from a chase cam (**C** toggles a free
-camera). Both clients must be the same build, and both need a relay to talk through —
+exactly as above; the other watches it live through their eyes (**C** cycles to a chase
+cam, then a free camera). Both clients must be the same build, and both need a relay to talk through —
 see [ONLINE.md](ONLINE.md) and [relay/README.md](relay/README.md).
 
 Detection is cone + line-of-sight (head and chest checked separately, so furniture can

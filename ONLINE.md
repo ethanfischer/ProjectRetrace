@@ -26,8 +26,9 @@ Watching your opponent's round is one-way streaming, not netcode:
   `SnapshotBuffer` read `spectatorDelaySeconds` behind the sender's clock. Do NOT "run the
   round locally and only stream the player": NavMeshAgent movement is not bit-deterministic
   across machines and the spectator would eventually show a catch that didn't happen.
-- **Camera**: chase cam behind a conjured avatar first (watching your own ghost stalk your
-  friend is the point); free-fly on `spectatorCameraKey` (C).
+- **Camera**: first person by default -- you see exactly what your opponent sees.
+  `spectatorCameraKey` (C) cycles to a chase cam behind a conjured avatar (watching your own
+  ghost stalk your friend) and then a free-fly camera.
 
 ## Transport
 
