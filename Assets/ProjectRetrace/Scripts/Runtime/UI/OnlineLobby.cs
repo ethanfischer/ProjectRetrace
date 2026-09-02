@@ -48,7 +48,13 @@ namespace ProjectRetrace
                     break;
                 case NetState.Connecting:
                     GUI.Label(new Rect(panel.x, y, panel.width, 24f), "Connecting to " + OnlineSession.RelayUrl + "...", _line);
-                    y += 40f;
+                    if (session.ConnectAttempts > 0)
+                    {
+                        GUI.Label(new Rect(panel.x, y + 28f, panel.width, 24f),
+                            "Waking the relay up -- this can take a minute the first time", _line);
+                    }
+
+                    y += 60f;
                     break;
                 case NetState.InRoom:
                     GUI.Label(new Rect(panel.x, y, panel.width, 24f), "Room code", _line);

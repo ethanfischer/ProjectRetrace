@@ -31,6 +31,8 @@ namespace ProjectRetrace
     public class OnlineSession : MonoBehaviour
     {
         private const float PingIntervalSeconds = 5f;
+        private const float ConnectPatienceSeconds = 90f;
+        private const float ConnectRetrySeconds = 3f;
         private const string SavedRoomKey = "ProjectRetrace.Room";
         private const string SavedSeatKey = "ProjectRetrace.Seat";
         private const string SavedTokenKey = "ProjectRetrace.Token";
@@ -40,6 +42,8 @@ namespace ProjectRetrace
 
         private INetTransport _transport;
         private string _pendingRequest;
+        private float _connectDeadline;
+        private float _retryAt;
         private bool _replaying;
         private MatchStartMsg _replayMatch;
         private readonly List<RouteCompleteMsg> _replayRoutes = new List<RouteCompleteMsg>();
@@ -60,6 +64,7 @@ namespace ProjectRetrace
         public float RttMs { get; private set; }
         public string LastError { get; private set; } = string.Empty;
         public int Epoch { get; private set; }
+        public int ConnectAttempts { get; private set; }
         public bool RematchRequested { get; private set; }
         public bool InMatch => State == NetState.InMatch;
         public bool CanResume => PlayerPrefs.HasKey(SavedRoomKey);
@@ -115,6 +120,19 @@ namespace ProjectRetrace
             _helloSent = _helloMatched = false;
             LastError = string.Empty;
             State = NetState.Connecting;
+            _connectDeadline = Time.unscaledTime + ConnectPatienceSeconds;
+            ConnectAttempts = 0;
+            _retryAt = 0f;
+            _transport.Connect(RelayUrl);
+        }
+
+        /// <summary>A free-tier relay sleeps when idle and drops the first sockets while it
+        /// wakes, so a refused connection is retried for a while before it counts as an
+        /// error. The lobby reads ConnectAttempts to say "waking" rather than "failed".</summary>
+        private void RetryConnect()
+        {
+            _retryAt = 0f;
+            ConnectAttempts++;
             _transport.Connect(RelayUrl);
         }
 
@@ -189,6 +207,12 @@ namespace ProjectRetrace
         {
             if (State == NetState.Idle) return;
             PeerPresent = false;
+            if (State == NetState.Connecting && Time.unscaledTime < _connectDeadline)
+            {
+                _retryAt = Time.unscaledTime + ConnectRetrySeconds;
+                return;
+            }
+
             State = State == NetState.Connecting ? NetState.Error : NetState.Disconnected;
             LastError = reason;
         }
@@ -387,6 +411,8 @@ namespace ProjectRetrace
             if (_transport == null) return;
             _transport.Poll();
             if (State == NetState.Idle || State == NetState.Lobby) return;
+
+            if (State == NetState.Connecting && _retryAt > 0f && Time.unscaledTime >= _retryAt) RetryConnect();
 
             if (_transport.IsOpen && Time.unscaledTime >= _nextPingAt)
             {

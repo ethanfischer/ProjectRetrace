@@ -4,6 +4,7 @@
 // the two things it does understand (seats and the durable log) are the two things that
 // cannot be agreed client-side, and everything else can change without touching this file.
 import { WebSocketServer } from 'ws';
+import { createServer } from 'node:http';
 import { randomBytes } from 'node:crypto';
 
 const PORT = Number(process.env.PORT ?? 8787);
@@ -96,7 +97,13 @@ function relay(ws, raw, msg) {
   send(room.seats[2 - ws.seat], raw);
 }
 
-const wss = new WebSocketServer({ port: PORT });
+// Plain HTTP answers 200 so a hosting health check (and a curious browser) sees the
+// relay is up; everything real arrives as a WebSocket upgrade on the same port.
+const http = createServer((req, res) => {
+  res.writeHead(200, { 'content-type': 'text/plain' });
+  res.end(`retrace relay: ${rooms.size} room(s)\n`);
+});
+const wss = new WebSocketServer({ server: http });
 wss.on('connection', (ws) => {
   ws.alive = true;
   ws.on('pong', () => { ws.alive = true; });
@@ -130,4 +137,4 @@ setInterval(() => {
   }
 }, HEARTBEAT_MS);
 
-console.log(`retrace relay listening on ws://localhost:${PORT}`);
+http.listen(PORT, () => console.log(`retrace relay listening on ws://localhost:${PORT}`));

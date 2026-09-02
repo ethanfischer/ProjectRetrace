@@ -22,7 +22,15 @@ in `retrace-config.json` to override either.
 - Rooms with both seats empty for 30 minutes are dropped. The log lives in memory only:
   restarting the relay forgets every match in progress.
 
-## Deploying
+## Deploying on Render (free)
+
+`render.yaml` at the repo root describes the service. In the Render dashboard choose
+New > Blueprint, pick this repository, and it builds `relay/` and gives you
+`wss://retrace-relay.onrender.com`. Free instances sleep after 15 minutes idle and take
+up to a minute to wake; the game retries the connection for 90 seconds and shows
+"Waking the relay up" meanwhile. The second player finds it awake.
+
+## Deploying elsewhere
 
 The game's WebGL build is served over https (itch.io), and browsers refuse `ws://` from an
 https page, so a public relay must be reachable over `wss://`. Any host that terminates TLS
