@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using ProjectRetrace;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -15,6 +16,58 @@ namespace ProjectRetrace.EditorTools
     {
         [MenuItem("ProjectRetrace/Furniture/Create Dresser", false, 20)]
         public static void CreateDresser() => Place(BuildDresser());
+
+        /// <summary>Retrofits furniture built by an older builder -- hiding spots on
+        /// cupboards, one-way furniture doors -- so a saved house need not be regenerated.</summary>
+        [MenuItem("ProjectRetrace/Furniture/Upgrade Placed Furniture", false, 40)]
+        public static void UpgradePlacedFurniture()
+        {
+            var added = 0;
+            foreach (var door in Object.FindObjectsByType<DoorInteractable>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                var serialized = new SerializedObject(door);
+                var label = serialized.FindProperty("label").stringValue;
+                if (label == "door") continue;
+
+                serialized.FindProperty("closable").boolValue = false;
+                serialized.ApplyModifiedProperties();
+                if (label != "cupboard" || door.transform.parent == null) continue;
+
+                var root = door.transform.parent.gameObject;
+                if (root.GetComponent<HidingSpot>() != null) continue;
+                Undo.AddComponent<HidingSpot>(root);
+                added++;
+            }
+
+            Debug.Log($"[ProjectRetrace] Added HidingSpot to {added} cupboard(s).");
+        }
+
+        /// <summary>Swaps every placed dresser for a freshly built one at the same
+        /// transform, so a saved house picks up builder changes without regenerating.</summary>
+        [MenuItem("ProjectRetrace/Furniture/Rebuild Dressers", false, 41)]
+        public static void RebuildDressers()
+        {
+            var dressers = new HashSet<Transform>();
+            foreach (var drawer in Object.FindObjectsByType<DrawerInteractable>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                var parent = drawer.transform.parent;
+                if (parent != null && parent.name == "Dresser") dressers.Add(parent);
+            }
+
+            var rebuilt = 0;
+            foreach (var old in dressers)
+            {
+                var fresh = BuildDresser();
+                fresh.transform.SetParent(old.parent, false);
+                fresh.transform.SetPositionAndRotation(old.position, old.rotation);
+                fresh.transform.SetSiblingIndex(old.GetSiblingIndex());
+                Undo.DestroyObjectImmediate(old.gameObject);
+                rebuilt++;
+            }
+
+            Debug.Log($"[ProjectRetrace] Rebuilt {rebuilt} dresser(s).");
+            Finish(null);
+        }
 
         [MenuItem("ProjectRetrace/Furniture/Create Cupboard", false, 21)]
         public static void CreateCupboard() => Place(BuildCupboard());
@@ -36,6 +89,9 @@ namespace ProjectRetrace.EditorTools
 
         // All props are built with their pivot on the floor and their front facing local +Z.
 
+        /// <summary>One deep drawer rather than a stack: an open upper drawer hid the lower
+        /// one's front from standing height and stole its clicks. The tray has side walls
+        /// so an open drawer doesn't show the room through the carcass.</summary>
         internal static GameObject BuildDresser()
         {
             var root = NewRoot("Dresser");
@@ -46,23 +102,24 @@ namespace ProjectRetrace.EditorTools
             Panel(root, "Right", new Vector3(0.44f, 0.4f, 0f), new Vector3(0.02f, 0.8f, 0.5f));
             Panel(root, "Back", new Vector3(0f, 0.4f, -0.24f), new Vector3(0.9f, 0.8f, 0.02f));
 
-            BuildDrawer(root, "Drawer Lower", 0.22f);
-            BuildDrawer(root, "Drawer Upper", 0.58f);
+            BuildDrawer(root, "Drawer", 0.4f);
             return root;
         }
 
         private static void BuildDrawer(GameObject root, string name, float height)
         {
             var drawer = Child(root.transform, name, new Vector3(0f, height, 0.25f));
-            Panel(drawer, "Front", Vector3.zero, new Vector3(0.84f, 0.3f, 0.02f));
-            Panel(drawer, "Tray", new Vector3(0f, -0.13f, -0.23f), new Vector3(0.8f, 0.02f, 0.44f));
-            Panel(drawer, "TrayBack", new Vector3(0f, 0f, -0.44f), new Vector3(0.8f, 0.26f, 0.02f));
-            KeySpot(drawer, new Vector3(0f, -0.06f, -0.2f));
+            Panel(drawer, "Front", Vector3.zero, new Vector3(0.88f, 0.76f, 0.02f));
+            Panel(drawer, "Tray", new Vector3(0f, -0.36f, -0.23f), new Vector3(0.8f, 0.02f, 0.44f));
+            Panel(drawer, "TrayLeft", new Vector3(-0.39f, -0.12f, -0.23f), new Vector3(0.02f, 0.5f, 0.44f));
+            Panel(drawer, "TrayRight", new Vector3(0.39f, -0.12f, -0.23f), new Vector3(0.02f, 0.5f, 0.44f));
+            Panel(drawer, "TrayBack", new Vector3(0f, -0.12f, -0.44f), new Vector3(0.8f, 0.5f, 0.02f));
+            KeySpot(drawer, new Vector3(0f, -0.3f, -0.2f));
 
             var interactable = drawer.AddComponent<DrawerInteractable>();
             var serialized = new SerializedObject(interactable);
             serialized.FindProperty("slideAxis").vector3Value = Vector3.forward;
-            serialized.FindProperty("openDistance").floatValue = 0.35f;
+            serialized.FindProperty("openDistance").floatValue = 0.4f;
             serialized.ApplyModifiedPropertiesWithoutUndo();
         }
 
@@ -80,6 +137,7 @@ namespace ProjectRetrace.EditorTools
             var hinge = Child(root.transform, "Door", new Vector3(-0.39f, 0.9f, 0.25f));
             Panel(hinge, "Panel", new Vector3(0.39f, 0f, 0f), new Vector3(0.76f, 1.76f, 0.02f));
             AddHinged(hinge, Vector3.up, -110f, "cupboard");
+            root.AddComponent<HidingSpot>();
 
             KeySpot(root, new Vector3(0f, 0.96f, 0.1f));
             return root;
@@ -103,14 +161,16 @@ namespace ProjectRetrace.EditorTools
             return root;
         }
 
-        private static void AddHinged(GameObject hinge, Vector3 axis, float angle, string label)
+        internal static DoorInteractable AddHinged(GameObject hinge, Vector3 axis, float angle, string label, bool closable = false)
         {
             var interactable = hinge.AddComponent<DoorInteractable>();
             var serialized = new SerializedObject(interactable);
             serialized.FindProperty("hingeAxis").vector3Value = axis;
             serialized.FindProperty("openAngle").floatValue = angle;
             serialized.FindProperty("label").stringValue = label;
+            serialized.FindProperty("closable").boolValue = closable;
             serialized.ApplyModifiedPropertiesWithoutUndo();
+            return interactable;
         }
 
         private static GameObject NewRoot(string name)
@@ -157,7 +217,7 @@ namespace ProjectRetrace.EditorTools
         private static void Finish(GameObject root)
         {
             EditorSceneManager.MarkSceneDirty(UnityEngine.SceneManagement.SceneManager.GetActiveScene());
-            Selection.activeGameObject = root;
+            if (root != null) Selection.activeGameObject = root;
         }
     }
 }

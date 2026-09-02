@@ -10,6 +10,29 @@ namespace ProjectRetrace
     {
         public override string Prompt => "Take keys";
 
+        /// <summary>The keys sit inside a drawer, cupboard, or chest, and the prop's thin
+        /// panels don't reliably stop the interaction ray -- so ask the container directly
+        /// rather than trusting geometry to keep a closed drawer closed.</summary>
+        public override bool CanInteract
+        {
+            get
+            {
+                if (!base.CanInteract) return false;
+                var container = FindContainer();
+                return container == null || container.IsOpen;
+            }
+        }
+
+        private IOpenable FindContainer()
+        {
+            var inParent = GetComponentInParent<IOpenable>();
+            if (inParent != null) return inParent;
+
+            var spot = transform.parent;
+            var prop = spot != null ? spot.parent : null;
+            return prop != null ? prop.GetComponentInChildren<IOpenable>() : null;
+        }
+
         protected override void OnTaken(PlayerInteractor interactor)
         {
             if (GameDirector.Instance != null)

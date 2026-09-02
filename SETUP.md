@@ -40,29 +40,50 @@ there is nothing to wire.
 | WASD / mouse | move, look |
 | Shift | sprint |
 | Space | jump |
-| E | interact |
-| **F3** | **toggle the debug trail view** |
-| Enter | instantly win the stealth phase (escape hatch while playtesting) |
+| E or left click | interact |
+| **`** (backquote) | **toggle the debug trail view** |
+| **Tab** | open the settings editor (pauses the game) |
+| Enter | instantly survive the current stealth round (escape hatch while playtesting) |
 | R | run again (on the results screen) |
+| M | back to the start menu (on the results screen) |
+| 1 / 2 | start menu: singleplayer / multiplayer |
+| Space | multiplayer: take the keyboard at a round handover |
 
 ## 4. How the stealth rounds work
 
 Every phase you play drops a breadcrumb every `dotSpacing` metres **of travel** and
-records a dwell point wherever you stand still for `dwellSeconds`. On each round
+records a dwell point wherever you use something (a drawer, a lid, the key). On each round
 transition:
 
 - The house resets to its opening state, and you return to spawn.
 - The keys are re-hidden at a **different** spot (seeds derived from the run seed, so a
   fixed seed reproduces every hide).
-- A sentry spawns just ~2m along the recorded route it owns — round 2: one sentry on your
-  search route; round 3: that one plus a second sentry on the sneak route you took in
-  round 2 (specifically the attempt that succeeded). Each follows its route in the
-  direction you walked it, at its own constant speed, pausing for a fixed
-  `lookAroundSeconds` at each recorded dwell. At the route's end it stands for 3 seconds
-  fading out, then reappears at the start and fades back in — frozen and blind until
-  fully materialised, so the restart is never an ambush. You only ever see the trail you
-  are currently drawing; older trails are patrol scripts and stay hidden even with the
-  debug view on.
+- One more sentry joins the patrol — every completed route so far gets its own, each
+  spawning ~2m along the route it owns (only the attempt that survived a round ever
+  becomes a patrol). Round N has N sentries; there is no cap and no winning, only how
+  deep the run gets. Each follows its route in the direction it was walked, at its own
+  constant speed, pausing for a fixed `lookAroundSeconds` at each recorded dwell. At the
+  route's end it stands for 3 seconds fading out, then reappears at the start and fades
+  back in — frozen and blind until fully materialised, so the restart is never an ambush.
+  You only ever see the trail you are currently drawing; older trails are patrol scripts
+  and stay hidden even with the debug view on.
+- The generated house walls the stairs into a closet behind a door whose
+  `DoorInteractable.unlocksAtRound` is 4. Until then it prompts "Locked", blocks the
+  player, and the keys are never hidden inside its `sealedArea` (the whole upper floor).
+  Doors are left out of the navmesh bake, so sentries walk straight through them — they
+  retrace routes and never operate doors, and a closed door would otherwise strand a
+  ghost whose route runs upstairs.
+
+**Multiplayer** (from the start menu; two players on one keyboard — online is sketched in
+ONLINE.md): rounds alternate, starting from whoever searched, and only your opponent's
+routes haunt you. Round 2 is P2 against P1's search; round 3 is P1 against P2's sneak;
+round 4 is P2 against both of P1's routes, and so on -- each player faces one more ghost
+every other round. Each player's ghosts share a hue family so a glance says whose past self
+is rounding the corner. Round transitions hold on a "Player N, you're up — press Space"
+screen so the keyboard can change hands. Running out of tries ends the match and the other
+player wins; [R] rematches with the searcher role rotated, since the
+search round is the threat-free one. Online is on the menu but not built — see
+[ONLINE.md](ONLINE.md).
 
 Detection is cone + line-of-sight (head and chest checked separately, so furniture can
 hide you). Getting spotted ends the attempt — the short chase that follows is just
@@ -72,24 +93,44 @@ spot for that round, so what you learned before getting caught stays true. Run o
 attempts and the run is lost. A `graceSeconds` window after each attempt starts keeps the
 near-spawn patrol starts fair.
 
-Two deliberate anti-exploit choices: the sentry never replays your *timing* (camping in a
-corner during phase 1 records one dwell, not a long pause), and pause length is fixed no
-matter how long you actually stood there.
+**Hiding.** Open a cupboard and Use again to climb in; the door shuts behind you and
+sentries cannot see you. Use once more to step out. The catch: a ghost retracing a route
+that opened that cupboard opens it again on its pause and drags you out.
+
+Two deliberate anti-exploit choices: the sentry never replays your *timing* (standing
+still records nothing, and rattling one dresser records one dwell, not one per drawer),
+and pause length is fixed no matter how long you actually spent there.
 
 ## 5. Tuning
 
-Everything lives on a `RetraceSettings` asset — right-click in the Project window →
-**Create → ProjectRetrace → Retrace Settings**, then drop it on the director. Without one,
-sensible defaults are used, so a missing asset never blocks a playtest.
+Every tuning number lives in one JSON file the game writes on first launch and reads on
+every run start:
 
-The difficulty curve is `sentrySpeed` (2.8, below your 3.4 walk speed), `visionRange`
+- macOS: `~/Library/Application Support/DefaultCompany/ProjectRetrace/retrace-config.json`
+- Windows: `%USERPROFILE%\AppData\LocalLow\DefaultCompany\ProjectRetrace\retrace-config.json`
+
+(Unity's `Application.persistentDataPath`; the debug HUD prints the exact path.) Press
+**Tab** at any point, or the Settings button on the start menu, for an in-game editor of
+the same file that pauses the world while it is open. Or edit the file by hand and use
+the menu's Reload button. Lines you delete fall back to the defaults in
+`RetraceConfig.cs`, and deleting the whole file regenerates it. Nothing tuning-related is
+on any inspector, so this file is the only place a value can live.
+
+The debug readout is on **`** (backquote): F-keys are off limits because a browser build
+can't intercept F3 or F5.
+
+The difficulty curve is `sentrySpeed` (2.0, below your 3.4 `walkSpeed`), `visionRange`
 (11m — indoors, walls do most of the limiting, but an open doorway doesn't) and
 `visionAngle` (80°). The floor cone the sentry projects is its true sightline: full range
 and angle, re-cut against the walls every frame. If the cone touches your feet, it can
 see you.
 
-`dwellRadius` / `dwellSeconds` control what counts as a stop in phase 1;
-`lookAroundSeconds` is how long the sentry honours each one.
+`peekYawDegrees` / `peekSlitHeight` shape the door-crack view while hiding.
+`sentriesOpenFurniture` makes ghosts visibly re-open drawers, lids, and cupboards at
+their stops (default on; off, a cupboard only opens if you are hiding in it).
+`dwellRadius` folds interactions close to the previous stop into it;
+`lookAroundSeconds` is how long the sentry honours each one. Keybinds are Input System
+`Key` names (`E`, `Backquote`, `Enter`); an unrecognised name falls back to the default.
 
 ## 6. Working as a team
 

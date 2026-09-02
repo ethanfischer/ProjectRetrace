@@ -33,33 +33,12 @@ namespace ProjectRetrace
     public class PatrolSentry : MonoBehaviour
     {
         private const float EyeHeight = 1.6f;
-
-        /// <summary>Path distance along the route the sentry starts at. Short on purpose: it
-        /// begins right in front of the player, already walking away -- an unmissable "that
-        /// thing is following my route" beat -- while keeping the two capsules from
-        /// overlapping at spawn.</summary>
-        private const float HeadStartMetres = 2f;
-
         private const float WaypointReachedDistance = 0.6f;
-
-        /// <summary>Pause at the route's end before teleporting back to its start. The
-        /// sentry fades out over this window (and stops seeing -- a half-vanished ghost
-        /// catching you reads as a bug, not a loss).</summary>
-        private const float RestartDelaySeconds = 3f;
-
-        /// <summary>Fade-in after (re)spawning at the route start. Shorter than the grace
-        /// period, so the sentry is never fully visible yet unfairly blind, or vice versa.</summary>
-        private const float FadeInSeconds = 1.5f;
-        private const float ChaseCapSeconds = 2.5f;
-        private const float LookSweepDegrees = 45f;
-        private const float LookTurnDegreesPerSecond = 120f;
-
         private const int ConeSegments = 24;
 
         private static readonly float[] SampleHeights = { 1.6f, 1.0f };
 
         public FirstPersonController player;
-        public RetraceSettings settings;
 
         [Tooltip("Body colour, so two sentries on different routes read as two characters.")]
         public Color bodyTint = Color.white;
@@ -67,7 +46,6 @@ namespace ProjectRetrace
         [Tooltip("Played once at the moment of detection.")]
         public AudioClip spottedClip;
 
-        private RetraceSettings _fallbackSettings;
         private NavMeshAgent _agent;
         private IReadOnlyList<Breadcrumb> _route;
         private readonly Dictionary<int, DwellPoint> _dwellByCrumb = new Dictionary<int, DwellPoint>();
@@ -89,16 +67,6 @@ namespace ProjectRetrace
 
         public SentryState State { get; private set; }
         public int TargetIndex => _targetIndex;
-
-        public RetraceSettings EffectiveSettings
-        {
-            get
-            {
-                if (settings != null) return settings;
-                if (_fallbackSettings == null) _fallbackSettings = RetraceSettings.CreateDefault();
-                return _fallbackSettings;
-            }
-        }
 
         private void Awake()
         {
@@ -170,12 +138,17 @@ namespace ProjectRetrace
             _route = route;
             gameObject.SetActive(true);
 
-            var config = EffectiveSettings;
+            var config = RetraceConfig.Current;
             _agent.speed = config.sentrySpeed;
             _agent.angularSpeed = 360f;
             _agent.acceleration = 20f;
             _agent.autoBraking = false;
             _agent.stoppingDistance = 0f;
+
+            // Ghosts pass through each other: agent avoidance would shove them off their
+            // recorded routes wherever the player's walks overlapped -- doorways, the
+            // stairs -- which is exactly where fidelity matters most.
+            _agent.obstacleAvoidanceType = UnityEngine.AI.ObstacleAvoidanceType.NoObstacleAvoidance;
 
             _dwellByCrumb.Clear();
             if (dwells != null)
@@ -189,7 +162,7 @@ namespace ProjectRetrace
             // The route can begin off the mesh -- the spawn point may sit outside the baked
             // house -- so start at the first crumb past the head start that actually lands
             // on it. Warping to an off-mesh point would strand the agent entirely.
-            _targetIndex = FirstCrumbOnMesh(route, StartIndex(route));
+            _targetIndex = FirstCrumbOnMesh(route, StartIndex(route, config.headStartMetres));
             if (_targetIndex < 0)
             {
                 Debug.LogWarning("[PatrolSentry] No crumb of the route is on the navmesh -- staying inactive.", this);
@@ -261,6 +234,7 @@ namespace ProjectRetrace
 
         private void UpdateWalk()
         {
+            _agent.speed = RetraceConfig.Current.sentrySpeed;
             if (_agent.pathPending || _agent.remainingDistance >= WaypointReachedDistance) return;
 
             if (!_lookedAtTarget && _dwellByCrumb.TryGetValue(_targetIndex, out var dwell))
@@ -280,18 +254,42 @@ namespace ProjectRetrace
             _agent.updateRotation = false;
             _lookTimer = 0f;
             _lookYaw = dwell.FacingYaw;
+            Rummage(dwell);
+        }
+
+        /// <summary>The ghost repeats the player's use of whatever they touched here. The
+        /// visible rummage is optional; checking a cupboard for a hider never is.</summary>
+        private void Rummage(DwellPoint dwell)
+        {
+            if (dwell.Prop == null) return;
+
+            if (RetraceConfig.Current.sentriesOpenFurniture && dwell.Prop.TryGetComponent<IOpenable>(out var openable))
+            {
+                openable.Open();
+            }
+
+            var spot = dwell.Prop.GetComponentInParent<HidingSpot>();
+            if (spot != null) spot.OpenedBy(this);
+        }
+
+        /// <summary>Detection by touch rather than sight: the ghost opened the door you
+        /// were behind.</summary>
+        public void SpotPlayer()
+        {
+            if (State == SentryState.Chasing || State == SentryState.Inactive) return;
+            OnPlayerSeen();
         }
 
         private void UpdateLook()
         {
             _lookTimer += Time.deltaTime;
-            var config = EffectiveSettings;
+            var config = RetraceConfig.Current;
 
             // One full sweep across the recorded facing over the fixed pause, so the stop
             // scans the area the player was interested in rather than freezing in place.
-            var sweep = Mathf.Sin(_lookTimer / config.lookAroundSeconds * Mathf.PI * 2f) * LookSweepDegrees;
+            var sweep = Mathf.Sin(_lookTimer / config.lookAroundSeconds * Mathf.PI * 2f) * config.lookSweepDegrees;
             var target = Quaternion.Euler(0f, _lookYaw + sweep, 0f);
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, target, LookTurnDegreesPerSecond * Time.deltaTime);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, target, config.lookTurnDegreesPerSecond * Time.deltaTime);
 
             if (_lookTimer < config.lookAroundSeconds) return;
 
@@ -303,14 +301,15 @@ namespace ProjectRetrace
 
         /// <summary>At the route's end the sentry pauses, then teleports back to the start
         /// and walks it all over again -- no return leg, so it only ever moves along ground
-        /// the player actually covered.</summary>
+        /// the player actually covered. It fades out over the pause and stops seeing: a
+        /// half-vanished ghost catching you reads as a bug, not a loss.</summary>
         private void AdvanceOrRestart()
         {
             if (_targetIndex >= _route.Count - 1)
             {
                 State = SentryState.Waiting;
                 _agent.isStopped = true;
-                _restartAt = Time.time + RestartDelaySeconds;
+                _restartAt = Time.time + RetraceConfig.Current.restartDelaySeconds;
                 return;
             }
 
@@ -324,29 +323,33 @@ namespace ProjectRetrace
         /// be an instant catch.</summary>
         private void RestartFromBeginning()
         {
-            _targetIndex = FirstCrumbOnMesh(_route, StartIndex(_route));
+            var config = RetraceConfig.Current;
+            _targetIndex = FirstCrumbOnMesh(_route, StartIndex(_route, config.headStartMetres));
             if (_targetIndex < 0)
             {
                 State = SentryState.Waiting;
-                _restartAt = Time.time + RestartDelaySeconds;
+                _restartAt = Time.time + config.restartDelaySeconds;
                 return;
             }
 
             _agent.Warp(_route[_targetIndex].Position);
             transform.rotation = Quaternion.LookRotation(_route[_targetIndex].Direction, Vector3.up);
             _lookedAtTarget = true;
-            _graceUntil = Time.time + EffectiveSettings.graceSeconds;
+            _graceUntil = Time.time + config.graceSeconds;
             _alpha = 0f;
             ApplyAlpha();
             State = SentryState.Materializing;
             _agent.isStopped = true;
         }
 
+        /// <summary>The fade-in is meant to stay shorter than the grace period, so the
+        /// sentry is never fully visible yet unfairly blind, or vice versa.</summary>
         private void UpdateFade()
         {
+            var config = RetraceConfig.Current;
             var alpha = State == SentryState.Waiting
-                ? Mathf.Clamp01((_restartAt - Time.time) / RestartDelaySeconds)
-                : Mathf.Min(1f, _alpha + Time.deltaTime / FadeInSeconds);
+                ? Mathf.Clamp01((_restartAt - Time.time) / config.restartDelaySeconds)
+                : Mathf.Min(1f, _alpha + Time.deltaTime / config.fadeInSeconds);
             if (Mathf.Approximately(alpha, _alpha)) return;
 
             _alpha = alpha;
@@ -359,7 +362,7 @@ namespace ProjectRetrace
             if (State == SentryState.Waiting || State == SentryState.Materializing) return;
             if (player == null || Time.time < _graceUntil) return;
 
-            var config = EffectiveSettings;
+            var config = RetraceConfig.Current;
             var eye = transform.position + Vector3.up * EyeHeight;
             var forward = Flatten(transform.forward);
 
@@ -399,10 +402,11 @@ namespace ProjectRetrace
         private void OnPlayerSeen()
         {
             State = SentryState.Chasing;
-            _chaseDeadline = Time.time + ChaseCapSeconds;
+            var config = RetraceConfig.Current;
+            _chaseDeadline = Time.time + config.chaseCapSeconds;
             _agent.updateRotation = true;
             _agent.isStopped = false;
-            _agent.speed = EffectiveSettings.chaseSpeed;
+            _agent.speed = config.chaseSpeed;
             SetConeAlarmed(true);
 
             // PlayClipAtPoint rather than an owned AudioSource: the whistle must outlive the
@@ -422,7 +426,7 @@ namespace ProjectRetrace
             _agent.SetDestination(player.transform.position);
 
             var gap = Flatten(player.transform.position - transform.position, normalize: false);
-            if (gap.magnitude <= EffectiveSettings.catchDistance || Time.time >= _chaseDeadline)
+            if (gap.magnitude <= RetraceConfig.Current.catchDistance || Time.time >= _chaseDeadline)
             {
                 if (GameDirector.Instance != null) GameDirector.Instance.OnPlayerCaught();
             }
@@ -439,14 +443,17 @@ namespace ProjectRetrace
         }
 
         /// <summary>Route distance from crumb 0 decides the spawn crumb, giving the player a
-        /// fixed head start however densely the crumbs were dropped.</summary>
-        private static int StartIndex(IReadOnlyList<Breadcrumb> crumbs)
+        /// fixed head start however densely the crumbs were dropped. The head start is short
+        /// on purpose: the sentry begins right in front of the player, already walking away
+        /// -- an unmissable "that thing is following my route" beat -- while keeping the two
+        /// capsules from overlapping at spawn.</summary>
+        private static int StartIndex(IReadOnlyList<Breadcrumb> crumbs, float headStartMetres)
         {
             var travelled = 0f;
             for (var i = 1; i < crumbs.Count; i++)
             {
                 travelled += Vector3.Distance(crumbs[i - 1].Position, crumbs[i].Position);
-                if (travelled >= HeadStartMetres) return i;
+                if (travelled >= headStartMetres) return i;
             }
 
             return crumbs.Count - 1;
@@ -504,7 +511,7 @@ namespace ProjectRetrace
         /// </summary>
         private void UpdateConeVisual()
         {
-            var config = EffectiveSettings;
+            var config = RetraceConfig.Current;
             var eye = transform.position + Vector3.up * EyeHeight;
             var halfAngle = config.visionAngle * 0.5f;
 

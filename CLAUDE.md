@@ -1,11 +1,14 @@
 ## Project
 
-Unity 6 (`6000.3.17f1`) URP first-person stealth game. Three rounds: search a house for keys
-while the game silently records your route; steal them back — re-hidden somewhere new —
-while a sentry NPC retraces your search route; then steal them once more against two
-sentries, the second retracing the sneak route you just took. Catches on sight, three lives
-per stealth round, no score. See [README.md](README.md) for the pitch and
-[SETUP.md](SETUP.md) for scene setup, controls, and tuning guidance.
+Unity 6 (`6000.3.17f1`) URP first-person stealth game, endless: search a house for keys
+while the game silently records your route, then keep hunting them down — re-hidden each
+round — without being caught by an ever-growing pool of sentry NPCs, each retracing one of
+your own past routes.
+Round N has N ghosts; the run ends when a round's lives run out. Couch 2P mode alternates
+rounds between two players on one keyboard, each haunted only by the other's routes (round
+4 is P2 against P1's two ghosts, round 5 is P1 against P2's two), first to run out of
+tries loses. See [README.md](README.md) for the pitch and [SETUP.md](SETUP.md) for scene setup,
+controls, and tuning guidance.
 
 ## Commands
 
@@ -77,9 +80,10 @@ lives left it re-runs the stealth setup with the *same* derived seed — same ph
 so knowledge survives a retry — and only the last life ends the run.
 
 `BreadcrumbTrail` samples by distance travelled, not by time, and only on the XZ plane, so the
-patrol route captures geometry, not pacing, and jump-spam can't distort it. Standing still drops
-no crumbs, so the trail also records `DwellPoint`s (position + facing yaw) wherever the player
-lingers — one per stop no matter how long, which is deliberate anti-exploit design (see below).
+patrol route captures geometry, not pacing, and jump-spam can't distort it. The trail also
+records a `DwellPoint` (position + facing yaw) wherever the player *uses* something, fed by
+`PlayerInteractor.Interacted`; standing still records nothing, and repeat uses within
+`dwellRadius` collapse into one stop, which is deliberate anti-exploit design (see below).
 
 `PatrolSentry` (`Runtime/AI/`) is the whole NPC on one component: NavMeshAgent patrol over a
 recorded route in the player's direction (at the end it fades out, teleports back to the
@@ -90,15 +94,37 @@ chase that only sells the catch. It deliberately never replays the player's *tim
 pause lengths are its own, or players would camp in phase 1 to pad the patrol and soften
 phase 2. `NavMeshRuntimeBaker` bakes from live colliders in `Awake` (agent radius 0.3 to fit
 the generated 1.1m doorways) — no baked asset to go stale when the test house regenerates.
+Every `DoorInteractable` is excluded from that bake: ghosts never operate doors, so they
+walk through them rather than being stranded by one that restored closed.
+
+`HidingSpot` sits on a cupboard's root beside its `DoorInteractable`: with the door open,
+Use climbs in and shuts it; while hidden `PlayerInteractor.Hiding` routes every Use to
+"Leave". Hiding is only as safe as the route that got you there: a `DwellPoint` carries the
+`Prop` that was used, and a ghost pausing at one calls `HidingSpot.OpenedBy`, which opens
+the door and hauls out (and spots) anyone inside. Ghosts never hide themselves. With
+`sentriesOpenFurniture` on, a ghost also re-opens whatever `IOpenable` the player used at
+each stop (the default); off, furniture only opens when a hider is found.
+ProjectRetrace > Furniture > Add Hiding Spots To Cupboards retrofits an older scene.
+
+`DoorInteractable` can be round-locked (`unlocksAtRound`, a displayed round number, read
+against `GameDirector.Instance.StealthRound`) and carries a `sealedArea`; `KeySpawner`
+skips any hiding spot inside a locked door's sealed volume. The generated house uses this
+to keep the upper floor shut until round 4.
 
 `InteractableRegistry` is a static list that self-populates from `InteractableBase.OnEnable`, so
 the director resets the whole house without holding scene references to individual props. It
 clears itself via `[RuntimeInitializeOnLoadMethod]` because statics survive play-mode entry when
 Domain Reload is off.
 
-`RetraceSettings` is a `ScriptableObject`. Every consumer reads it through an
-`EffectiveSettings` property that falls back to `RetraceSettings.CreateDefault()`, so a missing
-asset never blocks a playtest. Follow that pattern rather than dereferencing `settings` directly.
+`RetraceConfig` is the single home for every tuning value: a plain `[Serializable]` class
+written to and read from `retrace-config.json` in `Application.persistentDataPath`, so
+players can edit it. Consumers read `RetraceConfig.Current` at the point of use; there are
+no inspector copies of tuning numbers. When you add a tunable, add a field with its default
+there rather than a `[SerializeField]` or a `const` -- missing keys in an existing file fall
+back to the field default, so adding fields never breaks old configs. `GameDirector.StartRun`
+reloads the file. `ConfigMenu` (Tab) edits it in-game by reflecting over the config's
+public fields, so new tunables appear there without UI work. Keybind defaults avoid F-keys,
+which a browser build cannot intercept.
 
 `SceneSetupMenu` (menu: ProjectRetrace > Setup Scene Systems) builds and wires the entire rig
 into the open scene, including the sentry (inactive until the stealth phase) and the navmesh

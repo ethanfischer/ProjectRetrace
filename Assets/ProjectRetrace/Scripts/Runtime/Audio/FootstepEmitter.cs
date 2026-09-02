@@ -13,14 +13,6 @@ namespace ProjectRetrace
     {
         public AudioClip clip;
 
-        [Tooltip("Metres of travel between steps.")]
-        [SerializeField] private float strideMetres = 0.8f;
-
-        [SerializeField] private float volume = 0.8f;
-
-        [Tooltip("Random pitch spread per step, so one sample doesn't read as a metronome.")]
-        [SerializeField] private float pitchJitter = 0.1f;
-
         /// <summary>A frame delta longer than this is a teleport (round transitions, the
         /// sentry's route restart), not a very fast step.</summary>
         private const float TeleportThreshold = 2f;
@@ -64,12 +56,14 @@ namespace ProjectRetrace
                 return;
             }
 
+            var config = RetraceConfig.Current;
             _distanceSinceStep += travelled;
-            if (_distanceSinceStep < strideMetres || clip == null) return;
+            if (_distanceSinceStep < config.footstepStrideMetres || clip == null) return;
 
+            // Pitch jitter keeps one sample from reading as a metronome.
             _distanceSinceStep = 0f;
-            _source.pitch = 1f + Random.Range(-pitchJitter, pitchJitter);
-            _source.PlayOneShot(clip, volume);
+            _source.pitch = 1f + Random.Range(-config.footstepPitchJitter, config.footstepPitchJitter);
+            _source.PlayOneShot(clip, config.footstepVolume);
         }
     }
 }

@@ -16,6 +16,9 @@ namespace ProjectRetrace.EditorTools
     /// middle rooms often border two rooms across one line, which keeps most rooms at 3+ exits;
     /// corner rooms bottom out at 2.
     ///
+    /// The stairs sit in their own ground-floor enclosure behind a door that stays locked
+    /// until UpstairsUnlockRound, so the early rounds play out on one floor.
+    ///
     /// Regenerating replaces the previous house; the seed is baked into the root name so a
     /// layout can be reported and reproduced.
     /// </summary>
@@ -26,6 +29,10 @@ namespace ProjectRetrace.EditorTools
         private const float GroundTop = 0.05f;
         private const float UpperTop = 2.8f;
         private const float DoorWidth = 1.1f;
+        private const int UpstairsUnlockRound = 4;
+
+        // South face of the stair enclosure; step 1 begins at z 3.5, just past the door.
+        private const float StairGateZ = 3.4f;
 
         // Footprint: x in [-9, 9], z in [-4, 10]. SpawnPoint (0, 0) lands in the entry room.
         private const float X0 = -9f, X1 = 9f, Z0 = -4f, Z1 = 10f;
@@ -85,14 +92,16 @@ namespace ProjectRetrace.EditorTools
             BuildFloors(root);
             BuildStairs(root);
 
-            // Ground floor: two rows of three rooms. The row boundary keeps south of the stair
-            // run so the stairs stay whole inside one room.
+            // Ground floor: two rows of three rooms. The row boundary stops well south of the
+            // stair gate so there is always a vestibule to stand in and open the door from;
+            // a boundary flush against the gate would wall the stairs off for good.
             var groundWallH = UpperTop - 0.1f - GroundTop;
             BuildFloorPlan(root, rnd, doorways, rooms, "G", GroundTop, groundWallH,
-                zSplit: Lerp(rnd, 0.5f, 3.2f),
+                zSplit: Lerp(rnd, 0.5f, StairGateZ - 1.2f),
                 bottomSplits: new[] { Lerp(rnd, -5f, -2f), Lerp(rnd, 1f, 4f) },
                 topSplits: new[] { Lerp(rnd, -5f, -2f), Lerp(rnd, 1f, 4f) },
                 frontDoorX: 0f);
+            BuildStairEnclosure(root, doorways, groundWallH);
 
             // Upper floor: two rows of two rooms. The row boundary stays south of the stairwell
             // hole so no wall floats over it and the stair exit stays open.
@@ -208,6 +217,38 @@ namespace ProjectRetrace.EditorTools
             Slab(root, "Upper Slab", new Vector3(0.55f, upperY, 3f), new Vector3(16.9f, 0.1f, 14f), material);
             Slab(root, "Upper Slab SW", new Vector3(-8.45f, upperY, -0.25f), new Vector3(1.1f, 0.1f, 7.5f), material);
             Slab(root, "Upper Slab NW", new Vector3(-8.45f, upperY, 8.85f), new Vector3(1.1f, 0.1f, 2.3f), material);
+        }
+
+        /// <summary>
+        /// Walls the stair run into a closet with a single lockable door on its south face.
+        /// The doorway is registered like any other so furniture keeps clear of the vestibule.
+        /// </summary>
+        private static void BuildStairEnclosure(GameObject root, List<Vector2> doorways, float wallH)
+        {
+            var doorX = (X0 + StairZone.xMax) * 0.5f;
+            WallAlongZ(root, "Stair Partition", StairZone.xMax, StairGateZ, Z1, GroundTop, wallH);
+            WallAlongX(root, "Stair Gate", StairGateZ, X0, StairZone.xMax, GroundTop, wallH,
+                DoorsX(doorways, StairGateZ, doorX));
+
+            // Hinged on the west jamb, swinging north into the stairwell so an open door
+            // never blocks the vestibule.
+            var hinge = new GameObject("Stair Door");
+            hinge.transform.SetParent(root.transform, false);
+            hinge.transform.localPosition = new Vector3(doorX - DoorWidth * 0.5f, GroundTop, StairGateZ);
+            Box(hinge, "Panel",
+                new Vector3(DoorWidth * 0.5f, wallH * 0.5f, 0f),
+                new Vector3(DoorWidth - 0.04f, wallH - 0.02f, 0.06f));
+
+            var door = FurnitureBuilderMenu.AddHinged(hinge, Vector3.up, -100f, "door", closable: true);
+            var serialized = new SerializedObject(door);
+            serialized.FindProperty("unlocksAtRound").intValue = UpstairsUnlockRound;
+
+            // Everything from just above the tallest ground-floor hiding spot (~0.96) up: the
+            // whole upper floor and the stairwell, with no ground spot ever caught.
+            var sealedVolume = new Bounds();
+            sealedVolume.SetMinMax(new Vector3(X0 - 0.5f, 1f, Z0 - 0.5f), new Vector3(X1 + 0.5f, UpperTop + 3f, Z1 + 0.5f));
+            serialized.FindProperty("sealedArea").boundsValue = sealedVolume;
+            serialized.ApplyModifiedPropertiesWithoutUndo();
         }
 
         private static void BuildStairs(GameObject root)

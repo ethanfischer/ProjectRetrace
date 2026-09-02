@@ -4,27 +4,26 @@ using UnityEngine;
 namespace ProjectRetrace
 {
     /// <summary>
-    /// Debug view: draws both trails as flat floor arrows pointing the direction the player
-    /// walked, round 1 in one colour, round 2 in another, toggled with the debug key. Uses
-    /// real renderers rather than editor gizmos so it also works in a build.
+    /// Debug view: draws the route currently being recorded as flat floor arrows pointing
+    /// the direction walked, toggled with the debug key. Only ever the current route --
+    /// every older one is some sentry's patrol script by now, and showing it would hand
+    /// the player a minimap of the threats. Uses real renderers rather than editor gizmos
+    /// so it also works in a build.
     /// </summary>
     [RequireComponent(typeof(BreadcrumbTrail))]
     public class TrailVisualizer : MonoBehaviour
     {
         [SerializeField] private float arrowScale = 1f;
         [SerializeField] private float heightOffset = 0.06f;
-        [SerializeField] private Color round1Color = new Color(0.25f, 0.75f, 1f);
-        [SerializeField] private Color round2Color = new Color(1f, 0.55f, 0.15f);
+        [SerializeField] private Color searchColor = new Color(0.25f, 0.75f, 1f);
+        [SerializeField] private Color sneakColor = new Color(1f, 0.55f, 0.15f);
 
         private BreadcrumbTrail _trail;
         private Transform _root;
-        private Transform _round1Root;
-        private Transform _round2Root;
-        private readonly List<Renderer> _round1Dots = new List<Renderer>();
-        private readonly List<Renderer> _round2Dots = new List<Renderer>();
-        private Material _round1Material;
-        private Material _round2Material;
+        private readonly List<Renderer> _arrows = new List<Renderer>();
+        private Material _material;
         private Mesh _arrowMesh;
+        private int _routeIndex = -1;
         private bool _lastVisible;
 
         private void Awake()
@@ -35,13 +34,7 @@ namespace ProjectRetrace
             _root = rootObject.transform;
             _root.SetParent(transform, false);
 
-            _round1Root = new GameObject("Round1").transform;
-            _round1Root.SetParent(_root, false);
-            _round2Root = new GameObject("Round2").transform;
-            _round2Root.SetParent(_root, false);
-
-            _round1Material = CreateUnlitMaterial(round1Color);
-            _round2Material = CreateUnlitMaterial(round2Color);
+            _material = CreateUnlitMaterial(searchColor);
             _arrowMesh = BuildArrowMesh();
 
             _root.gameObject.SetActive(false);
@@ -49,57 +42,44 @@ namespace ProjectRetrace
 
         private void OnDestroy()
         {
-            DestroyResource(_round1Material);
-            DestroyResource(_round2Material);
+            DestroyResource(_material);
             DestroyResource(_arrowMesh);
         }
 
         private void LateUpdate()
         {
-            SyncArrows(_trail.Phase1Crumbs, _round1Dots, _round1Material, _round1Root);
-            SyncArrows(_trail.Phase2Crumbs, _round2Dots, _round2Material, _round2Root);
+            var route = _trail.CurrentRoute;
+            var index = _trail.Routes.Count - 1;
 
-            var visible = GameDirector.DebugVisible;
+            if (route != null)
+            {
+                // A new or restarted route replaces the arrows outright; the search route
+                // keeps its own colour so round 0 still reads distinctly in playtests.
+                if (index != _routeIndex || route.Crumbs.Count < _arrows.Count)
+                {
+                    ClearArrows();
+                    _routeIndex = index;
+                    SetColor(index == 0 ? searchColor : sneakColor);
+                }
+
+                for (var i = _arrows.Count; i < route.Crumbs.Count; i++)
+                {
+                    _arrows.Add(CreateArrow(route.Crumbs[i]));
+                }
+            }
+
+            var visible = GameDirector.DebugVisible && route != null;
             if (visible != _lastVisible)
             {
                 _root.gameObject.SetActive(visible);
                 _lastVisible = visible;
             }
-
-            // Only the trail currently being drawn is ever shown: any older trail is some
-            // sentry's patrol script by now, and showing it would hand the player a minimap
-            // of the threat -- so this holds even with the debug view on.
-            var round1Visible = _trail.Mode == TrailMode.Phase1;
-            var round2Visible = _trail.Mode == TrailMode.Phase2;
-            if (_round1Root.gameObject.activeSelf != round1Visible)
-            {
-                _round1Root.gameObject.SetActive(round1Visible);
-            }
-
-            if (_round2Root.gameObject.activeSelf != round2Visible)
-            {
-                _round2Root.gameObject.SetActive(round2Visible);
-            }
         }
 
-        /// <summary>Adds arrows for newly dropped crumbs, and clears when a run restarts.</summary>
-        private void SyncArrows(IReadOnlyList<Breadcrumb> crumbs, List<Renderer> arrows, Material material, Transform parent)
-        {
-            if (crumbs.Count < arrows.Count)
-            {
-                ClearArrows(arrows);
-            }
-
-            for (var i = arrows.Count; i < crumbs.Count; i++)
-            {
-                arrows.Add(CreateArrow(crumbs[i], material, parent));
-            }
-        }
-
-        private Renderer CreateArrow(Breadcrumb crumb, Material material, Transform parent)
+        private Renderer CreateArrow(Breadcrumb crumb)
         {
             var arrow = new GameObject("Crumb");
-            arrow.transform.SetParent(parent, false);
+            arrow.transform.SetParent(_root, false);
             arrow.transform.SetPositionAndRotation(
                 crumb.Position + Vector3.up * heightOffset,
                 Quaternion.LookRotation(crumb.Direction, Vector3.up));
@@ -107,20 +87,26 @@ namespace ProjectRetrace
 
             arrow.AddComponent<MeshFilter>().sharedMesh = _arrowMesh;
             var renderer = arrow.AddComponent<MeshRenderer>();
-            renderer.sharedMaterial = material;
+            renderer.sharedMaterial = _material;
             renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             renderer.receiveShadows = false;
             return renderer;
         }
 
-        private static void ClearArrows(List<Renderer> arrows)
+        private void ClearArrows()
         {
-            for (var i = 0; i < arrows.Count; i++)
+            for (var i = 0; i < _arrows.Count; i++)
             {
-                if (arrows[i] != null) Destroy(arrows[i].gameObject);
+                if (_arrows[i] != null) Destroy(_arrows[i].gameObject);
             }
 
-            arrows.Clear();
+            _arrows.Clear();
+        }
+
+        private void SetColor(Color color)
+        {
+            if (_material.HasProperty("_BaseColor")) _material.SetColor("_BaseColor", color);
+            if (_material.HasProperty("_Color")) _material.SetColor("_Color", color);
         }
 
         /// <summary>

@@ -12,13 +12,12 @@ namespace ProjectRetrace
         public GameDirector director;
         public PlayerInteractor interactor;
         public BreadcrumbTrail trail;
-        public PatrolSentry sentry;
-        public PatrolSentry sentry2;
 
         private KeyItem _key;
 
         private GUIStyle _label;
         private GUIStyle _centered;
+        private GUIStyle _handover;
 
         private void Reset()
         {
@@ -28,6 +27,9 @@ namespace ProjectRetrace
 
         private void OnGUI()
         {
+            if (director != null && director.Phase == GamePhase.Menu) return;
+            if (ConfigMenu.IsOpen) return;
+
             HudScale.Apply();
             EnsureStyles();
 
@@ -93,10 +95,11 @@ namespace ProjectRetrace
         {
             if (_label != null) return;
 
-            _label = new GUIStyle(GUI.skin.label) { fontSize = 14, richText = true };
+            _label = new GUIStyle(GUI.skin.label) { fontSize = 14, richText = true, wordWrap = true };
             _label.normal.textColor = Color.white;
 
             _centered = new GUIStyle(_label) { alignment = TextAnchor.MiddleCenter, fontSize = 20 };
+            _handover = new GUIStyle(_label) { alignment = TextAnchor.MiddleCenter };
         }
 
         private void DrawReticle()
@@ -123,32 +126,28 @@ namespace ProjectRetrace
         {
             if (director == null) return;
 
+            if (director.AwaitingHandover)
+            {
+                DrawHandover();
+                return;
+            }
+
             string banner;
-            var maxLives = director.EffectiveSettings.stealthLives;
+            var maxLives = RetraceConfig.Current.stealthLives;
+            var who = director.Multiplayer ? $"P{director.CurrentPlayer} -- " : string.Empty;
             switch (director.Phase)
             {
                 case GamePhase.Search:
-                    banner = "Find your keys";
+                    banner = who + "Find your keys";
                     break;
                 case GamePhase.Transition:
-                    if (director.LivesRemaining < maxLives)
-                    {
-                        banner = string.Format("Caught! {0} {1} left...",
-                            director.LivesRemaining, director.LivesRemaining == 1 ? "try" : "tries");
-                    }
-                    else
-                    {
-                        banner = director.StealthRound <= 1
-                            ? "Someone's coming to retrace your steps..."
-                            : "Your sneak left a trail too. Now there are two of them...";
-                    }
+                    banner = director.LivesRemaining < maxLives
+                        ? $"Caught! {director.LivesRemaining} {(director.LivesRemaining == 1 ? "try" : "tries")} left..."
+                        : string.Empty;
                     break;
                 case GamePhase.Stealth:
-                    banner = string.Format("{0}   [{1}/{2} tries]",
-                        director.StealthRound <= 1
-                            ? "Steal the keys back. Don't get seen."
-                            : "Again -- but now two of them walk your routes.",
-                        director.LivesRemaining, maxLives);
+                    banner = $"{who}Round {director.StealthRound + 1}: find your keys without getting caught [{director.LivesRemaining}/{maxLives} tries]";
+                    if (AnyDoorUnlocksThisRound()) banner += " -- 2nd floor unlocked!";
                     break;
                 default:
                     return;
@@ -157,40 +156,79 @@ namespace ProjectRetrace
             GUI.Label(new Rect(0f, 24f, HudScale.Width, 30f), banner, _centered);
         }
 
+        private static bool AnyDoorUnlocksThisRound()
+        {
+            foreach (var interactable in InteractableRegistry.All)
+            {
+                if (interactable is DoorInteractable door && door.UnlocksThisRound) return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>Couch handover: the world stays frozen until whoever plays next takes
+        /// the keyboard and says so.</summary>
+        private void DrawHandover()
+        {
+            var box = new Rect(HudScale.Width * 0.5f - 220f, HudScale.Height * 0.5f - 50f, 440f, 100f);
+            GUI.Box(box, GUIContent.none);
+            GUI.Label(new Rect(box.x, box.y + 16f, box.width, 30f),
+                $"Player {director.CurrentPlayer}, you're up", _centered);
+            var ghosts = director.GhostCount;
+            GUI.Label(new Rect(box.x, box.y + 54f, box.width, 24f),
+                $"{ghosts} ghost{(ghosts == 1 ? "" : "s")} on patrol -- press Space when ready",
+                _handover);
+        }
+
         private void DrawStats()
         {
             if (trail == null) return;
 
-            var settings = trail.EffectiveSettings;
+            var settings = RetraceConfig.Current;
 
-            var box = new Rect(12f, 12f, 300f, 210f);
-            GUI.Box(box, GUIContent.none);
-
-            GUILayout.BeginArea(new Rect(box.x + 10f, box.y + 8f, box.width - 20f, box.height - 16f));
-            GUILayout.Label("<b>DEBUG</b>  (" + settings.debugToggleKey + " to hide)", _label);
+            // Layout-sized rather than a fixed rect: the readout grows a line every time
+            // something new is worth showing, and a fixed box silently clips the newest one.
+            GUILayout.BeginArea(new Rect(12f, 12f, 420f, HudScale.Height - 24f));
+            GUILayout.BeginVertical(GUI.skin.box);
+            GUILayout.Label("<b>DEBUG</b>  (" + settings.DebugToggleKey + " to hide, " + settings.ConfigMenuKey + " for settings)", _label);
             GUILayout.Label("Phase: " + (director != null ? director.Phase.ToString() : "-")
                 + (director != null && director.StealthRound > 0 ? "  (round " + (director.StealthRound + 1) + ")" : ""), _label);
-            GUILayout.Label(string.Format("Route: {0} crumbs, {1} stops, {2:0.0}m",
-                trail.Phase1Crumbs.Count, trail.Phase1Dwells.Count, trail.Phase1Distance), _label);
-            GUILayout.Label(string.Format("Sneak: {0} crumbs, {1} stops, {2:0.0}m",
-                trail.Phase2Crumbs.Count, trail.Phase2Dwells.Count, trail.Phase2Distance), _label);
-            GUILayout.Label(SentryStatusLine("Sentry A", sentry), _label);
-            GUILayout.Label(SentryStatusLine("Sentry B", sentry2), _label);
+            var current = trail.CurrentRoute;
+            GUILayout.Label(string.Format("Routes recorded: {0}", trail.CompletedRouteCount)
+                + (current != null
+                    ? string.Format("   now: {0} crumbs, {1} stops, {2:0.0}m",
+                        current.Crumbs.Count, current.Dwells.Count, current.Distance)
+                    : ""), _label);
+            GUILayout.Label(SentryStatusLine(), _label);
             GUILayout.Label(string.Format("spacing {0:0.00}m", settings.dotSpacing), _label);
             GUILayout.Label(KeyStatusLine(), _label);
+            GUILayout.Label("config: " + RetraceConfig.FilePath, _label);
+            GUILayout.EndVertical();
             GUILayout.EndArea();
         }
 
-        private static string SentryStatusLine(string name, PatrolSentry target)
+        private string SentryStatusLine()
         {
-            if (target == null) return name + ": NOT WIRED";
-            if (target.State == SentryState.Inactive) return name + ": inactive";
+            if (director == null) return "Sentries: -";
 
-            var distance = target.player != null
-                ? Vector3.Distance(target.transform.position, target.player.transform.position)
-                : -1f;
-            return string.Format("{0}: {1} -> crumb {2}, {3:0.0}m away",
-                name, target.State, target.TargetIndex, distance);
+            var active = 0;
+            var nearest = float.MaxValue;
+            SentryState nearestState = SentryState.Inactive;
+            foreach (var target in director.Sentries)
+            {
+                if (target == null || target.State == SentryState.Inactive) continue;
+                active++;
+                if (target.player == null) continue;
+                var distance = Vector3.Distance(target.transform.position, target.player.transform.position);
+                if (distance < nearest)
+                {
+                    nearest = distance;
+                    nearestState = target.State;
+                }
+            }
+
+            if (active == 0) return "Sentries: none active";
+            return string.Format("Sentries: {0} active, nearest {1:0.0}m ({2})", active, nearest, nearestState);
         }
     }
 }
