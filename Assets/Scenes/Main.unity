@@ -8792,6 +8792,8 @@ MonoBehaviour:
   player: {fileID: 1455007735}
   bodyTint: {r: 1, g: 1, b: 1, a: 1}
   spottedClip: {fileID: 8300000, guid: d9b6291dde35142d591fdb379ec83803, type: 3}
+  bodyMaterialTemplate: {fileID: 2100000, guid: 6699e022b043c42d496b634762584762, type: 2}
+  coneMaterialTemplate: {fileID: 2100000, guid: b5bae331f517043a29ea70da0dc8e1fb, type: 2}
 --- !u!195 &625525232
 NavMeshAgent:
   m_ObjectHideFlags: 0

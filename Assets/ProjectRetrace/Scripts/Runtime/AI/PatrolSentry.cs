@@ -46,6 +46,12 @@ namespace ProjectRetrace
         [Tooltip("Played once at the moment of detection.")]
         public AudioClip spottedClip;
 
+        [Tooltip("A transparent URP material asset. The body is cloned from it rather than built from Shader.Find so the transparent variant survives build-time shader stripping; without it a WebGL ghost fades in fully opaque.")]
+        public Material bodyMaterialTemplate;
+
+        [Tooltip("Same idea for the vision cone: a transparent unlit material asset.")]
+        public Material coneMaterialTemplate;
+
         private NavMeshAgent _agent;
         private IReadOnlyList<Breadcrumb> _route;
         private readonly Dictionary<int, DwellPoint> _dwellByCrumb = new Dictionary<int, DwellPoint>();
@@ -83,17 +89,36 @@ namespace ProjectRetrace
         /// opaque and ignores it.</summary>
         private void TintBody()
         {
-            var shader = Shader.Find("Universal Render Pipeline/Lit");
-            if (shader == null) shader = Shader.Find("Standard");
-            _bodyMaterial = new Material(shader) { name = "SentryBody" };
-            MakeTransparent(_bodyMaterial);
+            if (bodyMaterialTemplate != null)
+            {
+                _bodyMaterial = new Material(bodyMaterialTemplate) { name = "SentryBody" };
+            }
+            else
+            {
+                var shader = Shader.Find("Universal Render Pipeline/Lit");
+                if (shader == null) shader = Shader.Find("Standard");
+                _bodyMaterial = new Material(shader) { name = "SentryBody" };
+                MakeTransparent(_bodyMaterial);
+            }
+
             foreach (var renderer in GetComponentsInChildren<MeshRenderer>(true))
             {
                 if (renderer == _coneRenderer) continue;
                 renderer.sharedMaterial = _bodyMaterial;
             }
 
-            MakeTransparent(_coneMaterial);
+            if (coneMaterialTemplate != null)
+            {
+                var cone = new Material(coneMaterialTemplate) { name = _coneMaterial.name };
+                _coneRenderer.sharedMaterial = cone;
+                Destroy(_coneMaterial);
+                _coneMaterial = cone;
+            }
+            else
+            {
+                MakeTransparent(_coneMaterial);
+            }
+
             ApplyAlpha();
         }
 

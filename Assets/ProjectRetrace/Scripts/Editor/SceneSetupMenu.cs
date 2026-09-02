@@ -162,6 +162,10 @@ namespace ProjectRetrace.EditorTools
             patrol.bodyTint = tint;
             patrol.spottedClip = AssetDatabase.LoadAssetAtPath<AudioClip>(
                 "Assets/ProjectRetrace/Audio/whistle.wav");
+            patrol.bodyMaterialTemplate = AssetDatabase.LoadAssetAtPath<Material>(
+                "Assets/ProjectRetrace/Art/GhostTransparent.mat");
+            patrol.coneMaterialTemplate = AssetDatabase.LoadAssetAtPath<Material>(
+                "Assets/ProjectRetrace/Art/GhostConeTransparent.mat");
             AddFootsteps(sentry);
             return patrol;
         }

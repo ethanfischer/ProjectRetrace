@@ -32,6 +32,7 @@ namespace ProjectRetrace
         public View NextView => (View)(((int)CurrentView + 1) % 3);
         private bool FreeFly => CurrentView == View.Free;
         public bool HasStream => _buffer.Count > 0;
+        public int StreamedSentries => _buffer.Latest != null ? _buffer.Latest.sentries.Count : 0;
 
         public void Begin()
         {

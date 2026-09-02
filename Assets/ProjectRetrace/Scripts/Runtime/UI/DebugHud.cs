@@ -279,8 +279,11 @@ namespace ProjectRetrace
                 }
             }
 
-            if (active == 0) return "Sentries: none active";
-            return string.Format("Sentries: {0} active, nearest {1:0.0}m ({2})", active, nearest, nearestState);
+            var streamed = director.Phase == GamePhase.Spectate && director.spectator != null
+                ? $", {director.spectator.StreamedSentries} in stream"
+                : string.Empty;
+            if (active == 0) return "Sentries: none active" + streamed;
+            return string.Format("Sentries: {0} active, nearest {1:0.0}m ({2}){3}", active, nearest, nearestState, streamed);
         }
     }
 }
