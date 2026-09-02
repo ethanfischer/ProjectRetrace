@@ -76,12 +76,12 @@ namespace ProjectRetrace
         public float footstepVolume = 0.8f;
         public float footstepPitchJitter = 0.1f;
 
-        // Online. The relay is the tiny Node process in relay/. Empty means "the machine
-        // this page came from, port 8787" -- a browser build served from the relay's host
-        // then needs no configuration at all; an https page needs an explicit wss://
-        // address. Spectators draw the turn owner's stream this far behind real time so
+        // Online. The relay is the tiny Node process in relay/, deployed on Render; the
+        // default is the public one so a shipped build works untouched. Empty means "the
+        // machine this page came from, port 8787" (or localhost in the editor), for local
+        // testing. Spectators draw the turn owner's stream this far behind real time so
         // there is always a next snapshot to interpolate towards.
-        public string relayUrl = "";
+        public string relayUrl = "wss://retrace-relay.onrender.com";
         public float snapshotHz = 12f;
         public float spectatorDelaySeconds = 0.15f;
 
