@@ -26,7 +26,7 @@ namespace ProjectRetrace
 
         private void Update()
         {
-            if (director == null || director.Phase != GamePhase.Menu) return;
+            if (director == null || director.Phase != GamePhase.Menu || ConfigMenu.IsOpen) return;
 
             // Something else may lock the cursor after EnterMenu runs (the player
             // controller locks it in its own Start); the menu needs it free every frame.
@@ -40,12 +40,12 @@ namespace ProjectRetrace
 
         private void OnGUI()
         {
-            if (director == null || director.Phase != GamePhase.Menu) return;
+            if (director == null || director.Phase != GamePhase.Menu || ConfigMenu.IsOpen) return;
 
             HudScale.Apply();
             EnsureStyles();
 
-            var panel = new Rect(HudScale.Width * 0.5f - 220f, HudScale.Height * 0.5f - 116f, 440f, 232f);
+            var panel = new Rect(HudScale.Width * 0.5f - 220f, HudScale.Height * 0.5f - 142f, 440f, 284f);
             GUI.Box(panel, GUIContent.none);
 
             GUI.Label(new Rect(panel.x, panel.y + 20f, panel.width, 40f), "PROJECT RETRACE", _title);
@@ -60,6 +60,12 @@ namespace ProjectRetrace
             if (GUI.Button(new Rect(panel.x + 70f, panel.y + 152f, 300f, 42f), "[2]  Multiplayer", _button))
             {
                 director.StartGame(2);
+            }
+
+            var configKey = RetraceConfig.Current.ConfigMenuKey;
+            if (GUI.Button(new Rect(panel.x + 70f, panel.y + 204f, 300f, 42f), "[" + configKey + "]  Settings", _button))
+            {
+                ConfigMenu.Toggle();
             }
         }
 

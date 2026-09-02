@@ -35,6 +35,8 @@ namespace ProjectRetrace.EditorTools
             var hud = systems.AddComponent<DebugHud>();
             var results = systems.AddComponent<ResultsScreen>();
             var menu = systems.AddComponent<StartMenu>();
+            var configMenu = systems.AddComponent<ConfigMenu>();
+            configMenu.director = director;
 
             var player = BuildPlayer(out var controller, out var interactor, out var cameraTransform);
             var spawnPoint = CreateObject("SpawnPoint", null).transform;

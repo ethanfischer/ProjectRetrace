@@ -8780,7 +8780,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.PatrolSentry
   player: {fileID: 1455007735}
-  settings: {fileID: 11400000, guid: 855b885ef7fc944b4b90face58fdabae, type: 2}
   bodyTint: {r: 1, g: 1, b: 1, a: 1}
   spottedClip: {fileID: 8300000, guid: d9b6291dde35142d591fdb379ec83803, type: 3}
 --- !u!195 &625525232
@@ -8835,9 +8834,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.FootstepEmitter
   clip: {fileID: 8300000, guid: 021dcde34f2e240d285304c2aa1e7589, type: 3}
-  strideMetres: 0.8
-  volume: 0.8
-  pitchJitter: 0.2
 --- !u!1 &629453487
 GameObject:
   m_ObjectHideFlags: 0
@@ -11537,6 +11533,7 @@ GameObject:
   - component: {fileID: 791878629}
   - component: {fileID: 791878628}
   - component: {fileID: 791878634}
+  - component: {fileID: 791878635}
   m_Layer: 0
   m_Name: ProjectRetrace Systems
   m_TagString: Untagged
@@ -11557,7 +11554,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.BreadcrumbTrail
   tracked: {fileID: 1455007734}
-  settings: {fileID: 0}
 --- !u!114 &791878628
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11633,12 +11629,6 @@ MonoBehaviour:
   keySpawner: {fileID: 791878630}
   spawnPoint: {fileID: 39120961}
   sentryTemplate: {fileID: 625525231}
-  settings: {fileID: 11400000, guid: 855b885ef7fc944b4b90face58fdabae, type: 2}
-  transitionPause: 1.25
-  randomiseSeed: 1
-  fixedSeed: 12346
-  restartKey: 32
-  debugVisibleByDefault: 0
   playerCount: 1
 --- !u!4 &791878633
 Transform:
@@ -11667,6 +11657,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11d4db2f43d3d40869cf3166e01722ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.StartMenu
+  director: {fileID: 791878632}
+--- !u!114 &791878635
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 791878626}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2736008bd185f49f09f6e2d4d9d692cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.ConfigMenu
   director: {fileID: 791878632}
 --- !u!1 &792343996
 GameObject:
@@ -19822,12 +19825,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.FirstPersonController
   cameraPivot: {fileID: 1278305206}
-  mouseSensitivity: 2.2
-  pitchLimit: 89
-  walkSpeed: 3.4
-  sprintSpeed: 6
-  jumpSpeed: 4.5
-  gravity: -18
 --- !u!114 &1455007736
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19841,12 +19838,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.PlayerInteractor
   rayOrigin: {fileID: 1278305206}
-  reach: 2.5
   interactableMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  interactKey: 19
-  shellLatchRadius: 0.9
   highlightTint: {r: 1, g: 0.85, b: 0.45, a: 1}
 --- !u!143 &1455007737
 CharacterController:
@@ -19886,9 +19880,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.FootstepEmitter
   clip: {fileID: 8300000, guid: 021dcde34f2e240d285304c2aa1e7589, type: 3}
-  strideMetres: 1.5
-  volume: 0.8
-  pitchJitter: 0.1
 --- !u!1 &1462220227
 GameObject:
   m_ObjectHideFlags: 0

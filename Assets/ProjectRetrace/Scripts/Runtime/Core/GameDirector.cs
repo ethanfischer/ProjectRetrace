@@ -36,21 +36,6 @@ namespace ProjectRetrace
         [UnityEngine.Serialization.FormerlySerializedAs("sentry")]
         public PatrolSentry sentryTemplate;
 
-        [Header("Config")]
-        public RetraceSettings settings;
-
-        [Tooltip("Seconds of held black between the two phases.")]
-        [SerializeField] private float transitionPause = 1.25f;
-
-        [Tooltip("Leave on so each playtest hides the keys somewhere new.")]
-        [SerializeField] private bool randomiseSeed = true;
-
-        [SerializeField] private int fixedSeed = 12345;
-        [SerializeField] private Key restartKey = Key.R;
-
-        [Tooltip("Start each run with the breadcrumb debug view visible. Turn off for shipping builds; F3 still toggles it either way.")]
-        [SerializeField] private bool debugVisibleByDefault = true;
-
         [Tooltip("Players in the match (1 = single player). Local multiplayer rotates rounds between players on one keyboard, every route haunting everyone. First player caught out loses. Set from the start menu.")]
         [Range(1, 4)]
         [SerializeField] private int playerCount = 1;
@@ -58,7 +43,6 @@ namespace ProjectRetrace
         private readonly System.Collections.Generic.List<PatrolSentry> _sentries =
             new System.Collections.Generic.List<PatrolSentry>();
 
-        private RetraceSettings _fallbackSettings;
         private int _seed;
         private Transform _excludedSpot;
         private int _startingPlayer = 1;
@@ -95,16 +79,6 @@ namespace ProjectRetrace
         /// <summary>The ghost pool: runtime clones of the template, one per patrolled route.
         /// Grows as rounds accumulate and is never trimmed -- StopPatrol just deactivates.</summary>
         public System.Collections.Generic.IReadOnlyList<PatrolSentry> Sentries => _sentries;
-
-        public RetraceSettings EffectiveSettings
-        {
-            get
-            {
-                if (settings != null) return settings;
-                if (_fallbackSettings == null) _fallbackSettings = RetraceSettings.CreateDefault();
-                return _fallbackSettings;
-            }
-        }
 
         private void Awake()
         {
@@ -148,9 +122,14 @@ namespace ProjectRetrace
         {
             StopAllCoroutines();
 
-            DebugVisible = debugVisibleByDefault;
+            // Each run re-reads the file, so edits made while the game is open land on
+            // the next restart without relaunching.
+            RetraceConfig.Reload();
+            var config = RetraceConfig.Current;
+
+            DebugVisible = config.debugVisibleByDefault;
             StealthRound = 0;
-            LivesRemaining = EffectiveSettings.stealthLives;
+            LivesRemaining = config.stealthLives;
             Winner = 0;
             JustEliminated = 0;
             AwaitingHandover = false;
@@ -162,7 +141,7 @@ namespace ProjectRetrace
             _ranBefore = true;
             CurrentPlayer = Multiplayer ? _startingPlayer : 1;
 
-            _seed = randomiseSeed ? UnityEngine.Random.Range(int.MinValue, int.MaxValue) : fixedSeed;
+            _seed = config.randomiseKeySpots ? UnityEngine.Random.Range(int.MinValue, int.MaxValue) : config.keySpotSeed;
 
             StopSentries();
 
@@ -178,7 +157,6 @@ namespace ProjectRetrace
 
             if (trail != null)
             {
-                trail.settings = EffectiveSettings;
                 trail.BeginFirstRoute(CurrentPlayer);
             }
 
@@ -216,10 +194,10 @@ namespace ProjectRetrace
             // *that* would silently move the keys between attempts.
             _excludedSpot = keySpawner != null ? keySpawner.LastSpot : null;
             StealthRound = round;
-            LivesRemaining = EffectiveSettings.stealthLives;
+            LivesRemaining = RetraceConfig.Current.stealthLives;
             CurrentPlayer = Multiplayer ? NextPlayer(CurrentPlayer) : 1;
 
-            yield return new WaitForSeconds(transitionPause);
+            yield return new WaitForSeconds(RetraceConfig.Current.transitionPause);
 
             // Local multiplayer: hold the frozen world until the incoming player takes
             // the keyboard -- rounds always change hands, so every round transition is a
@@ -256,7 +234,7 @@ namespace ProjectRetrace
             SetPhase(GamePhase.Transition);
             StopSentries();
 
-            yield return new WaitForSeconds(transitionPause);
+            yield return new WaitForSeconds(RetraceConfig.Current.transitionPause);
 
             BeginStealthAttempt(retry: true);
         }
@@ -289,7 +267,6 @@ namespace ProjectRetrace
                 {
                     var route = trail.Routes[i];
                     if (Multiplayer) _sentries[i].bodyTint = GhostTint(route.Owner, i);
-                    _sentries[i].settings = EffectiveSettings;
                     _sentries[i].BeginPatrol(route.Crumbs, route.Dwells);
                 }
             }
@@ -411,19 +388,19 @@ namespace ProjectRetrace
 
         private void Update()
         {
-            var config = EffectiveSettings;
+            var config = RetraceConfig.Current;
 
-            if (WasPressedThisFrame(config.debugToggleKey))
+            if (WasPressedThisFrame(config.DebugToggleKey))
             {
                 DebugVisible = !DebugVisible;
             }
 
-            if (Phase == GamePhase.Menu) return;
+            if (Phase == GamePhase.Menu || ConfigMenu.IsOpen) return;
 
             if (Phase == GamePhase.Results)
             {
-                if (WasPressedThisFrame(restartKey)) StartRun();
-                else if (WasPressedThisFrame(config.menuKey)) EnterMenu();
+                if (WasPressedThisFrame(config.RestartKey)) StartRun();
+                else if (WasPressedThisFrame(config.MenuKey)) EnterMenu();
                 return;
             }
 
@@ -432,10 +409,20 @@ namespace ProjectRetrace
             // The escape hatch when a playtest goes sideways: skip straight to the win.
             // The playtest escape hatch now skips ahead: with no win state left, "finish"
             // means surviving the round without hunting the keys down.
-            if (WasPressedThisFrame(config.manualFinishKey))
+            if (WasPressedThisFrame(config.ManualFinishKey))
             {
                 OnKeyTaken();
             }
+        }
+
+        /// <summary>The settings menu freezes the world rather than hiding behind it: a
+        /// sentry walking on under a paused player would be a free catch.</summary>
+        public void SetConfigMenuOpen(bool open)
+        {
+            Time.timeScale = open ? 0f : 1f;
+            var phaseTakesInput = Phase == GamePhase.Search || Phase == GamePhase.Stealth || Phase == GamePhase.Results;
+            SetPlayerInputEnabled(!open && phaseTakesInput);
+            if (open || !phaseTakesInput) FirstPersonController.LockCursor(false);
         }
 
         private void MovePlayerToSpawn()

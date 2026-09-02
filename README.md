@@ -23,7 +23,7 @@ of tries and you're eliminated, but your ghosts keep fighting; last one standing
 The rematch rotates who gets the threat-free search round.
 
 The sentries project their vision cones on the floor — the cone is the true sightline,
-cut off by walls, so trust it. Their footsteps are 3D: faint means far. **F3** toggles a
+cut off by walls, so trust it. Their footsteps are 3D: faint means far. **`** (backquote) toggles a
 debug view of the route you're currently recording.
 
 See [SETUP.md](SETUP.md) to get running.

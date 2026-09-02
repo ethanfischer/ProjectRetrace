@@ -105,9 +105,15 @@ the director resets the whole house without holding scene references to individu
 clears itself via `[RuntimeInitializeOnLoadMethod]` because statics survive play-mode entry when
 Domain Reload is off.
 
-`RetraceSettings` is a `ScriptableObject`. Every consumer reads it through an
-`EffectiveSettings` property that falls back to `RetraceSettings.CreateDefault()`, so a missing
-asset never blocks a playtest. Follow that pattern rather than dereferencing `settings` directly.
+`RetraceConfig` is the single home for every tuning value: a plain `[Serializable]` class
+written to and read from `retrace-config.json` in `Application.persistentDataPath`, so
+players can edit it. Consumers read `RetraceConfig.Current` at the point of use; there are
+no inspector copies of tuning numbers. When you add a tunable, add a field with its default
+there rather than a `[SerializeField]` or a `const` -- missing keys in an existing file fall
+back to the field default, so adding fields never breaks old configs. `GameDirector.StartRun`
+reloads the file. `ConfigMenu` (Tab) edits it in-game by reflecting over the config's
+public fields, so new tunables appear there without UI work. Keybind defaults avoid F-keys,
+which a browser build cannot intercept.
 
 `SceneSetupMenu` (menu: ProjectRetrace > Setup Scene Systems) builds and wires the entire rig
 into the open scene, including the sentry (inactive until the stealth phase) and the navmesh

@@ -28,10 +28,7 @@ namespace ProjectRetrace
         [Tooltip("The player. Assigned by ProjectRetrace > Setup Scene Systems.")]
         public Transform tracked;
 
-        public RetraceSettings settings;
-
         private readonly List<RecordedRoute> _routes = new List<RecordedRoute>();
-        private RetraceSettings _fallbackSettings;
         private bool _recording;
         private Vector3 _lastPosition;
         private Vector3 _lastCrumbPosition;
@@ -51,16 +48,6 @@ namespace ProjectRetrace
 
         /// <summary>Routes finished being recorded -- the ones sentries may patrol.</summary>
         public int CompletedRouteCount => _recording ? _routes.Count - 1 : _routes.Count;
-
-        public RetraceSettings EffectiveSettings
-        {
-            get
-            {
-                if (settings != null) return settings;
-                if (_fallbackSettings == null) _fallbackSettings = RetraceSettings.CreateDefault();
-                return _fallbackSettings;
-            }
-        }
 
         /// <summary>New run: wipe every route and start recording route 0 (the search).</summary>
         public void BeginFirstRoute(int owner = 1)
@@ -144,7 +131,7 @@ namespace ProjectRetrace
             TrackDwell(position);
 
             _distanceSinceLastCrumb += travelled;
-            if (_distanceSinceLastCrumb >= EffectiveSettings.dotSpacing)
+            if (_distanceSinceLastCrumb >= RetraceConfig.Current.dotSpacing)
             {
                 DropCrumb(position);
                 _distanceSinceLastCrumb = 0f;
@@ -161,7 +148,7 @@ namespace ProjectRetrace
 
             var offset = position - _dwellAnchor;
             offset.y = 0f;
-            var radius = EffectiveSettings.dwellRadius;
+            var radius = RetraceConfig.Current.dwellRadius;
             if (offset.sqrMagnitude > radius * radius)
             {
                 _dwellAnchor = position;
@@ -173,7 +160,7 @@ namespace ProjectRetrace
             if (_dwellRecorded) return;
 
             _dwellTime += Time.deltaTime;
-            if (_dwellTime < EffectiveSettings.dwellSeconds) return;
+            if (_dwellTime < RetraceConfig.Current.dwellSeconds) return;
 
             var route = CurrentRoute;
             route.Dwells.Add(new DwellPoint(_dwellAnchor, tracked.eulerAngles.y, route.Crumbs.Count - 1));

@@ -28,6 +28,7 @@ namespace ProjectRetrace
         private void OnGUI()
         {
             if (director != null && director.Phase == GamePhase.Menu) return;
+            if (ConfigMenu.IsOpen) return;
 
             HudScale.Apply();
             EnsureStyles();
@@ -94,7 +95,7 @@ namespace ProjectRetrace
         {
             if (_label != null) return;
 
-            _label = new GUIStyle(GUI.skin.label) { fontSize = 14, richText = true };
+            _label = new GUIStyle(GUI.skin.label) { fontSize = 14, richText = true, wordWrap = true };
             _label.normal.textColor = Color.white;
 
             _centered = new GUIStyle(_label) { alignment = TextAnchor.MiddleCenter, fontSize = 20 };
@@ -132,7 +133,7 @@ namespace ProjectRetrace
             }
 
             string banner;
-            var maxLives = director.EffectiveSettings.stealthLives;
+            var maxLives = RetraceConfig.Current.stealthLives;
             var who = director.Multiplayer ? $"P{director.CurrentPlayer} -- " : string.Empty;
             switch (director.Phase)
             {
@@ -181,13 +182,13 @@ namespace ProjectRetrace
         {
             if (trail == null) return;
 
-            var settings = trail.EffectiveSettings;
+            var settings = RetraceConfig.Current;
 
-            var box = new Rect(12f, 12f, 300f, 210f);
-            GUI.Box(box, GUIContent.none);
-
-            GUILayout.BeginArea(new Rect(box.x + 10f, box.y + 8f, box.width - 20f, box.height - 16f));
-            GUILayout.Label("<b>DEBUG</b>  (" + settings.debugToggleKey + " to hide)", _label);
+            // Layout-sized rather than a fixed rect: the readout grows a line every time
+            // something new is worth showing, and a fixed box silently clips the newest one.
+            GUILayout.BeginArea(new Rect(12f, 12f, 420f, HudScale.Height - 24f));
+            GUILayout.BeginVertical(GUI.skin.box);
+            GUILayout.Label("<b>DEBUG</b>  (" + settings.DebugToggleKey + " to hide, " + settings.ConfigMenuKey + " for settings)", _label);
             GUILayout.Label("Phase: " + (director != null ? director.Phase.ToString() : "-")
                 + (director != null && director.StealthRound > 0 ? "  (round " + (director.StealthRound + 1) + ")" : ""), _label);
             var current = trail.CurrentRoute;
@@ -199,6 +200,8 @@ namespace ProjectRetrace
             GUILayout.Label(SentryStatusLine(), _label);
             GUILayout.Label(string.Format("spacing {0:0.00}m", settings.dotSpacing), _label);
             GUILayout.Label(KeyStatusLine(), _label);
+            GUILayout.Label("config: " + RetraceConfig.FilePath, _label);
+            GUILayout.EndVertical();
             GUILayout.EndArea();
         }
 

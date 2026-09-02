@@ -15,16 +15,7 @@ namespace ProjectRetrace
         /// it in here keeps sensitivity values tuned against the old controller valid.</summary>
         private const float LegacyMouseAxisSensitivity = 0.1f;
 
-        [Header("Look")]
         public Transform cameraPivot;
-        [SerializeField] private float mouseSensitivity = 2.2f;
-        [SerializeField] private float pitchLimit = 89f;
-
-        [Header("Move")]
-        [SerializeField] private float walkSpeed = 3.4f;
-        [SerializeField] private float sprintSpeed = 6.0f;
-        [SerializeField] private float jumpSpeed = 4.5f;
-        [SerializeField] private float gravity = -18f;
 
         private CharacterController _controller;
         private float _pitch;
@@ -89,11 +80,12 @@ namespace ProjectRetrace
             var mouse = Mouse.current;
             if (mouse == null) return;
 
-            var look = mouse.delta.ReadValue() * (LegacyMouseAxisSensitivity * mouseSensitivity);
+            var config = RetraceConfig.Current;
+            var look = mouse.delta.ReadValue() * (LegacyMouseAxisSensitivity * config.mouseSensitivity);
 
             transform.Rotate(Vector3.up, look.x, Space.Self);
 
-            _pitch = Mathf.Clamp(_pitch - look.y, -pitchLimit, pitchLimit);
+            _pitch = Mathf.Clamp(_pitch - look.y, -config.pitchLimit, config.pitchLimit);
             if (cameraPivot != null)
             {
                 cameraPivot.localRotation = Quaternion.Euler(_pitch, 0f, 0f);
@@ -108,18 +100,19 @@ namespace ProjectRetrace
             var input = ReadMoveInput(keyboard);
             if (input.sqrMagnitude > 1f) input.Normalize();
 
-            var speed = keyboard.leftShiftKey.isPressed ? sprintSpeed : walkSpeed;
+            var config = RetraceConfig.Current;
+            var speed = keyboard.leftShiftKey.isPressed ? config.sprintSpeed : config.walkSpeed;
             var motion = transform.TransformDirection(input) * speed;
 
             if (_controller.isGrounded)
             {
                 // A small downward bias keeps isGrounded stable on slopes and stair edges.
                 _verticalVelocity = -2f;
-                if (keyboard.spaceKey.wasPressedThisFrame) _verticalVelocity = jumpSpeed;
+                if (keyboard.spaceKey.wasPressedThisFrame) _verticalVelocity = config.jumpSpeed;
             }
             else
             {
-                _verticalVelocity += gravity * Time.deltaTime;
+                _verticalVelocity += config.gravity * Time.deltaTime;
             }
 
             motion.y = _verticalVelocity;

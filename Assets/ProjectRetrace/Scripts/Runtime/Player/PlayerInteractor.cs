@@ -8,12 +8,7 @@ namespace ProjectRetrace
     public class PlayerInteractor : MonoBehaviour
     {
         public Transform rayOrigin;
-        [SerializeField] private float reach = 2.5f;
         [SerializeField] private LayerMask interactableMask = ~0;
-        [SerializeField] private Key interactKey = Key.E;
-
-        [Tooltip("Hitting a prop's static shell latches onto its nearest moving part within this distance, so a whole dresser prompts, not just the drawer fronts.")]
-        [SerializeField] private float shellLatchRadius = 0.9f;
 
         [SerializeField] private Color highlightTint = new Color(1f, 0.85f, 0.45f);
 
@@ -62,16 +57,20 @@ namespace ProjectRetrace
             _current = FindTarget();
             SetHighlighted(_current as Component);
 
-            if (_current != null && WasPressedThisFrame(interactKey))
+            if (_current != null && InteractPressedThisFrame())
             {
                 _current.Interact(this);
             }
         }
 
-        private static bool WasPressedThisFrame(Key key)
+        private static bool InteractPressedThisFrame()
         {
+            var config = RetraceConfig.Current;
             var keyboard = Keyboard.current;
-            return keyboard != null && keyboard[key].wasPressedThisFrame;
+            if (keyboard != null && keyboard[config.InteractKey].wasPressedThisFrame) return true;
+
+            var mouse = Mouse.current;
+            return config.interactWithLeftClick && mouse != null && mouse.leftButton.wasPressedThisFrame;
         }
 
         private IInteractable FindTarget()
@@ -93,7 +92,7 @@ namespace ProjectRetrace
 
         private bool TryHitOtherThanSelf(Ray ray, out RaycastHit hit)
         {
-            var hits = Physics.RaycastAll(ray, reach, interactableMask, QueryTriggerInteraction.Ignore);
+            var hits = Physics.RaycastAll(ray, RetraceConfig.Current.interactReach, interactableMask, QueryTriggerInteraction.Ignore);
             System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
 
             for (var i = 0; i < hits.Length; i++)
@@ -123,13 +122,15 @@ namespace ProjectRetrace
         /// <summary>
         /// A prop's shell (dresser carcass, chest walls) has no interactable of its own, but the
         /// player aiming at it clearly means the prop. Pick the nearest usable part under the
-        /// same root, so the whole piece of furniture responds instead of just its moving faces.
+        /// same root within shellLatchRadius, so the whole piece of furniture responds instead
+        /// of just its moving faces.
         /// </summary>
         private IInteractable LatchOntoNearestPart(RaycastHit hit)
         {
             var parts = hit.collider.transform.root.GetComponentsInChildren<IInteractable>();
             IInteractable best = null;
-            var bestSqr = shellLatchRadius * shellLatchRadius;
+            var radius = RetraceConfig.Current.shellLatchRadius;
+            var bestSqr = radius * radius;
 
             for (var i = 0; i < parts.Length; i++)
             {

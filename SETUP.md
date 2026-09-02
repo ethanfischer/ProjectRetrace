@@ -40,8 +40,9 @@ there is nothing to wire.
 | WASD / mouse | move, look |
 | Shift | sprint |
 | Space | jump |
-| E | interact |
-| **F3** | **toggle the debug trail view** |
+| E or left click | interact |
+| **`** (backquote) | **toggle the debug trail view** |
+| **Tab** | open the settings editor (pauses the game) |
 | Enter | instantly survive the current stealth round (escape hatch while playtesting) |
 | R | run again (on the results screen) |
 | M | back to the start menu (on the results screen) |
@@ -100,18 +101,31 @@ matter how long you actually stood there.
 
 ## 5. Tuning
 
-Everything lives on a `RetraceSettings` asset — right-click in the Project window →
-**Create → ProjectRetrace → Retrace Settings**, then drop it on the director. Without one,
-sensible defaults are used, so a missing asset never blocks a playtest.
+Every tuning number lives in one JSON file the game writes on first launch and reads on
+every run start:
 
-The difficulty curve is `sentrySpeed` (2.8, below your 3.4 walk speed), `visionRange`
+- macOS: `~/Library/Application Support/DefaultCompany/ProjectRetrace/retrace-config.json`
+- Windows: `%USERPROFILE%\AppData\LocalLow\DefaultCompany\ProjectRetrace\retrace-config.json`
+
+(Unity's `Application.persistentDataPath`; the debug HUD prints the exact path.) Press
+**Tab** at any point, or the Settings button on the start menu, for an in-game editor of
+the same file that pauses the world while it is open. Or edit the file by hand and use
+the menu's Reload button. Lines you delete fall back to the defaults in
+`RetraceConfig.cs`, and deleting the whole file regenerates it. Nothing tuning-related is
+on any inspector, so this file is the only place a value can live.
+
+The debug readout is on **`** (backquote): F-keys are off limits because a browser build
+can't intercept F3 or F5.
+
+The difficulty curve is `sentrySpeed` (2.0, below your 3.4 `walkSpeed`), `visionRange`
 (11m — indoors, walls do most of the limiting, but an open doorway doesn't) and
 `visionAngle` (80°). The floor cone the sentry projects is its true sightline: full range
 and angle, re-cut against the walls every frame. If the cone touches your feet, it can
 see you.
 
 `dwellRadius` / `dwellSeconds` control what counts as a stop in phase 1;
-`lookAroundSeconds` is how long the sentry honours each one.
+`lookAroundSeconds` is how long the sentry honours each one. Keybinds are Input System
+`Key` names (`E`, `Backquote`, `Enter`); an unrecognised name falls back to the default.
 
 ## 6. Working as a team
 
