@@ -35,7 +35,6 @@ namespace ProjectRetrace
         // walked route more faithfully.
         public float dotSpacing = 0.1f;
         public float dwellRadius = 0.9f;
-        public float dwellSeconds = 2f;
 
         // Sentry. sentrySpeed sits below walkSpeed so being followed stays escapable; the
         // chase after a spot only sells a catch that is already decided.

@@ -13,18 +13,15 @@ namespace ProjectRetrace
     /// would pile breadcrumbs up wherever the player stood still, and a patrol only needs
     /// the route's geometry -- the sentry supplies its own pace.
     ///
-    /// Dwells are recorded separately, because standing still drops no crumbs and lingering
-    /// would otherwise be invisible to the sentries. One DwellPoint per stop no matter how
-    /// long the stop lasts: playback pauses for a fixed duration, so camping cannot stretch
-    /// a patrol and soften the next round.
+    /// Dwells are recorded where the player *used* something, not where they stood still.
+    /// Searching is what the game is about, so the places a player rummaged are the ones a
+    /// sentry should stop and check; merely lingering in a corner tells the sentry nothing.
+    /// Repeat uses at one spot collapse into a single DwellPoint and playback pauses for a
+    /// fixed duration, so rattling a drawer cannot stretch a patrol and soften the next round.
     /// </summary>
     [DisallowMultipleComponent]
     public class BreadcrumbTrail : MonoBehaviour
     {
-        /// <summary>Ignore the first moments of each route so the spawn freeze while input
-        /// is re-enabled does not read as a deliberate stop.</summary>
-        private const float DwellWarmupSeconds = 1f;
-
         [Tooltip("The player. Assigned by ProjectRetrace > Setup Scene Systems.")]
         public Transform tracked;
 
@@ -33,10 +30,7 @@ namespace ProjectRetrace
         private Vector3 _lastPosition;
         private Vector3 _lastCrumbPosition;
         private float _distanceSinceLastCrumb;
-        private Vector3 _dwellAnchor;
-        private float _dwellTime;
-        private bool _dwellRecorded;
-        private float _routeStartTime;
+        private PlayerInteractor _interactor;
 
         /// <summary>All routes, oldest first. The last entry is still being written while
         /// Recording is true.</summary>
@@ -92,6 +86,11 @@ namespace ProjectRetrace
             _recording = false;
         }
 
+        private void OnDisable()
+        {
+            ListenTo(null);
+        }
+
         private void StartRoute(int owner)
         {
             if (tracked == null)
@@ -101,16 +100,22 @@ namespace ProjectRetrace
                 return;
             }
 
+            ListenTo(tracked.GetComponentInChildren<PlayerInteractor>());
+
             _routes.Add(new RecordedRoute { Owner = owner });
             _recording = true;
             _distanceSinceLastCrumb = 0f;
-            _dwellTime = 0f;
-            _dwellRecorded = false;
-            _routeStartTime = Time.time;
             _lastPosition = tracked.position;
             _lastCrumbPosition = tracked.position;
-            _dwellAnchor = tracked.position;
             DropCrumb(tracked.position);
+        }
+
+        private void ListenTo(PlayerInteractor interactor)
+        {
+            if (_interactor == interactor) return;
+            if (_interactor != null) _interactor.Interacted -= RecordDwell;
+            _interactor = interactor;
+            if (_interactor != null) _interactor.Interacted += RecordDwell;
         }
 
         private void Update()
@@ -128,7 +133,6 @@ namespace ProjectRetrace
             _lastPosition = position;
 
             CurrentRoute.Distance += travelled;
-            TrackDwell(position);
 
             _distanceSinceLastCrumb += travelled;
             if (_distanceSinceLastCrumb >= RetraceConfig.Current.dotSpacing)
@@ -138,33 +142,26 @@ namespace ProjectRetrace
             }
         }
 
-        private void TrackDwell(Vector3 position)
+        private void RecordDwell()
         {
-            if (Time.time - _routeStartTime < DwellWarmupSeconds)
-            {
-                _dwellAnchor = position;
-                return;
-            }
-
-            var offset = position - _dwellAnchor;
-            offset.y = 0f;
-            var radius = RetraceConfig.Current.dwellRadius;
-            if (offset.sqrMagnitude > radius * radius)
-            {
-                _dwellAnchor = position;
-                _dwellTime = 0f;
-                _dwellRecorded = false;
-                return;
-            }
-
-            if (_dwellRecorded) return;
-
-            _dwellTime += Time.deltaTime;
-            if (_dwellTime < RetraceConfig.Current.dwellSeconds) return;
+            if (!_recording) return;
 
             var route = CurrentRoute;
-            route.Dwells.Add(new DwellPoint(_dwellAnchor, tracked.eulerAngles.y, route.Crumbs.Count - 1));
-            _dwellRecorded = true;
+            if (IsWithinLastDwell(route, tracked.position)) return;
+
+            route.Dwells.Add(new DwellPoint(tracked.position, tracked.eulerAngles.y, route.Crumbs.Count - 1));
+        }
+
+        /// <summary>A dresser's three drawers are one stop, not three: anything used within
+        /// dwellRadius of the previous stop folds into it.</summary>
+        private static bool IsWithinLastDwell(RecordedRoute route, Vector3 position)
+        {
+            if (route.Dwells.Count == 0) return false;
+
+            var offset = position - route.Dwells[route.Dwells.Count - 1].Position;
+            offset.y = 0f;
+            var radius = RetraceConfig.Current.dwellRadius;
+            return offset.sqrMagnitude <= radius * radius;
         }
 
         private void DropCrumb(Vector3 position)

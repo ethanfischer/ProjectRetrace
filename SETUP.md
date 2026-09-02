@@ -52,7 +52,7 @@ there is nothing to wire.
 ## 4. How the stealth rounds work
 
 Every phase you play drops a breadcrumb every `dotSpacing` metres **of travel** and
-records a dwell point wherever you stand still for `dwellSeconds`. On each round
+records a dwell point wherever you use something (a drawer, a lid, the key). On each round
 transition:
 
 - The house resets to its opening state, and you return to spawn.
@@ -95,9 +95,9 @@ spot for that round, so what you learned before getting caught stays true. Run o
 attempts and the run is lost. A `graceSeconds` window after each attempt starts keeps the
 near-spawn patrol starts fair.
 
-Two deliberate anti-exploit choices: the sentry never replays your *timing* (camping in a
-corner during phase 1 records one dwell, not a long pause), and pause length is fixed no
-matter how long you actually stood there.
+Two deliberate anti-exploit choices: the sentry never replays your *timing* (standing
+still records nothing, and rattling one dresser records one dwell, not one per drawer),
+and pause length is fixed no matter how long you actually spent there.
 
 ## 5. Tuning
 
@@ -123,7 +123,7 @@ The difficulty curve is `sentrySpeed` (2.0, below your 3.4 `walkSpeed`), `vision
 and angle, re-cut against the walls every frame. If the cone touches your feet, it can
 see you.
 
-`dwellRadius` / `dwellSeconds` control what counts as a stop in phase 1;
+`dwellRadius` folds interactions close to the previous stop into it;
 `lookAroundSeconds` is how long the sentry honours each one. Keybinds are Input System
 `Key` names (`E`, `Backquote`, `Enter`); an unrecognised name falls back to the default.
 

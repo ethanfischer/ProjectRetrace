@@ -79,9 +79,10 @@ lives left it re-runs the stealth setup with the *same* derived seed — same ph
 so knowledge survives a retry — and only the last life ends the run.
 
 `BreadcrumbTrail` samples by distance travelled, not by time, and only on the XZ plane, so the
-patrol route captures geometry, not pacing, and jump-spam can't distort it. Standing still drops
-no crumbs, so the trail also records `DwellPoint`s (position + facing yaw) wherever the player
-lingers — one per stop no matter how long, which is deliberate anti-exploit design (see below).
+patrol route captures geometry, not pacing, and jump-spam can't distort it. The trail also
+records a `DwellPoint` (position + facing yaw) wherever the player *uses* something, fed by
+`PlayerInteractor.Interacted`; standing still records nothing, and repeat uses within
+`dwellRadius` collapse into one stop, which is deliberate anti-exploit design (see below).
 
 `PatrolSentry` (`Runtime/AI/`) is the whole NPC on one component: NavMeshAgent patrol over a
 recorded route in the player's direction (at the end it fades out, teleports back to the

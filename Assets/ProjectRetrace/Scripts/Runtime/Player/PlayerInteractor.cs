@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -11,6 +12,10 @@ namespace ProjectRetrace
         [SerializeField] private LayerMask interactableMask = ~0;
 
         [SerializeField] private Color highlightTint = new Color(1f, 0.85f, 0.45f);
+
+        /// <summary>Raised after the player uses something. The trail listens so a sentry
+        /// later pauses exactly where the player rummaged.</summary>
+        public event Action Interacted;
 
         private IInteractable _current;
         private bool _inputEnabled = true;
@@ -60,6 +65,7 @@ namespace ProjectRetrace
             if (_current != null && InteractPressedThisFrame())
             {
                 _current.Interact(this);
+                Interacted?.Invoke();
             }
         }
 
