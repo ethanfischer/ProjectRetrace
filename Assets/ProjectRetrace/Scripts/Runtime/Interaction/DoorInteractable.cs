@@ -41,6 +41,12 @@ namespace ProjectRetrace
 
         public bool Seals(Vector3 worldPoint) => Locked && sealedArea.Contains(worldPoint);
 
+        /// <summary>True on the round this door first opens, so the HUD can call it out once.</summary>
+        public bool UnlocksThisRound =>
+            unlocksAtRound > 0
+            && GameDirector.Instance != null
+            && GameDirector.Instance.StealthRound + 1 == unlocksAtRound;
+
         private void Awake()
         {
             CaptureInitialState();

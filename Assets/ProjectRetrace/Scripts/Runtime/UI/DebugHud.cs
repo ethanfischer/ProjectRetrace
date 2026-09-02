@@ -154,12 +154,23 @@ namespace ProjectRetrace
                     break;
                 case GamePhase.Stealth:
                     banner = $"{who}Round {director.StealthRound + 1}: find your keys without getting caught [{director.LivesRemaining}/{maxLives} tries]";
+                    if (AnyDoorUnlocksThisRound()) banner += " -- 2nd floor unlocked!";
                     break;
                 default:
                     return;
             }
 
             GUI.Label(new Rect(0f, 24f, HudScale.Width, 30f), banner, _centered);
+        }
+
+        private static bool AnyDoorUnlocksThisRound()
+        {
+            foreach (var interactable in InteractableRegistry.All)
+            {
+                if (interactable is DoorInteractable door && door.UnlocksThisRound) return true;
+            }
+
+            return false;
         }
 
         /// <summary>Couch handover: the world stays frozen until whoever plays next takes
