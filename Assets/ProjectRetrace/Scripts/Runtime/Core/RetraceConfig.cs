@@ -26,7 +26,7 @@ namespace ProjectRetrace
         public float sprintSpeed = 6.0f;
         public float jumpSpeed = 4.5f;
         public float gravity = -18f;
-        public float mouseSensitivity = 2.2f;
+        public float mouseSensitivity = 2.7f;
         public float pitchLimit = 89f;
         public float interactReach = 2.5f;
         public float shellLatchRadius = 0.9f;
@@ -61,10 +61,10 @@ namespace ProjectRetrace
         public float transitionPause = 1.25f;
         public bool randomiseKeySpots = true;
         public int keySpotSeed = 12345;
-        public bool debugVisibleByDefault = true;
+        public bool debugVisibleByDefault = false;
 
         // Footsteps
-        public float footstepStrideMetres = 0.8f;
+        public float footstepStrideMetres = 1.7f;
         public float footstepVolume = 0.8f;
         public float footstepPitchJitter = 0.1f;
 
