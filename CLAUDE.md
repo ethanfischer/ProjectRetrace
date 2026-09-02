@@ -102,7 +102,7 @@ Use climbs in and shuts it; while hidden `PlayerInteractor.Hiding` routes every 
 `Prop` that was used, and a ghost pausing at one calls `HidingSpot.OpenedBy`, which opens
 the door and hauls out (and spots) anyone inside. Ghosts never hide themselves. With
 `sentriesOpenFurniture` on, a ghost also re-opens whatever `IOpenable` the player used at
-each stop; off, furniture only opens when a hider is found.
+each stop (the default); off, furniture only opens when a hider is found.
 ProjectRetrace > Furniture > Add Hiding Spots To Cupboards retrofits an older scene.
 
 `DoorInteractable` can be round-locked (`unlocksAtRound`, a displayed round number, read

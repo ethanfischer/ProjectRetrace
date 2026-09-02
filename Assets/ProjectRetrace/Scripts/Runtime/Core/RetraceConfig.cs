@@ -57,7 +57,7 @@ namespace ProjectRetrace
 
         // Ghosts re-open whatever the player used at each stop -- drawers, lids, doors.
         // Off, a cupboard is only opened when someone is hiding in it.
-        public bool sentriesOpenFurniture = false;
+        public bool sentriesOpenFurniture = true;
 
         // Vision
         public float visionRange = 11f;
