@@ -150,13 +150,16 @@ namespace ProjectRetrace
 
         /// <summary>
         /// A prop's shell (dresser carcass, chest walls) has no interactable of its own, but the
-        /// player aiming at it clearly means the prop. Pick the nearest usable part under the
-        /// same root within shellLatchRadius, so the whole piece of furniture responds instead
-        /// of just its moving faces.
+        /// player aiming at it clearly means the prop. Pick the nearest usable part of that
+        /// prop within shellLatchRadius, so the whole piece of furniture responds instead of
+        /// just its moving faces. Anything outside a marked prop (a chair, a wall) offers nothing.
         /// </summary>
         private IInteractable LatchOntoNearestPart(RaycastHit hit)
         {
-            var parts = hit.collider.transform.root.GetComponentsInChildren<IInteractable>();
+            var prop = hit.collider.GetComponentInParent<SearchableProp>();
+            if (prop == null) return null;
+
+            var parts = prop.GetComponentsInChildren<IInteractable>();
             IInteractable best = null;
             var radius = RetraceConfig.Current.shellLatchRadius;
             var bestSqr = radius * radius;

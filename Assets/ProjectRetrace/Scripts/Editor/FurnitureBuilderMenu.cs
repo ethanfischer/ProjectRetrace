@@ -176,6 +176,7 @@ namespace ProjectRetrace.EditorTools
         {
             var root = new GameObject(name);
             Undo.RegisterCreatedObjectUndo(root, "Create " + name);
+            root.AddComponent<SearchableProp>();
             return root;
         }
 

@@ -31,16 +31,17 @@ namespace ProjectRetrace.EditorTools
         /// the doors and drawers as separate parts. The art scene uses the single-mesh ones
         /// in places the game wants searchable, so those are swapped for their twins on
         /// import; each pair shares a footprint and facing, bar the two noted.</summary>
-        private static readonly Dictionary<string, string> InteractiveTwins = new Dictionary<string, string>
+        private static readonly Dictionary<string, (string twin, float yaw)> InteractiveTwins = new Dictionary<string, (string, float)>
         {
-            { "Kitchen/Oven", "InteractiveFurniture/Oven_02" },
-            { "Bathroom/ShowerTable_02", "InteractiveFurniture/ShowerTable_04" },
-            { "Kitchen/KitchenTabletop2_03", "InteractiveFurniture/InteractiveFurniture_10" },
-            { "Room/RoomFurniture_07", "InteractiveFurniture/InteractiveFurniture_04" },
+            { "Kitchen/Oven", ("InteractiveFurniture/Oven_02", 0f) },
+            { "Bathroom/ShowerTable_02", ("InteractiveFurniture/ShowerTable_04", 0f) },
+            { "Kitchen/KitchenTabletop2_03", ("InteractiveFurniture/InteractiveFurniture_10", 0f) },
+            { "Room/RoomFurniture_07", ("InteractiveFurniture/InteractiveFurniture_04", 0f) },
             // 23 cm wider than the original.
-            { "Room/RoomFurniture_06", "InteractiveFurniture/InteractiveFurniture_05" },
+            { "Room/RoomFurniture_06", ("InteractiveFurniture/InteractiveFurniture_05", 0f) },
             // 21 cm taller than the original; anything sitting on top needs lifting.
-            { "Room/RoomFurniture_05", "InteractiveFurniture/InteractiveFurniture_05" },
+            { "Room/RoomFurniture_05", ("InteractiveFurniture/InteractiveFurniture_05", 0f) },
+            { "Room/OfficeTable_02", ("InteractiveFurniture/InteractiveFurniture_07", 0f) },
         };
         private const string InteractivePrefabFolder = "Assets/LowPolyInterior/Prefabs/InteractiveFurniture/";
         private const string RoomDoorPrefabPath = "Assets/LowPolyInterior/Prefabs/Walls/Door_04.prefab";
@@ -262,12 +263,12 @@ namespace ProjectRetrace.EditorTools
                 if (!assetPath.StartsWith(PackPrefabs)) continue;
 
                 var key = assetPath.Substring(PackPrefabs.Length).Replace(".prefab", "");
-                if (!InteractiveTwins.TryGetValue(key, out var twinKey)) continue;
+                if (!InteractiveTwins.TryGetValue(key, out var entry)) continue;
 
-                var twinPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PackPrefabs + twinKey + ".prefab");
+                var twinPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PackPrefabs + entry.twin + ".prefab");
                 if (twinPrefab == null)
                 {
-                    Debug.LogWarning($"[ProjectRetrace] Interactive twin '{twinKey}' for '{key}' not found; leaving it static.");
+                    Debug.LogWarning($"[ProjectRetrace] Interactive twin '{entry.twin}' for '{key}' not found; leaving it static.");
                     continue;
                 }
 
@@ -275,7 +276,7 @@ namespace ProjectRetrace.EditorTools
                 Undo.RegisterCreatedObjectUndo(twin, "Swap static prop");
                 twin.name = transform.name;
                 twin.transform.SetParent(transform.parent, false);
-                twin.transform.SetLocalPositionAndRotation(transform.localPosition, transform.localRotation);
+                twin.transform.SetLocalPositionAndRotation(transform.localPosition, transform.localRotation * Quaternion.Euler(0f, entry.yaw, 0f));
                 twin.transform.localScale = transform.localScale;
                 twin.transform.SetSiblingIndex(transform.GetSiblingIndex());
                 LiftWhatRestsOn(house, WorldBounds(transform), WorldBounds(twin.transform));
@@ -370,6 +371,7 @@ namespace ProjectRetrace.EditorTools
         private static Summary PrepareProp(GameObject prop)
         {
             var summary = new Summary();
+            if (prop.GetComponent<SearchableProp>() == null) Undo.AddComponent<SearchableProp>(prop);
             var parts = MovingParts(prop.transform);
             foreach (var (part, bounds) in parts)
             {
@@ -461,12 +463,20 @@ namespace ProjectRetrace.EditorTools
             return ownDeepest < float.MaxValue ? ownDeepest : bounds.min.z + BackInset;
         }
 
-        /// <summary>Union of the children's mesh bounds in the prop's space. The pack's
-        /// parts carry no rotation or scale, so a local offset is the whole transform.</summary>
+        /// <summary>Union of the prop's mesh bounds in its own space, including a carcass
+        /// mesh on the root itself (the oven and sinks keep it there). The pack's parts
+        /// carry no rotation or scale, so a local offset is the whole transform.</summary>
         private static Bounds LocalBounds(Transform prop)
         {
             var bounds = new Bounds();
             var first = true;
+            var rootFilter = prop.GetComponent<MeshFilter>();
+            if (rootFilter != null && rootFilter.sharedMesh != null)
+            {
+                bounds = rootFilter.sharedMesh.bounds;
+                first = false;
+            }
+
             foreach (Transform child in prop)
             {
                 var filter = child.GetComponent<MeshFilter>();
