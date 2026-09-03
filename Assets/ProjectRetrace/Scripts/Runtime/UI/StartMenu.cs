@@ -50,26 +50,24 @@ namespace ProjectRetrace
             GUI.Box(panel, GUIContent.none);
 
             GUI.Label(new Rect(panel.x, panel.y + 20f, panel.width, 40f), "PROJECT RETRACE", _title);
-            GUI.Label(new Rect(panel.x, panel.y + 60f, panel.width, 24f),
-                "Find your keys. Don't get caught by your past selves.", _subtitle);
 
-            if (GUI.Button(new Rect(panel.x + 70f, panel.y + 100f, 300f, 42f), "[1]  Singleplayer", _button))
+            if (GUI.Button(new Rect(panel.x + 70f, panel.y + 100f, 300f, 42f), "Singleplayer", _button))
             {
                 director.StartGame(1);
             }
 
-            if (GUI.Button(new Rect(panel.x + 70f, panel.y + 152f, 300f, 42f), "[2]  Multiplayer", _button))
+            if (GUI.Button(new Rect(panel.x + 70f, panel.y + 152f, 300f, 42f), "Multiplayer (Local)", _button))
             {
                 director.StartGame(2);
             }
 
-            if (online != null && GUI.Button(new Rect(panel.x + 70f, panel.y + 204f, 300f, 42f), "[3]  Online", _button))
+            if (online != null && GUI.Button(new Rect(panel.x + 70f, panel.y + 204f, 300f, 42f), "Multiplayer (Online)", _button))
             {
                 online.OpenLobby();
             }
 
             var configKey = RetraceConfig.Current.ConfigMenuKey;
-            if (GUI.Button(new Rect(panel.x + 70f, panel.y + 256f, 300f, 42f), "[" + configKey + "]  Settings", _button))
+            if (GUI.Button(new Rect(panel.x + 70f, panel.y + 256f, 300f, 42f), "Settings", _button))
             {
                 ConfigMenu.Toggle();
             }
