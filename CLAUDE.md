@@ -120,7 +120,9 @@ root (plus the dev grid and the origin point light), moves her scene's roots und
 her next PR is one click. Prepare is idempotent: it adds MeshColliders to the pack's raw
 FBX instances (its prefabs have them, its model instances don't), flips the FBX importers
 to Read/Write (the runtime bake reads mesh data, and the editor hides that it would fail in
-a build), and wires every `InteractiveFurniture_*` prefab by geometry alone: a part whose
+a build), swaps the static cabinets the art scene uses for their interactive twins from the pack
+(a table in `LevelImportMenu`; a taller twin lifts whatever stood on the original), and
+wires every `InteractiveFurniture_*` prefab by geometry alone: a part whose
 pivot sits on its edge is a door (hinge Up, swing sign from which side), one pivoted in
 the middle is a drawer, tall deep props get a `HidingSpot`, and each part gets a `KeySpot`.
 Hand-placed additions (a ceiling, extra props) go under the `TestHouse (Additions)` root,

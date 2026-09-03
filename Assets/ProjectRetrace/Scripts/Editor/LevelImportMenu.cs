@@ -25,6 +25,23 @@ namespace ProjectRetrace.EditorTools
         private const string AdditionsRootName = "TestHouse (Additions)";
         private const string GeneratedRootPrefix = "TestHouse (seed";
         private const string KeySpotName = "KeySpot";
+        private const string PackPrefabs = "Assets/LowPolyInterior/Prefabs/";
+
+        /// <summary>The pack ships most cabinets twice, once as a single mesh and once with
+        /// the doors and drawers as separate parts. The art scene uses the single-mesh ones
+        /// in places the game wants searchable, so those are swapped for their twins on
+        /// import; each pair shares a footprint and facing, bar the two noted.</summary>
+        private static readonly Dictionary<string, string> InteractiveTwins = new Dictionary<string, string>
+        {
+            { "Kitchen/Oven", "InteractiveFurniture/Oven_02" },
+            { "Bathroom/ShowerTable_02", "InteractiveFurniture/ShowerTable_04" },
+            { "Kitchen/KitchenTabletop2_03", "InteractiveFurniture/InteractiveFurniture_10" },
+            { "Room/RoomFurniture_07", "InteractiveFurniture/InteractiveFurniture_04" },
+            // 23 cm wider than the original.
+            { "Room/RoomFurniture_06", "InteractiveFurniture/InteractiveFurniture_05" },
+            // 21 cm taller than the original; anything sitting on top needs lifting.
+            { "Room/RoomFurniture_05", "InteractiveFurniture/InteractiveFurniture_05" },
+        };
         private const string InteractivePrefabFolder = "Assets/LowPolyInterior/Prefabs/InteractiveFurniture/";
         private const string RoomDoorPrefabPath = "Assets/LowPolyInterior/Prefabs/Walls/Door_04.prefab";
         private const string BackMaterialPath = "Assets/ProjectRetrace/Art/Materials/FurnitureBack.mat";
@@ -59,9 +76,9 @@ namespace ProjectRetrace.EditorTools
 
         private struct Summary
         {
-            public int props, doors, drawers, keySpots, hidingSpots, roomDoors, backs, colliders, readableMeshes;
+            public int props, doors, drawers, keySpots, hidingSpots, roomDoors, backs, colliders, readableMeshes, swapped;
             public override string ToString() =>
-                $"{props} prop(s): {doors} door(s), {drawers} drawer(s), {keySpots} key spot(s), " +
+                $"{swapped} static prop(s) swapped for interactive twins; {props} prop(s): {doors} door(s), {drawers} drawer(s), {keySpots} key spot(s), " +
                 $"{hidingSpots} hiding spot(s), {roomDoors} room door(s), {backs} back(s); {colliders} collider(s) added, " +
                 $"{readableMeshes} mesh import(s) made readable";
         }
@@ -159,6 +176,7 @@ namespace ProjectRetrace.EditorTools
             foreach (var transform in oldRoot.GetComponentsInChildren<Transform>(true))
             {
                 if (transform == oldRoot || transform.name == KeySpotName || transform.name == BackName) continue;
+                if (PrefabUtility.IsPartOfPrefabInstance(transform) && !PrefabUtility.IsAnyPrefabInstanceRoot(transform.gameObject)) continue;
                 if (sourcePaths.Contains(PathUnder(oldRoot, transform))) continue;
                 if (transform.parent != oldRoot && !sourcePaths.Contains(PathUnder(oldRoot, transform.parent))) continue;
 
@@ -208,6 +226,7 @@ namespace ProjectRetrace.EditorTools
         private static Summary PrepareFurniture(Transform house)
         {
             var summary = new Summary();
+            summary.swapped = SwapStaticPropsForTwins(house);
             summary.colliders = AddMissingColliders(house);
             summary.readableMeshes = MakeCollisionMeshesReadable(house);
             foreach (var transform in house.GetComponentsInChildren<Transform>(true))
@@ -227,6 +246,76 @@ namespace ProjectRetrace.EditorTools
             }
 
             return summary;
+        }
+
+        /// <summary>Keeps the original's name and transform so the swapped prop still matches
+        /// its path in the art scene, which is how a re-import tells her objects from
+        /// hand-placed ones.</summary>
+        private static int SwapStaticPropsForTwins(Transform house)
+        {
+            var swapped = 0;
+            foreach (var transform in house.GetComponentsInChildren<Transform>(true))
+            {
+                if (transform == null || !PrefabUtility.IsAnyPrefabInstanceRoot(transform.gameObject)) continue;
+
+                var assetPath = PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(transform.gameObject);
+                if (!assetPath.StartsWith(PackPrefabs)) continue;
+
+                var key = assetPath.Substring(PackPrefabs.Length).Replace(".prefab", "");
+                if (!InteractiveTwins.TryGetValue(key, out var twinKey)) continue;
+
+                var twinPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PackPrefabs + twinKey + ".prefab");
+                if (twinPrefab == null)
+                {
+                    Debug.LogWarning($"[ProjectRetrace] Interactive twin '{twinKey}' for '{key}' not found; leaving it static.");
+                    continue;
+                }
+
+                var twin = (GameObject)PrefabUtility.InstantiatePrefab(twinPrefab, transform.gameObject.scene);
+                Undo.RegisterCreatedObjectUndo(twin, "Swap static prop");
+                twin.name = transform.name;
+                twin.transform.SetParent(transform.parent, false);
+                twin.transform.SetLocalPositionAndRotation(transform.localPosition, transform.localRotation);
+                twin.transform.localScale = transform.localScale;
+                twin.transform.SetSiblingIndex(transform.GetSiblingIndex());
+                LiftWhatRestsOn(house, WorldBounds(transform), WorldBounds(twin.transform));
+                Undo.DestroyObjectImmediate(transform.gameObject);
+                swapped++;
+            }
+
+            return swapped;
+        }
+
+        /// <summary>A taller twin would swallow the lamp or TV the artist stood on the
+        /// original, so anything whose base sat on the old top within its footprint rides
+        /// up by the difference.</summary>
+        private static void LiftWhatRestsOn(Transform house, Bounds oldBounds, Bounds newBounds)
+        {
+            var lift = newBounds.max.y - oldBounds.max.y;
+            if (lift < 0.02f) return;
+
+            var lifted = new HashSet<Transform>();
+            foreach (var renderer in house.GetComponentsInChildren<Renderer>(true))
+            {
+                var root = PrefabUtility.GetNearestPrefabInstanceRoot(renderer.gameObject);
+                if (root == null || lifted.Contains(root.transform)) continue;
+                var b = renderer.bounds;
+                var restsOnTop = Mathf.Abs(b.min.y - oldBounds.max.y) < 0.06f;
+                var withinFootprint = b.center.x > oldBounds.min.x && b.center.x < oldBounds.max.x && b.center.z > oldBounds.min.z && b.center.z < oldBounds.max.z;
+                if (!restsOnTop || !withinFootprint) continue;
+
+                Undo.RecordObject(root.transform, "Lift prop onto taller twin");
+                root.transform.position += Vector3.up * lift;
+                lifted.Add(root.transform);
+            }
+        }
+
+        private static Bounds WorldBounds(Transform prop)
+        {
+            var renderers = prop.GetComponentsInChildren<Renderer>(true);
+            var bounds = renderers.Length > 0 ? renderers[0].bounds : new Bounds(prop.position, Vector3.zero);
+            foreach (var renderer in renderers) bounds.Encapsulate(renderer.bounds);
+            return bounds;
         }
 
         /// <summary>The pack's prefabs carry MeshColliders but its raw FBX model instances do
