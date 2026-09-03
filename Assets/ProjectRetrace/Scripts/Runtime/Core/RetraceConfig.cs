@@ -21,13 +21,26 @@ namespace ProjectRetrace
     {
         public const string FileName = "retrace-config.json";
 
+        // Input first: the settings players actually come here for. Everything below is
+        // tuning that most players never touch.
+        [ConfigTab("Input")]
+        public float mouseSensitivity = 2.7f;
+        public float pitchLimit = 89f;
+        public string interactKey = "E";
+        public bool interactWithLeftClick = true;
+        public string hideKey = "H";
+        public string restartKey = "R";
+        public string manualFinishKey = "Enter";
+        public string debugToggleKey = "Backquote";
+        public string menuKey = "M";
+        public string configMenuKey = "Tab";
+
         // Player
+        [ConfigTab("Player")]
         public float walkSpeed = 3.4f;
         public float sprintSpeed = 6.0f;
         public float jumpSpeed = 4.5f;
         public float gravity = -18f;
-        public float mouseSensitivity = 2.7f;
-        public float pitchLimit = 89f;
         public float interactReach = 2.5f;
         public float shellLatchRadius = 0.9f;
 
@@ -43,6 +56,7 @@ namespace ProjectRetrace
 
         // Sentry. sentrySpeed sits below walkSpeed so being followed stays escapable; the
         // chase after a spot only sells a catch that is already decided.
+        [ConfigTab("Sentries")]
         public float sentrySpeed = 2.0f;
         public float chaseSpeed = 5.5f;
         public float chaseCapSeconds = 2.5f;
@@ -66,6 +80,7 @@ namespace ProjectRetrace
 
         // Run. The seed decides only where the keys hide, in the search and every round
         // after; turn randomisation off to replay the same hiding spots.
+        [ConfigTab("Run")]
         public float transitionPause = 1.25f;
         public bool randomiseKeySpots = true;
         public int keySpotSeed = 12345;
@@ -76,19 +91,10 @@ namespace ProjectRetrace
         public bool debugVisibleByDefault = false;
 
         // Footsteps
+        [ConfigTab("Audio")]
         public float footstepStrideMetres = 1.7f;
         public float footstepVolume = 0.8f;
         public float footstepPitchJitter = 0.1f;
-
-        // Keys
-        public string interactKey = "E";
-        public bool interactWithLeftClick = true;
-        public string hideKey = "H";
-        public string restartKey = "R";
-        public string manualFinishKey = "Enter";
-        public string debugToggleKey = "Backquote";
-        public string menuKey = "M";
-        public string configMenuKey = "Tab";
 
         public Key InteractKey => ParseKey(interactKey, Key.E);
         public Key HideKey => ParseKey(hideKey, Key.H);

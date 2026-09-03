@@ -11,7 +11,9 @@ namespace ProjectRetrace
     /// key at any point in a run. Built by reflection over RetraceConfig's public fields, so
     /// a new tunable shows up here the moment it is declared -- no second list to forget.
     /// Text fields rather than sliders because a hand-edited file has no ranges to offer,
-    /// and typing an exact value is what tuning actually looks like.
+    /// and typing an exact value is what tuning actually looks like. Fields are split into
+    /// tabs by ConfigTabAttribute so the handful of settings a player wants (mouse, keys)
+    /// aren't buried in forty tuning numbers.
     /// </summary>
     public class ConfigMenu : MonoBehaviour
     {
@@ -25,6 +27,9 @@ namespace ProjectRetrace
         private RetraceConfig _draft;
         private readonly Dictionary<string, string> _buffers = new Dictionary<string, string>();
         private FieldInfo[] _fields;
+        private string[] _tabNames;
+        private List<FieldInfo>[] _tabFields;
+        private int _tab;
         private Vector2 _scroll;
         private string _status = string.Empty;
 
@@ -41,6 +46,29 @@ namespace ProjectRetrace
         {
             _instance = this;
             _fields = typeof(RetraceConfig).GetFields(BindingFlags.Public | BindingFlags.Instance);
+            BuildTabs();
+        }
+
+        /// <summary>Fields come back in declaration order, so a tab is simply every field from
+        /// one tag up to the next. Anything declared before the first tag lands in "Other" so a
+        /// forgotten tag can't hide a setting.</summary>
+        private void BuildTabs()
+        {
+            var names = new List<string>();
+            var groups = new List<List<FieldInfo>>();
+            foreach (var field in _fields)
+            {
+                var tab = field.GetCustomAttribute<ConfigTabAttribute>();
+                if (tab != null || groups.Count == 0)
+                {
+                    names.Add(tab != null ? tab.Name : "Other");
+                    groups.Add(new List<FieldInfo>());
+                }
+                groups[groups.Count - 1].Add(field);
+            }
+
+            _tabNames = names.ToArray();
+            _tabFields = groups.ToArray();
         }
 
         private void OnDestroy()
@@ -93,14 +121,25 @@ namespace ProjectRetrace
             GUILayout.Label(RetraceConfig.FilePath, _hint);
             GUILayout.Space(6f);
 
+            DrawTabs();
+            GUILayout.Space(6f);
+
             _scroll = GUILayout.BeginScrollView(_scroll);
-            foreach (var field in _fields) DrawField(field);
+            foreach (var field in _tabFields[_tab]) DrawField(field);
             GUILayout.EndScrollView();
 
             GUILayout.Space(6f);
             DrawButtons();
             if (!string.IsNullOrEmpty(_status)) GUILayout.Label(_status, _hint);
             GUILayout.EndArea();
+        }
+
+        private void DrawTabs()
+        {
+            var selected = GUILayout.Toolbar(_tab, _tabNames, GUILayout.Height(28f));
+            if (selected == _tab) return;
+            _tab = selected;
+            _scroll = Vector2.zero;
         }
 
         private void DrawField(FieldInfo field)
