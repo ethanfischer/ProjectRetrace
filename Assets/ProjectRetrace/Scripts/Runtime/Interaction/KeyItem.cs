@@ -23,6 +23,9 @@ namespace ProjectRetrace
             }
         }
 
+        /// <summary>Keys in a drawer sit under it; keys behind a door sit on the prop's
+        /// root, and a wardrobe can have several leaves, so the one that actually covers
+        /// the keys is the nearest, not the first in the hierarchy.</summary>
         private IOpenable FindContainer()
         {
             var inParent = GetComponentInParent<IOpenable>();
@@ -30,7 +33,22 @@ namespace ProjectRetrace
 
             var spot = transform.parent;
             var prop = spot != null ? spot.parent : null;
-            return prop != null ? prop.GetComponentInChildren<IOpenable>() : null;
+            if (prop == null) return null;
+
+            IOpenable nearest = null;
+            var nearestSqr = float.MaxValue;
+            foreach (var openable in prop.GetComponentsInChildren<IOpenable>())
+            {
+                var renderer = ((Component)openable).GetComponentInChildren<Renderer>();
+                var centre = renderer != null ? renderer.bounds.center : ((Component)openable).transform.position;
+                var sqr = (centre - transform.position).sqrMagnitude;
+                if (sqr >= nearestSqr) continue;
+
+                nearestSqr = sqr;
+                nearest = openable;
+            }
+
+            return nearest;
         }
 
         protected override void OnTaken(PlayerInteractor interactor)

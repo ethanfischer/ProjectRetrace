@@ -2,7 +2,12 @@ using UnityEngine;
 
 namespace ProjectRetrace
 {
-    /// <summary>A drawer that slides open along a local axis.</summary>
+    /// <summary>
+    /// A drawer that slides open along a local axis. Unlike furniture doors it can be shut
+    /// again: the art pack stacks drawers, and an open upper drawer hides the front of the
+    /// one below and steals its clicks, so a one-way drawer would lock the rest of the
+    /// stack out of a search.
+    /// </summary>
     public class DrawerInteractable : InteractableBase, IOpenable
     {
         [SerializeField] private Vector3 slideAxis = Vector3.forward;
@@ -13,15 +18,11 @@ namespace ProjectRetrace
         private bool _isOpen;
         private float _openAmount;
 
-        public override string Prompt => "Open drawer";
+        public override string Prompt => (_isOpen ? "Close " : "Open ") + "drawer";
 
         public bool IsOpen => _isOpen;
 
         public void Open() => _isOpen = true;
-
-        /// <summary>Opening is one-way: a search leaves the house visibly rummaged, and
-        /// closing things back up would only be busywork between the player and the keys.</summary>
-        public override bool CanInteract => base.CanInteract && !_isOpen;
 
         private void Awake()
         {
@@ -30,7 +31,7 @@ namespace ProjectRetrace
 
         public override void Interact(PlayerInteractor interactor)
         {
-            _isOpen = true;
+            _isOpen = !_isOpen;
         }
 
         private void Update()

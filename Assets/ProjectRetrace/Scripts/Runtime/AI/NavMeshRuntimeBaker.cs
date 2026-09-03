@@ -25,7 +25,7 @@ namespace ProjectRetrace
 
         private void Awake()
         {
-            var sources = CollectSources();
+            var sources = CollectSources(out var bounds);
 
             var settings = NavMesh.GetSettingsByID(0);
             settings.agentRadius = AgentRadius;
@@ -33,7 +33,6 @@ namespace ProjectRetrace
             settings.agentClimb = AgentClimb;
             settings.agentSlope = 45f;
 
-            var bounds = new Bounds(new Vector3(0f, 3f, 3f), new Vector3(60f, 24f, 60f));
             var data = NavMeshBuilder.BuildNavMeshData(settings, sources, bounds, Vector3.zero, Quaternion.identity);
             _instance = NavMesh.AddNavMeshData(data);
         }
@@ -43,19 +42,28 @@ namespace ProjectRetrace
             _instance.Remove();
         }
 
+        /// <summary>Whole-scene fallback: generous enough for anything built near the origin.</summary>
+        private static readonly Bounds FallbackBounds = new Bounds(new Vector3(0f, 3f, 3f), new Vector3(60f, 24f, 60f));
+
         /// <summary>
         /// Prefer the generated house roots: a whole-scene collect would also sweep up the
         /// player's capsule and any stray prop, punching phantom holes into the walkable area.
+        ///
+        /// The bake volume wraps the house's own colliders rather than a fixed box around
+        /// the origin: an imported art level sits wherever the artist built it, and a room
+        /// outside a fixed box would simply fall off the navmesh with no error.
         /// </summary>
-        private List<NavMeshBuildSource> CollectSources()
+        private List<NavMeshBuildSource> CollectSources(out Bounds bounds)
         {
             var sources = new List<NavMeshBuildSource>();
             var markups = new List<NavMeshBuildMarkup>();
             var foundHouse = false;
+            bounds = FallbackBounds;
 
             foreach (var root in gameObject.scene.GetRootGameObjects())
             {
                 if (!root.name.StartsWith("TestHouse")) continue;
+                bounds = foundHouse ? Union(bounds, ColliderBounds(root)) : ColliderBounds(root);
                 foundHouse = true;
                 IgnoreDoors(root.transform, markups);
                 NavMeshBuilder.CollectSources(root.transform, ~0, NavMeshCollectGeometry.PhysicsColliders, 0, markups, sources);
@@ -68,7 +76,24 @@ namespace ProjectRetrace
                 NavMeshBuilder.CollectSources((Transform)null, ~0, NavMeshCollectGeometry.PhysicsColliders, 0, markups, sources);
             }
 
+            bounds.Expand(4f);
             return sources;
+        }
+
+        private static Bounds ColliderBounds(GameObject root)
+        {
+            var colliders = root.GetComponentsInChildren<Collider>(true);
+            if (colliders.Length == 0) return new Bounds(root.transform.position, Vector3.one);
+
+            var bounds = colliders[0].bounds;
+            foreach (var collider in colliders) bounds.Encapsulate(collider.bounds);
+            return bounds;
+        }
+
+        private static Bounds Union(Bounds a, Bounds b)
+        {
+            a.Encapsulate(b);
+            return a;
         }
 
         /// <summary>

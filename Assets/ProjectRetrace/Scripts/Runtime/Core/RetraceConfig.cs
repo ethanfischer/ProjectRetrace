@@ -79,6 +79,7 @@ namespace ProjectRetrace
         // Keys
         public string interactKey = "E";
         public bool interactWithLeftClick = true;
+        public string hideKey = "H";
         public string restartKey = "R";
         public string manualFinishKey = "Enter";
         public string debugToggleKey = "Backquote";
@@ -86,6 +87,7 @@ namespace ProjectRetrace
         public string configMenuKey = "Tab";
 
         public Key InteractKey => ParseKey(interactKey, Key.E);
+        public Key HideKey => ParseKey(hideKey, Key.H);
         public Key RestartKey => ParseKey(restartKey, Key.R);
         public Key ManualFinishKey => ParseKey(manualFinishKey, Key.Enter);
         public Key DebugToggleKey => ParseKey(debugToggleKey, Key.Backquote);

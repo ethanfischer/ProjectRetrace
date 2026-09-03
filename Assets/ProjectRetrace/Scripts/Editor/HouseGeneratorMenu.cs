@@ -239,7 +239,7 @@ namespace ProjectRetrace.EditorTools
                 new Vector3(DoorWidth * 0.5f, wallH * 0.5f, 0f),
                 new Vector3(DoorWidth - 0.04f, wallH - 0.02f, 0.06f));
 
-            var door = FurnitureBuilderMenu.AddHinged(hinge, Vector3.up, -100f, "door", closable: true);
+            var door = FurnitureBuilderMenu.AddHinged(hinge, Vector3.up, -100f, "door");
             var serialized = new SerializedObject(door);
             serialized.FindProperty("unlocksAtRound").intValue = UpstairsUnlockRound;
 
