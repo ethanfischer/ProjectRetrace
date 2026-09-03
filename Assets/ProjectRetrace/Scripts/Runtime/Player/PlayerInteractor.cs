@@ -17,12 +17,13 @@ namespace ProjectRetrace
         /// later pauses exactly where the player rummaged.</summary>
         public event Action<IInteractable> Interacted;
 
-        /// <summary>Set by the HidingSpot the player is inside. While hidden every Use press
-        /// means "get out": the reticle is pressed against the inside of a door, and the
-        /// door itself must not answer.</summary>
+        /// <summary>Set by the HidingSpot the player is inside. While hidden the Use key is
+        /// dead -- the reticle is pressed against the inside of a door, and the door must
+        /// not answer -- and the hide key means "get out".</summary>
         public HidingSpot Hiding { get; set; }
 
         private IInteractable _current;
+        private HidingSpot _hideTarget;
         private bool _inputEnabled = true;
         private readonly List<Renderer> _highlighted = new List<Renderer>();
         private MaterialPropertyBlock _highlightBlock;
@@ -35,12 +36,19 @@ namespace ProjectRetrace
 
         public string CurrentPrompt => _current != null ? _current.Prompt : null;
 
+        /// <summary>The cupboard the hide key would act on: the one in front of the player
+        /// with its door open, or the one they are inside. Null otherwise.</summary>
+        public HidingSpot HideTarget => _hideTarget;
+
+        public string HidePrompt => _hideTarget != null ? _hideTarget.Prompt : null;
+
         public void SetInputEnabled(bool inputEnabled)
         {
             _inputEnabled = inputEnabled;
             if (!inputEnabled)
             {
                 _current = null;
+                _hideTarget = null;
                 SetHighlighted(null);
             }
         }
@@ -64,15 +72,33 @@ namespace ProjectRetrace
                 return;
             }
 
-            _current = Hiding != null ? Hiding : FindTarget();
-            SetHighlighted(Hiding != null ? null : _current as Component);
+            var hasHit = TryHitOtherThanSelf(out var hit);
+            _current = Hiding == null && hasHit ? Resolve(hit) : null;
+            _hideTarget = Hiding != null ? Hiding : (hasHit ? HideTargetOf(hit) : null);
+            SetHighlighted(Hiding != null ? null : (_current as Component ?? _hideTarget));
 
-            if (_current != null && InteractPressedThisFrame())
-            {
-                var used = _current;
-                used.Interact(this);
-                Interacted?.Invoke(used);
-            }
+            if (_current != null && InteractPressedThisFrame()) Use(_current);
+            if (_hideTarget != null && HidePressedThisFrame()) Use(_hideTarget);
+        }
+
+        private void Use(IInteractable target)
+        {
+            target.Interact(this);
+            Interacted?.Invoke(target);
+        }
+
+        private static bool HidePressedThisFrame()
+        {
+            var keyboard = Keyboard.current;
+            return keyboard != null && keyboard[RetraceConfig.Current.HideKey].wasPressedThisFrame;
+        }
+
+        /// <summary>Hiding has its own key so the Use ray never has to choose between a
+        /// cupboard's door and its interior: aiming anywhere at an open cupboard offers Hide.</summary>
+        private static HidingSpot HideTargetOf(RaycastHit hit)
+        {
+            var spot = hit.collider.GetComponentInParent<HidingSpot>();
+            return spot != null && spot.CanHide ? spot : null;
         }
 
         private static bool InteractPressedThisFrame()
@@ -85,25 +111,17 @@ namespace ProjectRetrace
             return config.interactWithLeftClick && mouse != null && mouse.leftButton.wasPressedThisFrame;
         }
 
-        private IInteractable FindTarget()
+        /// <summary>
+        /// The camera sits at the skin of the player's own capsule, so a steeply pitched ray
+        /// can clip it and die immediately -- which silently ate every glance at low
+        /// furniture. Cast through everything and take the first hit that isn't ourselves.
+        /// </summary>
+        private bool TryHitOtherThanSelf(out RaycastHit hit)
         {
-            if (rayOrigin == null) return null;
+            hit = default;
+            if (rayOrigin == null) return false;
 
             var ray = new Ray(rayOrigin.position, rayOrigin.forward);
-
-            // The camera sits at the skin of the player's own capsule, so a steeply pitched ray
-            // can clip it and die immediately -- which silently ate every glance at low
-            // furniture. Cast through everything and take the first hit that isn't ourselves.
-            if (!TryHitOtherThanSelf(ray, out var hit))
-            {
-                return null;
-            }
-
-            return Resolve(hit);
-        }
-
-        private bool TryHitOtherThanSelf(Ray ray, out RaycastHit hit)
-        {
             var hits = Physics.RaycastAll(ray, RetraceConfig.Current.interactReach, interactableMask, QueryTriggerInteraction.Ignore);
             System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
 
@@ -114,7 +132,6 @@ namespace ProjectRetrace
                 return true;
             }
 
-            hit = default;
             return false;
         }
 
@@ -133,13 +150,16 @@ namespace ProjectRetrace
 
         /// <summary>
         /// A prop's shell (dresser carcass, chest walls) has no interactable of its own, but the
-        /// player aiming at it clearly means the prop. Pick the nearest usable part under the
-        /// same root within shellLatchRadius, so the whole piece of furniture responds instead
-        /// of just its moving faces.
+        /// player aiming at it clearly means the prop. Pick the nearest usable part of that
+        /// prop within shellLatchRadius, so the whole piece of furniture responds instead of
+        /// just its moving faces. Anything outside a marked prop (a chair, a wall) offers nothing.
         /// </summary>
         private IInteractable LatchOntoNearestPart(RaycastHit hit)
         {
-            var parts = hit.collider.transform.root.GetComponentsInChildren<IInteractable>();
+            var prop = hit.collider.GetComponentInParent<SearchableProp>();
+            if (prop == null) return null;
+
+            var parts = prop.GetComponentsInChildren<IInteractable>();
             IInteractable best = null;
             var radius = RetraceConfig.Current.shellLatchRadius;
             var bestSqr = radius * radius;

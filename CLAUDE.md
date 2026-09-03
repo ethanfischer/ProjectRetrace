@@ -97,9 +97,11 @@ the generated 1.1m doorways) — no baked asset to go stale when the test house 
 Every `DoorInteractable` is excluded from that bake: ghosts never operate doors, so they
 walk through them rather than being stranded by one that restored closed.
 
-`HidingSpot` sits on a cupboard's root beside its `DoorInteractable`: with the door open,
-Use climbs in and shuts it; while hidden `PlayerInteractor.Hiding` routes every Use to
-"Leave". Hiding is only as safe as the route that got you there: a `DwellPoint` carries the
+`HidingSpot` sits on a cupboard's root beside its `DoorInteractable` and answers the hide
+key (`hideKey`, H), never Use: with the door open, H climbs in and shuts it; while hidden
+Use is dead and H is "Leave". Keeping the two on separate keys means E always operates
+the door wherever the player aims at the cupboard. Hiding is only as safe as the route
+that got you there: a `DwellPoint` carries the
 `Prop` that was used, and a ghost pausing at one calls `HidingSpot.OpenedBy`, which opens
 the door and hauls out (and spots) anyone inside. Ghosts never hide themselves. With
 `sentriesOpenFurniture` on, a ghost also re-opens whatever `IOpenable` the player used at
@@ -110,6 +112,25 @@ ProjectRetrace > Furniture > Add Hiding Spots To Cupboards retrofits an older sc
 against `GameDirector.Instance.StealthRound`) and carries a `sealedArea`; `KeySpawner`
 skips any hiding spot inside a locked door's sealed volume. The generated house uses this
 to keep the upper floor shut until round 4.
+
+`LevelImportMenu` (ProjectRetrace > Level) is how the art team's scene becomes the playable
+house. `HomeInterior_FirstFloor.unity` stays pure art; Import deletes every `TestHouse*`
+root (plus the dev grid and the origin point light), moves her scene's roots under a new
+`TestHouse (HomeInterior_FirstFloor)` root, and runs Prepare on it, so re-importing after
+her next PR is one click. Prepare is idempotent: it adds MeshColliders to the pack's raw
+FBX instances (its prefabs have them, its model instances don't), flips the FBX importers
+to Read/Write (the runtime bake reads mesh data, and the editor hides that it would fail in
+a build), swaps the static cabinets the art scene uses for their interactive twins from the pack
+(a table in `LevelImportMenu`; a taller twin lifts whatever stood on the original), and
+wires every `InteractiveFurniture_*` prefab by geometry alone: a part whose
+pivot sits on its edge is a door (hinge Up, swing sign from which side), one pivoted in
+the middle is a drawer, tall deep props get a `HidingSpot`, and each part gets a `KeySpot`.
+Hand-placed additions (a ceiling, extra props) go under the `TestHouse (Additions)` root,
+which re-imports never touch and the navmesh still bakes; anything found inside the
+imported copy that the art scene lacks is moved there rather than deleted, and the spawn
+point is only placed on the very first import.
+`NavMeshRuntimeBaker` sizes its bake volume from the house's own colliders, so the imported
+level (built 20 m west of the origin) is fully covered.
 
 `InteractableRegistry` is a static list that self-populates from `InteractableBase.OnEnable`, so
 the director resets the whole house without holding scene references to individual props. It

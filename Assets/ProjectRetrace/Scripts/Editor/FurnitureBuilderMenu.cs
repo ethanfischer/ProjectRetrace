@@ -18,19 +18,14 @@ namespace ProjectRetrace.EditorTools
         public static void CreateDresser() => Place(BuildDresser());
 
         /// <summary>Retrofits furniture built by an older builder -- hiding spots on
-        /// cupboards, one-way furniture doors -- so a saved house need not be regenerated.</summary>
+        /// cupboards -- so a saved house need not be regenerated.</summary>
         [MenuItem("ProjectRetrace/Furniture/Upgrade Placed Furniture", false, 40)]
         public static void UpgradePlacedFurniture()
         {
             var added = 0;
             foreach (var door in Object.FindObjectsByType<DoorInteractable>(FindObjectsInactive.Include, FindObjectsSortMode.None))
             {
-                var serialized = new SerializedObject(door);
-                var label = serialized.FindProperty("label").stringValue;
-                if (label == "door") continue;
-
-                serialized.FindProperty("closable").boolValue = false;
-                serialized.ApplyModifiedProperties();
+                var label = new SerializedObject(door).FindProperty("label").stringValue;
                 if (label != "cupboard" || door.transform.parent == null) continue;
 
                 var root = door.transform.parent.gameObject;
@@ -115,12 +110,17 @@ namespace ProjectRetrace.EditorTools
             Panel(drawer, "TrayRight", new Vector3(0.39f, -0.12f, -0.23f), new Vector3(0.02f, 0.5f, 0.44f));
             Panel(drawer, "TrayBack", new Vector3(0f, -0.12f, -0.44f), new Vector3(0.8f, 0.5f, 0.02f));
             KeySpot(drawer, new Vector3(0f, -0.3f, -0.2f));
+            AddSliding(drawer, Vector3.forward, 0.4f);
+        }
 
-            var interactable = drawer.AddComponent<DrawerInteractable>();
+        internal static DrawerInteractable AddSliding(GameObject drawer, Vector3 axis, float distance)
+        {
+            var interactable = Undo.AddComponent<DrawerInteractable>(drawer);
             var serialized = new SerializedObject(interactable);
-            serialized.FindProperty("slideAxis").vector3Value = Vector3.forward;
-            serialized.FindProperty("openDistance").floatValue = 0.4f;
+            serialized.FindProperty("slideAxis").vector3Value = axis;
+            serialized.FindProperty("openDistance").floatValue = distance;
             serialized.ApplyModifiedPropertiesWithoutUndo();
+            return interactable;
         }
 
         internal static GameObject BuildCupboard()
@@ -161,14 +161,13 @@ namespace ProjectRetrace.EditorTools
             return root;
         }
 
-        internal static DoorInteractable AddHinged(GameObject hinge, Vector3 axis, float angle, string label, bool closable = false)
+        internal static DoorInteractable AddHinged(GameObject hinge, Vector3 axis, float angle, string label)
         {
-            var interactable = hinge.AddComponent<DoorInteractable>();
+            var interactable = Undo.AddComponent<DoorInteractable>(hinge);
             var serialized = new SerializedObject(interactable);
             serialized.FindProperty("hingeAxis").vector3Value = axis;
             serialized.FindProperty("openAngle").floatValue = angle;
             serialized.FindProperty("label").stringValue = label;
-            serialized.FindProperty("closable").boolValue = closable;
             serialized.ApplyModifiedPropertiesWithoutUndo();
             return interactable;
         }
@@ -177,6 +176,7 @@ namespace ProjectRetrace.EditorTools
         {
             var root = new GameObject(name);
             Undo.RegisterCreatedObjectUndo(root, "Create " + name);
+            root.AddComponent<SearchableProp>();
             return root;
         }
 

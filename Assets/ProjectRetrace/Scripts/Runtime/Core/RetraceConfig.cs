@@ -52,16 +52,16 @@ namespace ProjectRetrace
         public float restartDelaySeconds = 3f;
         public float fadeInSeconds = 1.5f;
         public float lookAroundSeconds = 3f;
-        public float lookSweepDegrees = 45f;
-        public float lookTurnDegreesPerSecond = 120f;
+        public float lookSweepDegrees = 0.1f;
+        public float lookTurnDegreesPerSecond = 0.1f;
 
         // Ghosts re-open whatever the player used at each stop -- drawers, lids, doors.
         // Off, a cupboard is only opened when someone is hiding in it.
         public bool sentriesOpenFurniture = true;
 
         // Vision
-        public float visionRange = 11f;
-        public float visionAngle = 80f;
+        public float visionRange = 7f;
+        public float visionAngle = 30f;
         public float graceSeconds = 3f;
 
         // Run. The seed decides only where the keys hide, in the search and every round
@@ -69,6 +69,10 @@ namespace ProjectRetrace
         public float transitionPause = 1.25f;
         public bool randomiseKeySpots = true;
         public int keySpotSeed = 12345;
+
+        /// <summary>Testing aid: part of a prop's name (say "InteractiveFurniture_06 (1)")
+        /// restricts the hide to key spots inside matching props. Empty for normal play.</summary>
+        public string forceKeySpot = "";
         public bool debugVisibleByDefault = false;
 
         // Footsteps
@@ -79,6 +83,7 @@ namespace ProjectRetrace
         // Keys
         public string interactKey = "E";
         public bool interactWithLeftClick = true;
+        public string hideKey = "H";
         public string restartKey = "R";
         public string manualFinishKey = "Enter";
         public string debugToggleKey = "Backquote";
@@ -86,6 +91,7 @@ namespace ProjectRetrace
         public string configMenuKey = "Tab";
 
         public Key InteractKey => ParseKey(interactKey, Key.E);
+        public Key HideKey => ParseKey(hideKey, Key.H);
         public Key RestartKey => ParseKey(restartKey, Key.R);
         public Key ManualFinishKey => ParseKey(manualFinishKey, Key.Enter);
         public Key DebugToggleKey => ParseKey(debugToggleKey, Key.Backquote);
