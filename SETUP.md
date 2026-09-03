@@ -17,8 +17,11 @@ committed blind:
 
 ## 2. First playable scene
 
-1. Menu: **ProjectRetrace → Generate Test House** for a seeded two-story house with
-   furniture, or add your own floor and props.
+1. Menu: **ProjectRetrace → Level → Import HomeInterior_FirstFloor** to bring the art
+   team's dressed level into the open scene as a playable house (re-run it after the art
+   scene changes; it replaces the previous copy, so put anything you add by hand under
+   the `TestHouse (Additions)` root), or **ProjectRetrace → Generate Test House** for a
+   seeded two-story primitive house, or add your own floor and props.
 2. Menu: **ProjectRetrace → Setup Scene Systems**. This creates and wires everything:
    the director, the trail, the player rig, a spawn point, the keys, the sentry, and the
    runtime navmesh baker.
@@ -41,6 +44,7 @@ there is nothing to wire.
 | Shift | sprint |
 | Space | jump |
 | E or left click | interact |
+| H | hide in an open cupboard, or climb back out |
 | **`** (backquote) | **toggle the debug trail view** |
 | **Tab** | open the settings editor (pauses the game) |
 | Enter | instantly survive the current stealth round (escape hatch while playtesting) |

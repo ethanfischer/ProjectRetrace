@@ -173,6 +173,11 @@ namespace ProjectRetrace
             _agent.autoBraking = false;
             _agent.stoppingDistance = 0f;
 
+            // The look-around drives rotation by hand and hands it back when it finishes;
+            // a round ending mid-look never reaches that hand-back, and the same sentry
+            // would then walk its next route frozen at its spawn facing.
+            _agent.updateRotation = true;
+
             // Ghosts pass through each other: agent avoidance would shove them off their
             // recorded routes wherever the player's walks overlapped -- doorways, the
             // stairs -- which is exactly where fidelity matters most.

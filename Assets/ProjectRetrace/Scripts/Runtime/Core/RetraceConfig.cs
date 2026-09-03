@@ -21,13 +21,27 @@ namespace ProjectRetrace
     {
         public const string FileName = "retrace-config.json";
 
+        // Input first: the settings players actually come here for. Everything below is
+        // tuning that most players never touch.
+        [ConfigTab("Input")]
+        public float mouseSensitivity = 2.7f;
+        public float pitchLimit = 89f;
+        public string interactKey = "E";
+        public bool interactWithLeftClick = true;
+        public string hideKey = "H";
+        public string restartKey = "R";
+        public string manualFinishKey = "Enter";
+        public string debugToggleKey = "Backquote";
+        public string menuKey = "M";
+        public string configMenuKey = "Tab";
+        public string spectatorCameraKey = "C";
+
         // Player
+        [ConfigTab("Player")]
         public float walkSpeed = 3.4f;
         public float sprintSpeed = 6.0f;
         public float jumpSpeed = 4.5f;
         public float gravity = -18f;
-        public float mouseSensitivity = 2.7f;
-        public float pitchLimit = 89f;
         public float interactReach = 2.5f;
         public float shellLatchRadius = 0.9f;
 
@@ -43,6 +57,7 @@ namespace ProjectRetrace
 
         // Sentry. sentrySpeed sits below walkSpeed so being followed stays escapable; the
         // chase after a spot only sells a catch that is already decided.
+        [ConfigTab("Sentries")]
         public float sentrySpeed = 2.0f;
         public float chaseSpeed = 5.5f;
         public float chaseCapSeconds = 2.5f;
@@ -52,26 +67,32 @@ namespace ProjectRetrace
         public float restartDelaySeconds = 3f;
         public float fadeInSeconds = 1.5f;
         public float lookAroundSeconds = 3f;
-        public float lookSweepDegrees = 45f;
-        public float lookTurnDegreesPerSecond = 120f;
+        public float lookSweepDegrees = 0.1f;
+        public float lookTurnDegreesPerSecond = 0.1f;
 
         // Ghosts re-open whatever the player used at each stop -- drawers, lids, doors.
         // Off, a cupboard is only opened when someone is hiding in it.
         public bool sentriesOpenFurniture = true;
 
         // Vision
-        public float visionRange = 11f;
-        public float visionAngle = 80f;
+        public float visionRange = 7f;
+        public float visionAngle = 30f;
         public float graceSeconds = 3f;
 
         // Run. The seed decides only where the keys hide, in the search and every round
         // after; turn randomisation off to replay the same hiding spots.
+        [ConfigTab("Run")]
         public float transitionPause = 1.25f;
         public bool randomiseKeySpots = true;
         public int keySpotSeed = 12345;
+
+        /// <summary>Testing aid: part of a prop's name (say "InteractiveFurniture_06 (1)")
+        /// restricts the hide to key spots inside matching props. Empty for normal play.</summary>
+        public string forceKeySpot = "";
         public bool debugVisibleByDefault = false;
 
         // Footsteps
+        [ConfigTab("Audio")]
         public float footstepStrideMetres = 1.7f;
         public float footstepVolume = 0.8f;
         public float footstepPitchJitter = 0.1f;
@@ -85,17 +106,8 @@ namespace ProjectRetrace
         public float snapshotHz = 12f;
         public float spectatorDelaySeconds = 0.15f;
 
-        // Keys
-        public string interactKey = "E";
-        public bool interactWithLeftClick = true;
-        public string restartKey = "R";
-        public string manualFinishKey = "Enter";
-        public string debugToggleKey = "Backquote";
-        public string menuKey = "M";
-        public string configMenuKey = "Tab";
-        public string spectatorCameraKey = "C";
-
         public Key InteractKey => ParseKey(interactKey, Key.E);
+        public Key HideKey => ParseKey(hideKey, Key.H);
         public Key RestartKey => ParseKey(restartKey, Key.R);
         public Key ManualFinishKey => ParseKey(manualFinishKey, Key.Enter);
         public Key DebugToggleKey => ParseKey(debugToggleKey, Key.Backquote);

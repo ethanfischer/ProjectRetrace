@@ -105,7 +105,7 @@ namespace ProjectRetrace
         private void DrawReticle()
         {
             var centre = new Rect(HudScale.Width * 0.5f - 3f, HudScale.Height * 0.5f - 3f, 6f, 6f);
-            var hasTarget = interactor != null && interactor.Current != null;
+            var hasTarget = interactor != null && (interactor.Current != null || interactor.HideTarget != null);
             GUI.color = hasTarget ? new Color(1f, 0.9f, 0.3f) : new Color(1f, 1f, 1f, 0.5f);
             GUI.DrawTexture(centre, Texture2D.whiteTexture);
             GUI.color = Color.white;
@@ -115,11 +115,19 @@ namespace ProjectRetrace
         {
             if (interactor == null) return;
 
-            var prompt = interactor.CurrentPrompt;
-            if (string.IsNullOrEmpty(prompt)) return;
+            var config = RetraceConfig.Current;
+            var text = string.Empty;
+            if (!string.IsNullOrEmpty(interactor.CurrentPrompt)) text = "[" + config.interactKey + "] " + interactor.CurrentPrompt;
+            if (!string.IsNullOrEmpty(interactor.HidePrompt))
+            {
+                if (text.Length > 0) text += "     ";
+                text += "[" + config.hideKey + "] " + interactor.HidePrompt;
+            }
+
+            if (text.Length == 0) return;
 
             var rect = new Rect(0f, HudScale.Height * 0.5f + 24f, HudScale.Width, 28f);
-            GUI.Label(rect, "[E] " + prompt, _centered);
+            GUI.Label(rect, text, _centered);
         }
 
         private void DrawPhaseBanner()

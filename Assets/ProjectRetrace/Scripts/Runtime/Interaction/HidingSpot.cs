@@ -4,8 +4,9 @@ namespace ProjectRetrace
 {
     /// <summary>
     /// Lets the player climb into a piece of furniture and pull the door shut. Sits on the
-    /// prop's root beside its DoorInteractable: the door must already be open to climb in,
-    /// so the ray naturally hits the interior and resolves here instead of the door.
+    /// prop's root beside its DoorInteractable and answers the hide key, not Use: the door
+    /// must already be open to climb in, and with both actions on one key the player had
+    /// to aim at exactly the right part of the cupboard to get the one they meant.
     ///
     /// Hiding is only as safe as the route that got you there. A ghost retracing a route
     /// that opened this cupboard opens it again on its pause, and finds whoever is inside
@@ -19,7 +20,10 @@ namespace ProjectRetrace
         [Tooltip("Where the player steps out to, in the prop's local space.")]
         [SerializeField] private Vector3 exitLocalPosition = new Vector3(0f, 0f, 0.9f);
 
-        private DoorInteractable _door;
+        /// <summary>Every leaf on the prop: the art pack's wardrobes have two, and the
+        /// player climbs in through whichever one they opened.</summary>
+        private DoorInteractable[] _doors = System.Array.Empty<DoorInteractable>();
+        private bool[] _openOnEntry = System.Array.Empty<bool>();
         private PlayerInteractor _occupant;
         private FirstPersonController _occupantController;
         private float _savedNearClip;
@@ -33,13 +37,33 @@ namespace ProjectRetrace
 
         public override string Prompt => Occupied ? "Leave" : "Hide";
 
-        public override bool CanInteract =>
-            base.CanInteract && (Occupied || (_door != null && _door.IsOpen));
+        /// <summary>Never a Use target, so aiming anywhere at a cupboard always operates
+        /// its door; the interactor offers Hide on its own key via CanHide.</summary>
+        public override bool CanInteract => false;
+
+        public bool CanHide => isActiveAndEnabled && (Occupied || AnyDoorOpen);
+
+        private bool AnyDoorOpen
+        {
+            get
+            {
+                foreach (var door in _doors)
+                {
+                    if (door.IsOpen) return true;
+                }
+
+                return false;
+            }
+        }
 
         private void Awake()
         {
-            _door = GetComponentInChildren<DoorInteractable>();
-            if (_door != null) _doorRenderers = _door.GetComponentsInChildren<Renderer>();
+            _doors = GetComponentsInChildren<DoorInteractable>();
+            _openOnEntry = new bool[_doors.Length];
+
+            var renderers = new System.Collections.Generic.List<Renderer>();
+            foreach (var door in _doors) renderers.AddRange(door.GetComponentsInChildren<Renderer>());
+            _doorRenderers = renderers.ToArray();
         }
 
         public override void Interact(PlayerInteractor interactor)
@@ -73,12 +97,21 @@ namespace ProjectRetrace
             SetHiddenCamera(true);
             SetDoorVisible(false);
             interactor.Hiding = this;
-            if (_door != null) _door.SetOpen(false);
+            for (var i = 0; i < _doors.Length; i++)
+            {
+                _openOnEntry[i] = _doors[i].IsOpen;
+                _doors[i].SetOpen(false);
+            }
         }
 
+        /// <summary>Reopens the leaves the player came in through, so a wardrobe reads the
+        /// same way after a hide as before it.</summary>
         private void Leave()
         {
-            if (_door != null) _door.SetOpen(true);
+            for (var i = 0; i < _doors.Length; i++)
+            {
+                if (_openOnEntry[i]) _doors[i].SetOpen(true);
+            }
             _occupantController.Teleport(transform.TransformPoint(exitLocalPosition), transform.rotation);
             Release();
         }

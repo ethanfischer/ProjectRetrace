@@ -133,7 +133,7 @@ namespace ProjectRetrace
             if (mouse == null) return;
 
             var config = RetraceConfig.Current;
-            var look = mouse.delta.ReadValue() * (LegacyMouseAxisSensitivity * config.mouseSensitivity);
+            var look = mouse.delta.ReadValue() * (LegacyMouseAxisSensitivity * MouseDeltaScale.Factor * config.mouseSensitivity);
 
             transform.Rotate(Vector3.up, look.x, Space.Self);
             if (_peeking)
