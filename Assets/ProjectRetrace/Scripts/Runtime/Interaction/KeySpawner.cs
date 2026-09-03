@@ -26,6 +26,7 @@ namespace ProjectRetrace
             }
 
             var spots = ValidSpots();
+            RestrictToForcedProp(spots);
 
             // Only honour the exclusion when another spot exists; a one-spot scene reusing
             // the phase-1 hiding place beats the keys not existing at all.
@@ -51,6 +52,34 @@ namespace ProjectRetrace
             // closed state, so the phase transition puts them back correctly regardless.
             key.transform.SetParent(spot, false);
             key.MakeAvailableAt(spot.position, spot.rotation);
+        }
+
+        /// <summary>A playtester chasing one cupboard should not have to reroll until the
+        /// keys land in it. Falls back to every spot, with a warning, when nothing matches.</summary>
+        private static void RestrictToForcedProp(List<Transform> spots)
+        {
+            var wanted = RetraceConfig.Current.forceKeySpot;
+            if (string.IsNullOrWhiteSpace(wanted)) return;
+
+            var matching = spots.FindAll(spot => IsUnderPropNamed(spot, wanted));
+            if (matching.Count == 0)
+            {
+                Debug.LogWarning($"[KeySpawner] forceKeySpot '{wanted}' matches no prop with a key spot -- using every spot.");
+                return;
+            }
+
+            spots.Clear();
+            spots.AddRange(matching);
+        }
+
+        private static bool IsUnderPropNamed(Transform spot, string wanted)
+        {
+            for (var ancestor = spot.parent; ancestor != null; ancestor = ancestor.parent)
+            {
+                if (ancestor.name.IndexOf(wanted, System.StringComparison.OrdinalIgnoreCase) >= 0) return true;
+            }
+
+            return false;
         }
 
         private static List<Transform> ValidSpots()

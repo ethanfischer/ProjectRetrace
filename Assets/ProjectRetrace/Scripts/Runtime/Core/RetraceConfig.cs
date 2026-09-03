@@ -69,6 +69,10 @@ namespace ProjectRetrace
         public float transitionPause = 1.25f;
         public bool randomiseKeySpots = true;
         public int keySpotSeed = 12345;
+
+        /// <summary>Testing aid: part of a prop's name (say "InteractiveFurniture_06 (1)")
+        /// restricts the hide to key spots inside matching props. Empty for normal play.</summary>
+        public string forceKeySpot = "";
         public bool debugVisibleByDefault = false;
 
         // Footsteps
