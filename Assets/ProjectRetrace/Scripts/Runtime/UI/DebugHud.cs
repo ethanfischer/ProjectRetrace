@@ -117,7 +117,7 @@ namespace ProjectRetrace
 
             var config = RetraceConfig.Current;
             var text = string.Empty;
-            if (!string.IsNullOrEmpty(interactor.CurrentPrompt)) text = "[" + config.interactKey + "] " + interactor.CurrentPrompt;
+            if (!string.IsNullOrEmpty(interactor.CurrentPrompt) && config.showInteractionPrompt) text = "[" + config.interactKey + "] " + interactor.CurrentPrompt;
             if (!string.IsNullOrEmpty(interactor.HidePrompt))
             {
                 if (text.Length > 0) text += "     ";

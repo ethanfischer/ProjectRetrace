@@ -17,6 +17,8 @@ namespace ProjectRetrace
         private GUIStyle _subtitle;
         private GUIStyle _button;
 
+        private bool _multiplayerExpanded;
+
         private void Reset()
         {
             director = GetComponent<GameDirector>();
@@ -51,26 +53,27 @@ namespace ProjectRetrace
 
             GUI.Label(new Rect(panel.x, panel.y + 20f, panel.width, 40f), "PROJECT RETRACE", _title);
 
-            if (GUI.Button(new Rect(panel.x + 70f, panel.y + 100f, 300f, 42f), "Singleplayer", _button))
-            {
-                director.StartGame(1);
-            }
+            if (_multiplayerExpanded) DrawMultiplayerMenu(panel);
+            else DrawMainMenu(panel);
+        }
 
-            if (GUI.Button(new Rect(panel.x + 70f, panel.y + 152f, 300f, 42f), "Multiplayer (Local)", _button))
-            {
-                director.StartGame(2);
-            }
+        private void DrawMainMenu(Rect panel)
+        {
+            if (MenuButton(panel, 0, "Singleplayer")) director.StartGame(1);
+            if (MenuButton(panel, 1, "Multiplayer")) _multiplayerExpanded = true;
+            if (MenuButton(panel, 2, "Settings")) ConfigMenu.Toggle();
+        }
 
-            if (online != null && GUI.Button(new Rect(panel.x + 70f, panel.y + 204f, 300f, 42f), "Multiplayer (Online)", _button))
-            {
-                online.OpenLobby();
-            }
+        private void DrawMultiplayerMenu(Rect panel)
+        {
+            if (MenuButton(panel, 0, "Local")) director.StartGame(2);
+            if (online != null && MenuButton(panel, 1, "Online")) online.OpenLobby();
+            if (MenuButton(panel, 2, "← Back")) _multiplayerExpanded = false;
+        }
 
-            var configKey = RetraceConfig.Current.ConfigMenuKey;
-            if (GUI.Button(new Rect(panel.x + 70f, panel.y + 256f, 300f, 42f), "Settings", _button))
-            {
-                ConfigMenu.Toggle();
-            }
+        private bool MenuButton(Rect panel, int row, string label)
+        {
+            return GUI.Button(new Rect(panel.x + 70f, panel.y + 100f + row * 52f, 300f, 42f), label, _button);
         }
 
         private void EnsureStyles()

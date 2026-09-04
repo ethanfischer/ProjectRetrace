@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 namespace ProjectRetrace
 {
@@ -54,6 +55,8 @@ namespace ProjectRetrace
         // crack is as a fraction of the screen.
         public float peekYawDegrees = 20f;
         public float peekSlitHeight = 0.08f;
+
+        public bool showInteractionPrompt = false;
 
         // Sentry. sentrySpeed sits below walkSpeed so being followed stays escapable; the
         // chase after a spot only sells a catch that is already decided.
