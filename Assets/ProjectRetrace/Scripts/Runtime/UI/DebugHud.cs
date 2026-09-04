@@ -104,7 +104,9 @@ namespace ProjectRetrace
 
         private void EnsureStyles()
         {
-            if (_label != null) return;
+            // A domain reload mid-play keeps the field but hands back a hollow GUIStyle;
+            // font size 0 is the tell.
+            if (_label != null && _label.fontSize != 0) return;
 
             _label = new GUIStyle(GUI.skin.label) { fontSize = 14, richText = true, wordWrap = true };
             _label.normal.textColor = Color.white;
@@ -166,7 +168,7 @@ namespace ProjectRetrace
         /// live tries count are what the watcher keeps needing.</summary>
         private void DrawSpectateBanner()
         {
-            var banner = $"Spectating Player {director.CurrentPlayer} -- round {director.StealthRound + 1} [{director.LivesRemaining}/{RetraceConfig.Current.stealthLives} tries]";
+            var banner = $"Spectating Player {director.CurrentPlayer} \nRound {director.StealthRound + 1} \n[{director.LivesRemaining}/{RetraceConfig.Current.stealthLives} tries]";
             if (director.spectator != null)
             {
                 banner += $"  [{RetraceConfig.Current.SpectatorCameraKey}] {ViewName(director.spectator.NextView)}";
@@ -178,7 +180,7 @@ namespace ProjectRetrace
         private string PhaseToast(GamePhase phase)
         {
             var maxLives = RetraceConfig.Current.stealthLives;
-            var who = director.Multiplayer ? $"P{director.CurrentPlayer} -- " : string.Empty;
+            var who = director.Multiplayer ? $"Player {director.CurrentPlayer}: " : string.Empty;
             switch (phase)
             {
                 case GamePhase.Search:
@@ -222,29 +224,7 @@ namespace ProjectRetrace
             }
 
             // Above the reticle, clear of the interaction prompt that sits just below it.
-            DrawOutlinedLabel(new Rect(0f, HudScale.Height * 0.5f - 90f, HudScale.Width, 36f), _toast, _centered, alpha);
-        }
-
-        /// <summary>IMGUI has no text outline, so the outline is the same label stamped in
-        /// black around the eight neighbouring pixels. White text alone vanishes against
-        /// the pale walls and floors of the house.</summary>
-        private static void DrawOutlinedLabel(Rect rect, string text, GUIStyle style, float alpha)
-        {
-            var textColor = style.normal.textColor;
-            style.normal.textColor = Color.black;
-            GUI.color = new Color(1f, 1f, 1f, alpha);
-            for (var dx = -1; dx <= 1; dx++)
-            {
-                for (var dy = -1; dy <= 1; dy++)
-                {
-                    if (dx == 0 && dy == 0) continue;
-                    GUI.Label(new Rect(rect.x + dx, rect.y + dy, rect.width, rect.height), text, style);
-                }
-            }
-
-            style.normal.textColor = textColor;
-            GUI.Label(rect, text, style);
-            GUI.color = Color.white;
+            HudText.OutlinedLabel(new Rect(0f, HudScale.Height * 0.5f - 90f, HudScale.Width, 36f), _toast, _centered, alpha);
         }
 
         /// <summary>Online only: a quiet line so a stalled stream reads as "they dropped",
@@ -303,7 +283,7 @@ namespace ProjectRetrace
                 $"Player {director.CurrentPlayer}, you're up", _centered);
             var ghosts = director.GhostCount;
             GUI.Label(new Rect(box.x, box.y + 54f, box.width, 24f),
-                $"{ghosts} ghost{(ghosts == 1 ? "" : "s")} on patrol -- press Space when ready",
+                $"{ghosts} ghost{(ghosts == 1 ? "" : "s")} on patrol. Press Space when ready",
                 _handover);
             DrawConnection();
         }

@@ -51,7 +51,7 @@ namespace ProjectRetrace
             var panel = new Rect(HudScale.Width * 0.5f - 220f, HudScale.Height * 0.5f - 168f, 440f, 336f);
             GUI.Box(panel, GUIContent.none);
 
-            GUI.Label(new Rect(panel.x, panel.y + 20f, panel.width, 40f), "PROJECT RETRACE", _title);
+            HudText.OutlinedLabel(new Rect(panel.x, panel.y + 20f, panel.width, 40f), "PROJECT RETRACE", _title);
 
             if (_multiplayerExpanded) DrawMultiplayerMenu(panel);
             else DrawMainMenu(panel);
@@ -73,12 +73,14 @@ namespace ProjectRetrace
 
         private bool MenuButton(Rect panel, int row, string label)
         {
-            return GUI.Button(new Rect(panel.x + 70f, panel.y + 100f + row * 52f, 300f, 42f), label, _button);
+            return HudText.OutlinedButton(new Rect(panel.x + 70f, panel.y + 100f + row * 52f, 300f, 42f), label, _button);
         }
 
         private void EnsureStyles()
         {
-            if (_title != null) return;
+            // A domain reload mid-play keeps the field but hands back a hollow GUIStyle;
+            // font size 0 is the tell.
+            if (_title != null && _title.fontSize != 0) return;
 
             _title = new GUIStyle(GUI.skin.label) { fontSize = 28, alignment = TextAnchor.MiddleCenter };
             _title.normal.textColor = Color.white;

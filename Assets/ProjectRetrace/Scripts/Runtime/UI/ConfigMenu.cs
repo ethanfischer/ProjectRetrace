@@ -228,7 +228,9 @@ namespace ProjectRetrace
 
         private void EnsureStyles()
         {
-            if (_title != null) return;
+            // A domain reload mid-play keeps the field but hands back a hollow GUIStyle;
+            // font size 0 is the tell.
+            if (_title != null && _title.fontSize != 0) return;
 
             _title = new GUIStyle(GUI.skin.label) { fontSize = 22, alignment = TextAnchor.MiddleCenter };
             _title.normal.textColor = Color.white;

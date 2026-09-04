@@ -606,10 +606,11 @@ namespace ProjectRetrace
             StopSentries();
             if (spectator != null) spectator.End();
 
-            // Input stays enabled, so the end of a run is a banner over the world rather
-            // than a hard cut.
+            // The results panel has buttons, so the cursor is freed and the player parked
+            // at spawn: a run ends on a choice, not a wander.
             MovePlayerToSpawn();
-            SetPlayerInputEnabled(true);
+            SetPlayerInputEnabled(false);
+            FirstPersonController.LockCursor(false);
             SetPhase(GamePhase.Results);
         }
 
@@ -647,7 +648,7 @@ namespace ProjectRetrace
             }
         }
 
-        private void LeaveToMenu()
+        public void LeaveToMenu()
         {
             if (online != null) online.Leave();
             playerCount = 1;
@@ -659,7 +660,7 @@ namespace ProjectRetrace
         public void SetConfigMenuOpen(bool open)
         {
             Time.timeScale = open ? 0f : 1f;
-            var phaseTakesInput = Phase == GamePhase.Search || Phase == GamePhase.Stealth || Phase == GamePhase.Results;
+            var phaseTakesInput = Phase == GamePhase.Search || Phase == GamePhase.Stealth;
             SetPlayerInputEnabled(!open && phaseTakesInput);
             if (open || !phaseTakesInput) FirstPersonController.LockCursor(false);
         }
