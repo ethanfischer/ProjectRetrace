@@ -15,6 +15,10 @@ namespace ProjectRetrace
 
         private KeyItem _key;
 
+        private GamePhase _lastPhase = GamePhase.Menu;
+        private string _toast = string.Empty;
+        private float _toastStartedAt;
+
         private GUIStyle _label;
         private GUIStyle _centered;
         private GUIStyle _handover;
@@ -23,6 +27,13 @@ namespace ProjectRetrace
         {
             director = GetComponent<GameDirector>();
             trail = GetComponent<BreadcrumbTrail>();
+        }
+
+        private void Update()
+        {
+            if (director == null || director.Phase == _lastPhase) return;
+            _lastPhase = director.Phase;
+            ShowToast(PhaseToast(director.Phase));
         }
 
         private void OnGUI()
@@ -38,7 +49,7 @@ namespace ProjectRetrace
                 DrawKeyLocator();
             }
 
-            if (director == null || director.Phase != GamePhase.Results)
+            if (director == null || (director.Phase != GamePhase.Results && director.Phase != GamePhase.Spectate))
             {
                 DrawReticle();
                 DrawPrompt();
@@ -93,7 +104,9 @@ namespace ProjectRetrace
 
         private void EnsureStyles()
         {
-            if (_label != null) return;
+            // A domain reload mid-play keeps the field but hands back a hollow GUIStyle;
+            // font size 0 is the tell.
+            if (_label != null && _label.fontSize != 0) return;
 
             _label = new GUIStyle(GUI.skin.label) { fontSize = 14, richText = true, wordWrap = true };
             _label.normal.textColor = Color.white;
@@ -117,7 +130,7 @@ namespace ProjectRetrace
 
             var config = RetraceConfig.Current;
             var text = string.Empty;
-            if (!string.IsNullOrEmpty(interactor.CurrentPrompt)) text = "[" + config.interactKey + "] " + interactor.CurrentPrompt;
+            if (!string.IsNullOrEmpty(interactor.CurrentPrompt) && config.showInteractionPrompt) text = "[" + config.interactKey + "] " + interactor.CurrentPrompt;
             if (!string.IsNullOrEmpty(interactor.HidePrompt))
             {
                 if (text.Length > 0) text += "     ";
@@ -140,28 +153,114 @@ namespace ProjectRetrace
                 return;
             }
 
-            string banner;
-            var maxLives = RetraceConfig.Current.stealthLives;
-            var who = director.Multiplayer ? $"P{director.CurrentPlayer} -- " : string.Empty;
-            switch (director.Phase)
+            if (director.AwaitingOpponent)
             {
-                case GamePhase.Search:
-                    banner = who + "Find your keys";
-                    break;
-                case GamePhase.Transition:
-                    banner = director.LivesRemaining < maxLives
-                        ? $"Caught! {director.LivesRemaining} {(director.LivesRemaining == 1 ? "try" : "tries")} left..."
-                        : string.Empty;
-                    break;
-                case GamePhase.Stealth:
-                    banner = $"{who}Round {director.StealthRound + 1}: find your keys without getting caught [{director.LivesRemaining}/{maxLives} tries]";
-                    if (AnyDoorUnlocksThisRound()) banner += " -- 2nd floor unlocked!";
-                    break;
-                default:
-                    return;
+                DrawWaitingForOpponent();
+                return;
+            }
+
+            if (director.Phase == GamePhase.Spectate) DrawSpectateBanner();
+            DrawToast();
+            if (director.Phase != GamePhase.Menu && director.Phase != GamePhase.Results) DrawConnection();
+        }
+
+        /// <summary>Spectating is the one banner that stays up: the camera hint and the
+        /// live tries count are what the watcher keeps needing.</summary>
+        private void DrawSpectateBanner()
+        {
+            var banner = $"Spectating Player {director.CurrentPlayer} \nRound {director.StealthRound + 1} \n[{director.LivesRemaining}/{RetraceConfig.Current.stealthLives} tries]";
+            if (director.spectator != null)
+            {
+                banner += $"  [{RetraceConfig.Current.SpectatorCameraKey}] {ViewName(director.spectator.NextView)}";
             }
 
             GUI.Label(new Rect(0f, 24f, HudScale.Width, 30f), banner, _centered);
+        }
+
+        private string PhaseToast(GamePhase phase)
+        {
+            var maxLives = RetraceConfig.Current.stealthLives;
+            var who = director.Multiplayer ? $"Player {director.CurrentPlayer}: " : string.Empty;
+            switch (phase)
+            {
+                case GamePhase.Search:
+                    return who + "Find your keys";
+                case GamePhase.Stealth:
+                    // A retry only needs the stakes; the goal was spelled out on the first attempt.
+                    if (director.LivesRemaining < maxLives)
+                    {
+                        if (director.LivesRemaining == 1)
+                        {
+                            return "Last try";
+                        }
+                        return $"{director.LivesRemaining} tries left";
+                    }
+
+                    var toast = $"{who}Round {director.StealthRound + 1}";
+                    if (AnyDoorUnlocksThisRound()) toast += " -- 2nd floor unlocked!";
+                    return toast;
+                default:
+                    return string.Empty;
+            }
+        }
+
+        private void ShowToast(string text)
+        {
+            _toast = text;
+            _toastStartedAt = Time.time;
+        }
+
+        private void DrawToast()
+        {
+            if (string.IsNullOrEmpty(_toast)) return;
+
+            var config = RetraceConfig.Current;
+            var elapsed = Time.time - _toastStartedAt;
+            var alpha = 1f - Mathf.Clamp01((elapsed - config.bannerHoldSeconds) / Mathf.Max(config.bannerFadeSeconds, 0.01f));
+            if (alpha <= 0f)
+            {
+                _toast = string.Empty;
+                return;
+            }
+
+            // Above the reticle, clear of the interaction prompt that sits just below it.
+            HudText.OutlinedLabel(new Rect(0f, HudScale.Height * 0.5f - 90f, HudScale.Width, 36f), _toast, _centered, alpha);
+        }
+
+        /// <summary>Online only: a quiet line so a stalled stream reads as "they dropped",
+        /// not "the game froze".</summary>
+        private void DrawConnection()
+        {
+            var online = director.online;
+            if (online == null || online.State == NetState.Idle || online.State == NetState.Lobby) return;
+
+            string line;
+            if (online.State == NetState.Disconnected || online.State == NetState.Error) line = "Connection lost -- [M] menu, then Resume";
+            else if (!online.PeerPresent) line = "Opponent disconnected...";
+            else if (online.RematchRequested && online.IsHost) line = "Opponent wants a rematch -- [R]";
+            else line = $"Online -- room {online.Room} -- {online.RttMs:0} ms";
+            GUI.Label(new Rect(0f, 52f, HudScale.Width, 24f), line, _handover);
+        }
+
+        private void DrawWaitingForOpponent()
+        {
+            var box = new Rect(HudScale.Width * 0.5f - 220f, HudScale.Height * 0.5f - 50f, 440f, 100f);
+            GUI.Box(box, GUIContent.none);
+            GUI.Label(new Rect(box.x, box.y + 16f, box.width, 30f), $"Player {director.CurrentPlayer}'s round", _centered);
+            var ghosts = director.GhostCount;
+            GUI.Label(new Rect(box.x, box.y + 54f, box.width, 24f),
+                $"{ghosts} ghost{(ghosts == 1 ? "" : "s")} on patrol -- waiting for them to start...", _handover);
+            DrawConnection();
+        }
+
+        private static string ViewName(SpectatorRig.View view)
+        {
+            switch (view)
+            {
+                case SpectatorRig.View.FirstPerson: return "their eyes";
+                case SpectatorRig.View.Chase: return "chase cam";
+                default: return "free camera";
+            }
         }
 
         private static bool AnyDoorUnlocksThisRound()
@@ -184,8 +283,9 @@ namespace ProjectRetrace
                 $"Player {director.CurrentPlayer}, you're up", _centered);
             var ghosts = director.GhostCount;
             GUI.Label(new Rect(box.x, box.y + 54f, box.width, 24f),
-                $"{ghosts} ghost{(ghosts == 1 ? "" : "s")} on patrol -- press Space when ready",
+                $"{ghosts} ghost{(ghosts == 1 ? "" : "s")} on patrol. Press Space when ready",
                 _handover);
+            DrawConnection();
         }
 
         private void DrawStats()
@@ -235,8 +335,11 @@ namespace ProjectRetrace
                 }
             }
 
-            if (active == 0) return "Sentries: none active";
-            return string.Format("Sentries: {0} active, nearest {1:0.0}m ({2})", active, nearest, nearestState);
+            var streamed = director.Phase == GamePhase.Spectate && director.spectator != null
+                ? $", {director.spectator.StreamedSentries} in stream"
+                : string.Empty;
+            if (active == 0) return "Sentries: none active" + streamed;
+            return string.Format("Sentries: {0} active, nearest {1:0.0}m ({2}){3}", active, nearest, nearestState, streamed);
         }
     }
 }

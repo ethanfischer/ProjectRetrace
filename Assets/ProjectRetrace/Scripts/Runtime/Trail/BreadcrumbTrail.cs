@@ -38,7 +38,9 @@ namespace ProjectRetrace
 
         public bool Recording => _recording;
 
-        public RecordedRoute CurrentRoute => _recording ? _routes[_routes.Count - 1] : null;
+        // The count check only matters across a domain reload mid-play, which keeps the
+        // flag but empties the list; without it every frame throws until play stops.
+        public RecordedRoute CurrentRoute => _recording && _routes.Count > 0 ? _routes[_routes.Count - 1] : null;
 
         /// <summary>Routes finished being recorded -- the ones sentries may patrol.</summary>
         public int CompletedRouteCount => _recording ? _routes.Count - 1 : _routes.Count;
@@ -74,6 +76,26 @@ namespace ProjectRetrace
         public void Stop()
         {
             _recording = false;
+        }
+
+        /// <summary>The most recently finished route -- the one to hand an opponent.</summary>
+        public RecordedRoute LastCompleted => CompletedRouteCount > 0 ? _routes[CompletedRouteCount - 1] : null;
+
+        /// <summary>A route walked on another machine joins the pool exactly as a local one
+        /// would: nothing downstream cares where a route came from.</summary>
+        public void AddCompletedRoute(RecordedRoute route)
+        {
+            if (route == null) return;
+            var insertAt = _recording ? _routes.Count - 1 : _routes.Count;
+            _routes.Insert(insertAt, route);
+        }
+
+        /// <summary>Reconnect: the whole pool arrives from the relay's log at once.</summary>
+        public void SetRoutes(IEnumerable<RecordedRoute> routes)
+        {
+            _recording = false;
+            _routes.Clear();
+            _routes.AddRange(routes);
         }
 
         private void OnDisable()
@@ -139,8 +161,8 @@ namespace ProjectRetrace
             var route = CurrentRoute;
             if (IsWithinLastDwell(route, tracked.position)) return;
 
-            var prop = used is Component component ? component.transform : null;
-            route.Dwells.Add(new DwellPoint(tracked.position, tracked.eulerAngles.y, route.Crumbs.Count - 1, prop));
+            var propId = InteractableRegistry.IdOf(used);
+            route.Dwells.Add(new DwellPoint(tracked.position, tracked.eulerAngles.y, route.Crumbs.Count - 1, propId));
         }
 
         /// <summary>A dresser's three drawers are one stop, not three: anything used within

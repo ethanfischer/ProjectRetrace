@@ -24,6 +24,8 @@ namespace ProjectRetrace
 
         public void Open() => _isOpen = true;
 
+        public void SetOpen(bool open) => _isOpen = open;
+
         private void Awake()
         {
             CaptureInitialState();

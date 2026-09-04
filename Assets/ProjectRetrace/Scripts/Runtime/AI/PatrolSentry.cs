@@ -46,6 +46,12 @@ namespace ProjectRetrace
         [Tooltip("Played once at the moment of detection.")]
         public AudioClip spottedClip;
 
+        [Tooltip("A transparent URP material asset. The body is cloned from it rather than built from Shader.Find so the transparent variant survives build-time shader stripping; without it a WebGL ghost fades in fully opaque.")]
+        public Material bodyMaterialTemplate;
+
+        [Tooltip("Same idea for the vision cone: a transparent unlit material asset.")]
+        public Material coneMaterialTemplate;
+
         private NavMeshAgent _agent;
         private IReadOnlyList<Breadcrumb> _route;
         private readonly Dictionary<int, DwellPoint> _dwellByCrumb = new Dictionary<int, DwellPoint>();
@@ -65,8 +71,11 @@ namespace ProjectRetrace
         private Color _coneColor = new Color(1f, 0.85f, 0.3f);
         private float _alpha = 1f;
 
+        private bool _puppet;
+
         public SentryState State { get; private set; }
         public int TargetIndex => _targetIndex;
+        public float Alpha => _alpha;
 
         private void Awake()
         {
@@ -80,17 +89,36 @@ namespace ProjectRetrace
         /// opaque and ignores it.</summary>
         private void TintBody()
         {
-            var shader = Shader.Find("Universal Render Pipeline/Lit");
-            if (shader == null) shader = Shader.Find("Standard");
-            _bodyMaterial = new Material(shader) { name = "SentryBody" };
-            MakeTransparent(_bodyMaterial);
+            if (bodyMaterialTemplate != null)
+            {
+                _bodyMaterial = new Material(bodyMaterialTemplate) { name = "SentryBody" };
+            }
+            else
+            {
+                var shader = Shader.Find("Universal Render Pipeline/Lit");
+                if (shader == null) shader = Shader.Find("Standard");
+                _bodyMaterial = new Material(shader) { name = "SentryBody" };
+                MakeTransparent(_bodyMaterial);
+            }
+
             foreach (var renderer in GetComponentsInChildren<MeshRenderer>(true))
             {
                 if (renderer == _coneRenderer) continue;
                 renderer.sharedMaterial = _bodyMaterial;
             }
 
-            MakeTransparent(_coneMaterial);
+            if (coneMaterialTemplate != null)
+            {
+                var cone = new Material(coneMaterialTemplate) { name = _coneMaterial.name };
+                _coneRenderer.sharedMaterial = cone;
+                Destroy(_coneMaterial);
+                _coneMaterial = cone;
+            }
+            else
+            {
+                MakeTransparent(_coneMaterial);
+            }
+
             ApplyAlpha();
         }
 
@@ -196,12 +224,55 @@ namespace ProjectRetrace
                 _agent.isStopped = true;
             }
 
+            // A puppet had its agent switched off; the next real patrol needs it back on
+            // before Warp.
+            _puppet = false;
+            if (_agent != null) _agent.enabled = true;
             gameObject.SetActive(false);
+        }
+
+        /// <summary>Spectator side: same body, cone, and tint, but no agent, no eyes, and
+        /// no route -- every pose comes from the turn owner's stream. Running the patrol
+        /// locally instead would drift from the truth and eventually show a catch that
+        /// never happened.</summary>
+        public void BeginPuppet()
+        {
+            // Activate first: a fresh clone of the inactive template has not run Awake yet.
+            gameObject.SetActive(true);
+            _puppet = true;
+            _agent.enabled = false;
+            _alpha = 0f;
+            ApplyAlpha();
+            State = SentryState.Materializing;
+            SetConeAlarmed(false);
+        }
+
+        public void ApplyPuppet(Vector3 position, float yaw, SentryState state, float alpha)
+        {
+            if (!_puppet) return;
+            transform.SetPositionAndRotation(position, Quaternion.Euler(0f, yaw, 0f));
+            if (state != State)
+            {
+                State = state;
+                SetConeAlarmed(state == SentryState.Chasing);
+            }
+
+            if (!Mathf.Approximately(alpha, _alpha))
+            {
+                _alpha = alpha;
+                ApplyAlpha();
+            }
         }
 
         private void Update()
         {
             if (State == SentryState.Inactive) return;
+
+            if (_puppet)
+            {
+                UpdateConeVisual();
+                return;
+            }
 
             UpdateFade();
             UpdateConeVisual();
@@ -266,14 +337,15 @@ namespace ProjectRetrace
         /// visible rummage is optional; checking a cupboard for a hider never is.</summary>
         private void Rummage(DwellPoint dwell)
         {
-            if (dwell.Prop == null) return;
+            var prop = InteractableRegistry.Find(dwell.PropId);
+            if (prop == null) return;
 
-            if (RetraceConfig.Current.sentriesOpenFurniture && dwell.Prop.TryGetComponent<IOpenable>(out var openable))
+            if (RetraceConfig.Current.sentriesOpenFurniture && prop is IOpenable openable)
             {
                 openable.Open();
             }
 
-            var spot = dwell.Prop.GetComponentInParent<HidingSpot>();
+            var spot = prop.GetComponentInParent<HidingSpot>();
             if (spot != null) spot.OpenedBy(this);
         }
 

@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 namespace ProjectRetrace
 {
@@ -34,13 +35,17 @@ namespace ProjectRetrace
         public string debugToggleKey = "Backquote";
         public string menuKey = "M";
         public string configMenuKey = "Tab";
+        public string spectatorCameraKey = "C";
 
         // Player
         [ConfigTab("Player")]
         public float walkSpeed = 3.4f;
         public float sprintSpeed = 6.0f;
-        public float jumpSpeed = 4.5f;
         public float gravity = -18f;
+        // stepHeight is what the feet can climb anywhere; stairStepHeight applies only beside
+        // a flight marked with Stairs. Keep the first below the lowest seat in the house.
+        public float stepHeight = 0.05f;
+        public float stairStepHeight = 0.3f;
         public float interactReach = 2.5f;
         public float shellLatchRadius = 0.9f;
 
@@ -53,6 +58,13 @@ namespace ProjectRetrace
         // crack is as a fraction of the screen.
         public float peekYawDegrees = 20f;
         public float peekSlitHeight = 0.08f;
+
+        public bool showInteractionPrompt = false;
+
+        // Round banner: shown once at the start of each phase, then gone, so the HUD is
+        // not narrating a goal the player already knows.
+        public float bannerHoldSeconds = 5f;
+        public float bannerFadeSeconds = 1f;
 
         // Sentry. sentrySpeed sits below walkSpeed so being followed stays escapable; the
         // chase after a spot only sells a catch that is already decided.
@@ -96,6 +108,15 @@ namespace ProjectRetrace
         public float footstepVolume = 0.8f;
         public float footstepPitchJitter = 0.1f;
 
+        // Online. The relay is the tiny Node process in relay/, deployed on Render; the
+        // default is the public one so a shipped build works untouched. Empty means "the
+        // machine this page came from, port 8787" (or localhost in the editor), for local
+        // testing. Spectators draw the turn owner's stream this far behind real time so
+        // there is always a next snapshot to interpolate towards.
+        public string relayUrl = "wss://retrace-relay.onrender.com";
+        public float snapshotHz = 12f;
+        public float spectatorDelaySeconds = 0.15f;
+
         public Key InteractKey => ParseKey(interactKey, Key.E);
         public Key HideKey => ParseKey(hideKey, Key.H);
         public Key RestartKey => ParseKey(restartKey, Key.R);
@@ -103,6 +124,7 @@ namespace ProjectRetrace
         public Key DebugToggleKey => ParseKey(debugToggleKey, Key.Backquote);
         public Key MenuKey => ParseKey(menuKey, Key.M);
         public Key ConfigMenuKey => ParseKey(configMenuKey, Key.Tab);
+        public Key SpectatorCameraKey => ParseKey(spectatorCameraKey, Key.C);
 
         private static RetraceConfig _current;
 

@@ -42,7 +42,6 @@ there is nothing to wire.
 | --- | --- |
 | WASD / mouse | move, look |
 | Shift | sprint |
-| Space | jump |
 | E or left click | interact |
 | H | hide in an open cupboard, or climb back out |
 | **`** (backquote) | **toggle the debug trail view** |
@@ -78,16 +77,20 @@ transition:
   retrace routes and never operate doors, and a closed door would otherwise strand a
   ghost whose route runs upstairs.
 
-**Multiplayer** (from the start menu; two players on one keyboard — online is sketched in
-ONLINE.md): rounds alternate, starting from whoever searched, and only your opponent's
+**Multiplayer** (from the start menu; two players on one keyboard): rounds alternate, starting from whoever searched, and only your opponent's
 routes haunt you. Round 2 is P2 against P1's search; round 3 is P1 against P2's sneak;
 round 4 is P2 against both of P1's routes, and so on -- each player faces one more ghost
 every other round. Each player's ghosts share a hue family so a glance says whose past self
 is rounding the corner. Round transitions hold on a "Player N, you're up — press Space"
 screen so the keyboard can change hands. Running out of tries ends the match and the other
 player wins; [R] rematches with the searcher role rotated, since the
-search round is the threat-free one. Online is on the menu but not built — see
-[ONLINE.md](ONLINE.md).
+search round is the threat-free one.
+
+**Online** ([3] on the start menu) is the same match across two machines: create a room
+and read the four-letter code out, or type a friend's. Whoever's round it is plays it
+exactly as above; the other watches it live through their eyes (**C** cycles to a chase
+cam, then a free camera). Both clients must be the same build, and both need a relay to talk through —
+see [ONLINE.md](ONLINE.md) and [relay/README.md](relay/README.md).
 
 Detection is cone + line-of-sight (head and chest checked separately, so furniture can
 hide you). Getting spotted ends the attempt — the short chase that follows is just

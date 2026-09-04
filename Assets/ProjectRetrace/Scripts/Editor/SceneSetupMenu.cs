@@ -37,6 +37,9 @@ namespace ProjectRetrace.EditorTools
             var menu = systems.AddComponent<StartMenu>();
             var configMenu = systems.AddComponent<ConfigMenu>();
             configMenu.director = director;
+            var online = systems.AddComponent<OnlineSession>();
+            var spectator = systems.AddComponent<SpectatorRig>();
+            var lobby = systems.AddComponent<OnlineLobby>();
 
             var player = BuildPlayer(out var controller, out var interactor, out var cameraTransform);
             var spawnPoint = CreateObject("SpawnPoint", null).transform;
@@ -53,6 +56,16 @@ namespace ProjectRetrace.EditorTools
             director.keySpawner = keySpawner;
             director.spawnPoint = spawnPoint;
             director.sentryTemplate = sentryTemplate;
+            director.online = online;
+            director.spectator = spectator;
+
+            online.director = director;
+            online.spectator = spectator;
+            spectator.director = director;
+            spectator.player = controller;
+            lobby.director = director;
+            lobby.session = online;
+            menu.online = online;
 
             trail.tracked = player.transform;
 
@@ -76,6 +89,58 @@ namespace ProjectRetrace.EditorTools
                       "and use F3 for the debug trail view.");
         }
 
+        /// <summary>Retrofits online play onto a scene that already has the rig: adds the
+        /// session, spectator, and lobby components and wires them, and gives the sentry
+        /// template its transparent materials. Idempotent, so it doubles as the repair step
+        /// after a scene merge that took the other side's copy.</summary>
+        [MenuItem("ProjectRetrace/Setup Online Systems", false, 1)]
+        public static void SetupOnline()
+        {
+            var director = Object.FindFirstObjectByType<GameDirector>();
+            if (director == null && EditorBuildSettings.scenes.Length > 0)
+            {
+                // Headless (-executeMethod) starts in an empty scene: open the build scene.
+                EditorSceneManager.OpenScene(EditorBuildSettings.scenes[0].path);
+                director = Object.FindFirstObjectByType<GameDirector>();
+            }
+
+            if (director == null)
+            {
+                Debug.LogError("[ProjectRetrace] No GameDirector in the scene -- run Setup Scene Systems first.");
+                return;
+            }
+
+            var systems = director.gameObject;
+            var online = systems.GetComponent<OnlineSession>() ?? systems.AddComponent<OnlineSession>();
+            var spectator = systems.GetComponent<SpectatorRig>() ?? systems.AddComponent<SpectatorRig>();
+            var lobby = systems.GetComponent<OnlineLobby>() ?? systems.AddComponent<OnlineLobby>();
+            var menu = systems.GetComponent<StartMenu>();
+
+            director.online = online;
+            director.spectator = spectator;
+            online.director = director;
+            online.spectator = spectator;
+            spectator.director = director;
+            spectator.player = director.player;
+            lobby.director = director;
+            lobby.session = online;
+            if (menu != null) menu.online = online;
+
+            if (director.sentryTemplate != null)
+            {
+                director.sentryTemplate.bodyMaterialTemplate = AssetDatabase.LoadAssetAtPath<Material>(
+                    "Assets/ProjectRetrace/Art/GhostTransparent.mat");
+                director.sentryTemplate.coneMaterialTemplate = AssetDatabase.LoadAssetAtPath<Material>(
+                    "Assets/ProjectRetrace/Art/GhostConeTransparent.mat");
+                EditorUtility.SetDirty(director.sentryTemplate);
+            }
+
+            EditorUtility.SetDirty(systems);
+            EditorSceneManager.MarkSceneDirty(systems.scene);
+            EditorSceneManager.SaveScene(systems.scene);
+            Debug.Log("[ProjectRetrace] Online systems wired into " + systems.scene.name);
+        }
+
         private static GameObject BuildPlayer(
             out FirstPersonController controller,
             out PlayerInteractor interactor,
@@ -88,6 +153,7 @@ namespace ProjectRetrace.EditorTools
             characterController.height = 1.8f;
             characterController.radius = 0.3f;
             characterController.center = new Vector3(0f, 0.9f, 0f);
+            characterController.stepOffset = RetraceConfig.Current.stepHeight;
 
             controller = player.AddComponent<FirstPersonController>();
             interactor = player.AddComponent<PlayerInteractor>();
@@ -149,6 +215,10 @@ namespace ProjectRetrace.EditorTools
             patrol.bodyTint = tint;
             patrol.spottedClip = AssetDatabase.LoadAssetAtPath<AudioClip>(
                 "Assets/ProjectRetrace/Audio/whistle.wav");
+            patrol.bodyMaterialTemplate = AssetDatabase.LoadAssetAtPath<Material>(
+                "Assets/ProjectRetrace/Art/GhostTransparent.mat");
+            patrol.coneMaterialTemplate = AssetDatabase.LoadAssetAtPath<Material>(
+                "Assets/ProjectRetrace/Art/GhostConeTransparent.mat");
             AddFootsteps(sentry);
             return patrol;
         }
