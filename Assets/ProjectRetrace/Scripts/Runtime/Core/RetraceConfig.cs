@@ -58,6 +58,11 @@ namespace ProjectRetrace
 
         public bool showInteractionPrompt = false;
 
+        // Round banner: shown once at the start of each phase, then gone, so the HUD is
+        // not narrating a goal the player already knows.
+        public float bannerHoldSeconds = 5f;
+        public float bannerFadeSeconds = 1f;
+
         // Sentry. sentrySpeed sits below walkSpeed so being followed stays escapable; the
         // chase after a spot only sells a catch that is already decided.
         [ConfigTab("Sentries")]

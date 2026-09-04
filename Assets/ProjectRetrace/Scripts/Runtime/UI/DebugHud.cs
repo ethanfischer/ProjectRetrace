@@ -15,6 +15,10 @@ namespace ProjectRetrace
 
         private KeyItem _key;
 
+        private GamePhase _lastPhase = GamePhase.Menu;
+        private string _toast = string.Empty;
+        private float _toastStartedAt;
+
         private GUIStyle _label;
         private GUIStyle _centered;
         private GUIStyle _handover;
@@ -23,6 +27,13 @@ namespace ProjectRetrace
         {
             director = GetComponent<GameDirector>();
             trail = GetComponent<BreadcrumbTrail>();
+        }
+
+        private void Update()
+        {
+            if (director == null || director.Phase == _lastPhase) return;
+            _lastPhase = director.Phase;
+            ShowToast(PhaseToast(director.Phase));
         }
 
         private void OnGUI()
@@ -146,37 +157,94 @@ namespace ProjectRetrace
                 return;
             }
 
-            string banner;
-            var maxLives = RetraceConfig.Current.stealthLives;
-            var who = director.Multiplayer ? $"P{director.CurrentPlayer} -- " : string.Empty;
-            switch (director.Phase)
-            {
-                case GamePhase.Search:
-                    banner = who + "Find your keys";
-                    break;
-                case GamePhase.Transition:
-                    banner = director.LivesRemaining < maxLives
-                        ? $"Caught! {director.LivesRemaining} {(director.LivesRemaining == 1 ? "try" : "tries")} left..."
-                        : string.Empty;
-                    break;
-                case GamePhase.Stealth:
-                    banner = $"{who}Round {director.StealthRound + 1}: find your keys without getting caught [{director.LivesRemaining}/{maxLives} tries]";
-                    if (AnyDoorUnlocksThisRound()) banner += " -- 2nd floor unlocked!";
-                    break;
-                case GamePhase.Spectate:
-                    banner = $"Spectating Player {director.CurrentPlayer} -- round {director.StealthRound + 1} [{director.LivesRemaining}/{maxLives} tries]";
-                    if (director.spectator != null)
-                    {
-                        banner += $"  [{RetraceConfig.Current.SpectatorCameraKey}] {ViewName(director.spectator.NextView)}";
-                    }
+            if (director.Phase == GamePhase.Spectate) DrawSpectateBanner();
+            DrawToast();
+            if (director.Phase != GamePhase.Menu && director.Phase != GamePhase.Results) DrawConnection();
+        }
 
-                    break;
-                default:
-                    return;
+        /// <summary>Spectating is the one banner that stays up: the camera hint and the
+        /// live tries count are what the watcher keeps needing.</summary>
+        private void DrawSpectateBanner()
+        {
+            var banner = $"Spectating Player {director.CurrentPlayer} -- round {director.StealthRound + 1} [{director.LivesRemaining}/{RetraceConfig.Current.stealthLives} tries]";
+            if (director.spectator != null)
+            {
+                banner += $"  [{RetraceConfig.Current.SpectatorCameraKey}] {ViewName(director.spectator.NextView)}";
             }
 
             GUI.Label(new Rect(0f, 24f, HudScale.Width, 30f), banner, _centered);
-            DrawConnection();
+        }
+
+        private string PhaseToast(GamePhase phase)
+        {
+            var maxLives = RetraceConfig.Current.stealthLives;
+            var who = director.Multiplayer ? $"P{director.CurrentPlayer} -- " : string.Empty;
+            switch (phase)
+            {
+                case GamePhase.Search:
+                    return who + "Find your keys";
+                case GamePhase.Stealth:
+                    // A retry only needs the stakes; the goal was spelled out on the first attempt.
+                    if (director.LivesRemaining < maxLives)
+                    {
+                        if (director.LivesRemaining == 1)
+                        {
+                            return "Last try";
+                        }
+                        return $"{director.LivesRemaining} tries left";
+                    }
+
+                    var toast = $"{who}Round {director.StealthRound + 1}";
+                    if (AnyDoorUnlocksThisRound()) toast += " -- 2nd floor unlocked!";
+                    return toast;
+                default:
+                    return string.Empty;
+            }
+        }
+
+        private void ShowToast(string text)
+        {
+            _toast = text;
+            _toastStartedAt = Time.time;
+        }
+
+        private void DrawToast()
+        {
+            if (string.IsNullOrEmpty(_toast)) return;
+
+            var config = RetraceConfig.Current;
+            var elapsed = Time.time - _toastStartedAt;
+            var alpha = 1f - Mathf.Clamp01((elapsed - config.bannerHoldSeconds) / Mathf.Max(config.bannerFadeSeconds, 0.01f));
+            if (alpha <= 0f)
+            {
+                _toast = string.Empty;
+                return;
+            }
+
+            // Above the reticle, clear of the interaction prompt that sits just below it.
+            DrawOutlinedLabel(new Rect(0f, HudScale.Height * 0.5f - 90f, HudScale.Width, 36f), _toast, _centered, alpha);
+        }
+
+        /// <summary>IMGUI has no text outline, so the outline is the same label stamped in
+        /// black around the eight neighbouring pixels. White text alone vanishes against
+        /// the pale walls and floors of the house.</summary>
+        private static void DrawOutlinedLabel(Rect rect, string text, GUIStyle style, float alpha)
+        {
+            var textColor = style.normal.textColor;
+            style.normal.textColor = Color.black;
+            GUI.color = new Color(1f, 1f, 1f, alpha);
+            for (var dx = -1; dx <= 1; dx++)
+            {
+                for (var dy = -1; dy <= 1; dy++)
+                {
+                    if (dx == 0 && dy == 0) continue;
+                    GUI.Label(new Rect(rect.x + dx, rect.y + dy, rect.width, rect.height), text, style);
+                }
+            }
+
+            style.normal.textColor = textColor;
+            GUI.Label(rect, text, style);
+            GUI.color = Color.white;
         }
 
         /// <summary>Online only: a quiet line so a stalled stream reads as "they dropped",
