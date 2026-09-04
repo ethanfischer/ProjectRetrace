@@ -4,8 +4,10 @@ using UnityEngine.InputSystem;
 namespace ProjectRetrace
 {
     /// <summary>
-    /// Minimal first-person controller on the Input System: WASD, mouse look, sprint,
-    /// jump. Deliberately plain -- the interesting part of this game is the trail, not the
+    /// Minimal first-person controller on the Input System: WASD, mouse look, sprint.
+    /// No jump, and no stepping up onto anything but stairs: furniture is cover to hide
+    /// behind, not high ground, and ghosts retrace routes on a navmesh that has none.
+    /// Deliberately plain -- the interesting part of this game is the trail, not the
     /// locomotion.
     /// </summary>
     [RequireComponent(typeof(CharacterController))]
@@ -14,6 +16,13 @@ namespace ProjectRetrace
         /// <summary>The legacy Mouse X/Y axes applied this before returning a delta, so folding
         /// it in here keeps sensitivity values tuned against the old controller valid.</summary>
         private const float LegacyMouseAxisSensitivity = 0.1f;
+
+        /// <summary>How close to a flight of stairs the feet must be before the step height
+        /// opens up. Wide enough to catch the first tread from the floor, narrow enough that
+        /// a couch beside the stairs stays unclimbable.</summary>
+        private const float StairProbeRadius = 0.6f;
+
+        private static readonly Collider[] Nearby = new Collider[16];
 
         public Transform cameraPivot;
 
@@ -27,6 +36,10 @@ namespace ProjectRetrace
         private bool _puppet;
         private Vector3? _eyeLocalPosition;
 
+        /// <summary>Height of the surface the player last legitimately stood on. Any move
+        /// that lifts the feet above it is undone unless stairs are within reach.</summary>
+        private float _floorY;
+
         private void Awake()
         {
             _controller = GetComponent<CharacterController>();
@@ -38,6 +51,7 @@ namespace ProjectRetrace
 
         private void Start()
         {
+            _floorY = transform.position.y;
             LockCursor(true);
         }
 
@@ -82,9 +96,8 @@ namespace ProjectRetrace
         /// </summary>
         public void Teleport(Vector3 position, Quaternion rotation)
         {
-            _controller.enabled = false;
-            transform.SetPositionAndRotation(position, rotation);
-            _controller.enabled = true;
+            SetPosition(position, rotation);
+            _floorY = position.y;
 
             _verticalVelocity = 0f;
             _pitch = 0f;
@@ -92,6 +105,13 @@ namespace ProjectRetrace
             {
                 cameraPivot.localRotation = Quaternion.identity;
             }
+        }
+
+        private void SetPosition(Vector3 position, Quaternion rotation)
+        {
+            _controller.enabled = false;
+            transform.SetPositionAndRotation(position, rotation);
+            _controller.enabled = true;
         }
 
         /// <summary>Spectating: the rig stops being a body and becomes a camera mount. The
@@ -163,24 +183,54 @@ namespace ProjectRetrace
 
             var input = ReadMoveInput(keyboard);
             if (input.sqrMagnitude > 1f) input.Normalize();
+            Advance(input, keyboard.leftShiftKey.isPressed, Time.deltaTime);
+        }
 
+        /// <summary>
+        /// Step height and slope limit cannot say "stairs only": the pack's chairs and
+        /// cushions are mesh colliders whose slopes sit under any usable slope limit, so
+        /// the controller would walk up them however low the step. Instead the move is
+        /// checked against the floor the player was standing on and undone if it climbed,
+        /// unless a marked flight of stairs is within reach of the feet.
+        /// </summary>
+        private void Advance(Vector3 input, bool sprint, float deltaTime)
+        {
             var config = RetraceConfig.Current;
-            var speed = keyboard.leftShiftKey.isPressed ? config.sprintSpeed : config.walkSpeed;
+            var speed = sprint ? config.sprintSpeed : config.walkSpeed;
             var motion = transform.TransformDirection(input) * speed;
+
+            var nearStairs = NearStairs();
+            _controller.stepOffset = nearStairs ? config.stairStepHeight : config.stepHeight;
 
             if (_controller.isGrounded)
             {
                 // A small downward bias keeps isGrounded stable on slopes and stair edges.
                 _verticalVelocity = -2f;
-                if (keyboard.spaceKey.wasPressedThisFrame) _verticalVelocity = config.jumpSpeed;
             }
             else
             {
-                _verticalVelocity += config.gravity * Time.deltaTime;
+                _verticalVelocity += config.gravity * deltaTime;
             }
 
             motion.y = _verticalVelocity;
-            _controller.Move(motion * Time.deltaTime);
+            var before = transform.position;
+            _controller.Move(motion * deltaTime);
+
+            var y = transform.position.y;
+            if (nearStairs || y < _floorY) _floorY = y;
+            else if (y > _floorY + config.stepHeight) SetPosition(before, transform.rotation);
+        }
+
+        private bool NearStairs()
+        {
+            var feet = transform.position + Vector3.up * (StairProbeRadius * 0.5f);
+            var count = Physics.OverlapSphereNonAlloc(feet, StairProbeRadius, Nearby, ~0, QueryTriggerInteraction.Ignore);
+            for (var i = 0; i < count; i++)
+            {
+                if (Nearby[i].GetComponentInParent<Stairs>() != null) return true;
+            }
+
+            return false;
         }
 
         private static Vector3 ReadMoveInput(Keyboard keyboard)

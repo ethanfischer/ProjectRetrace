@@ -42,7 +42,6 @@ there is nothing to wire.
 | --- | --- |
 | WASD / mouse | move, look |
 | Shift | sprint |
-| Space | jump |
 | E or left click | interact |
 | H | hide in an open cupboard, or climb back out |
 | **`** (backquote) | **toggle the debug trail view** |

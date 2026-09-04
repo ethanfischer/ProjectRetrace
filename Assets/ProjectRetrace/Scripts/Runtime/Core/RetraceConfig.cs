@@ -41,8 +41,11 @@ namespace ProjectRetrace
         [ConfigTab("Player")]
         public float walkSpeed = 3.4f;
         public float sprintSpeed = 6.0f;
-        public float jumpSpeed = 4.5f;
         public float gravity = -18f;
+        // stepHeight is what the feet can climb anywhere; stairStepHeight applies only beside
+        // a flight marked with Stairs. Keep the first below the lowest seat in the house.
+        public float stepHeight = 0.05f;
+        public float stairStepHeight = 0.3f;
         public float interactReach = 2.5f;
         public float shellLatchRadius = 0.9f;
 

@@ -127,9 +127,13 @@ any scripted peer; `OnlineContractTests` covers the contracts.
 house. `HomeInterior_FirstFloor.unity` stays pure art; Import deletes every `TestHouse*`
 root (plus the dev grid and the origin point light), moves her scene's roots under a new
 `TestHouse (HomeInterior_FirstFloor)` root, and runs Prepare on it, so re-importing after
-her next PR is one click. Prepare is idempotent: it adds MeshColliders to the pack's raw
-FBX instances (its prefabs have them, its model instances don't), flips the FBX importers
-to Read/Write (the runtime bake reads mesh data, and the editor hides that it would fail in
+her next PR is one click. Prepare is idempotent: it gives every static prop a BoxCollider per mesh part (the pack's
+mesh colliders are sloped enough to walk up; only the shell, stairs, room doors and the
+interactive furniture keep mesh collision, the last so drawers and cupboards stay open
+inside for keys and hiders; each fitted part carries a `CollisionFit` receipt, and a part
+whose boxes no longer match it is hand-tuned, which Prepare leaves alone and a re-import
+carries over by path), flips the remaining collision meshes' FBX importers to
+Read/Write (the runtime bake reads mesh data, and the editor hides that it would fail in
 a build), swaps the static cabinets the art scene uses for their interactive twins from the pack
 (a table in `LevelImportMenu`; a taller twin lifts whatever stood on the original), and
 wires every `InteractiveFurniture_*` prefab by geometry alone: a part whose

@@ -260,6 +260,7 @@ namespace ProjectRetrace.EditorTools
             var rise = totalRise / steps;
             var parent = new GameObject("Stairs").transform;
             parent.SetParent(root.transform, false);
+            parent.gameObject.AddComponent<Stairs>();
 
             for (var i = 1; i <= steps; i++)
             {

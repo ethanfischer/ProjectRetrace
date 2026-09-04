@@ -153,6 +153,7 @@ namespace ProjectRetrace.EditorTools
             characterController.height = 1.8f;
             characterController.radius = 0.3f;
             characterController.center = new Vector3(0f, 0.9f, 0f);
+            characterController.stepOffset = RetraceConfig.Current.stepHeight;
 
             controller = player.AddComponent<FirstPersonController>();
             interactor = player.AddComponent<PlayerInteractor>();

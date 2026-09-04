@@ -38,7 +38,9 @@ namespace ProjectRetrace
 
         public bool Recording => _recording;
 
-        public RecordedRoute CurrentRoute => _recording ? _routes[_routes.Count - 1] : null;
+        // The count check only matters across a domain reload mid-play, which keeps the
+        // flag but empties the list; without it every frame throws until play stops.
+        public RecordedRoute CurrentRoute => _recording && _routes.Count > 0 ? _routes[_routes.Count - 1] : null;
 
         /// <summary>Routes finished being recorded -- the ones sentries may patrol.</summary>
         public int CompletedRouteCount => _recording ? _routes.Count - 1 : _routes.Count;

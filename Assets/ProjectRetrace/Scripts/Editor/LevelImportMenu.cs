@@ -47,6 +47,13 @@ namespace ProjectRetrace.EditorTools
         private const string RoomDoorPrefabPath = "Assets/LowPolyInterior/Prefabs/Walls/Door_04.prefab";
         private const string BackMaterialPath = "Assets/ProjectRetrace/Art/Materials/FurnitureBack.mat";
         private const string BackName = "Back";
+        private static readonly string[] MeshCollisionPrefixes = { "Floor", "Wall", "Corner", "Stairs", "Door" };
+
+        // Profile boxing: a static mesh is sliced into horizontal slabs this thick, slabs
+        // whose footprints agree within the tolerance merge, and each run becomes a box.
+        private const float ProfileSlabHeight = 0.1f;
+        private const float ProfileMergeTolerance = 0.06f;
+        private const int MaxProfileBoxes = 6;
         private const float BackThickness = 0.02f;
 
         /// <summary>Some carcasses do have a back, painted the same off-white as the room
@@ -77,11 +84,11 @@ namespace ProjectRetrace.EditorTools
 
         private struct Summary
         {
-            public int props, doors, drawers, keySpots, hidingSpots, roomDoors, backs, colliders, readableMeshes, swapped;
+            public int props, doors, drawers, keySpots, hidingSpots, roomDoors, backs, colliders, boxed, tuned, readableMeshes, swapped, stairs;
             public override string ToString() =>
                 $"{swapped} static prop(s) swapped for interactive twins; {props} prop(s): {doors} door(s), {drawers} drawer(s), {keySpots} key spot(s), " +
-                $"{hidingSpots} hiding spot(s), {roomDoors} room door(s), {backs} back(s); {colliders} collider(s) added, " +
-                $"{readableMeshes} mesh import(s) made readable";
+                $"{hidingSpots} hiding spot(s), {roomDoors} room door(s), {backs} back(s); {colliders} collider(s) added, {boxed} part(s) boxed, {tuned} hand-tuned part(s) kept, " +
+                $"{readableMeshes} mesh import(s) made readable, {stairs} stair flight(s) marked";
         }
 
         [MenuItem("ProjectRetrace/Level/Import HomeInterior_FirstFloor", false, 42)]
@@ -103,6 +110,7 @@ namespace ProjectRetrace.EditorTools
             var source = EditorSceneManager.OpenScene(SourceScenePath, OpenSceneMode.Additive);
             var sourcePaths = HierarchyPaths(source.GetRootGameObjects());
 
+            var tunedCollision = HarvestTunedCollision(target);
             var firstImport = RemovePreviousHouse(target, sourcePaths, out var rescued);
 
             var root = new GameObject(ImportedRootName);
@@ -118,11 +126,12 @@ namespace ProjectRetrace.EditorTools
             EditorSceneManager.CloseScene(source, true);
 
             var summary = PrepareFurniture(root.transform);
+            var restored = RestoreTunedCollision(root.transform, tunedCollision);
             if (firstImport) PlaceSpawnPoint();
 
             EditorSceneManager.MarkSceneDirty(target);
             Selection.activeGameObject = root;
-            Debug.Log($"[ProjectRetrace] Imported {SourceScenePath}: {summary}.");
+            Debug.Log($"[ProjectRetrace] Imported {SourceScenePath}: {summary}; {restored}/{tunedCollision.Count} hand-tuned collider set(s) carried over.");
             if (rescued.Count > 0)
             {
                 Debug.LogWarning($"[ProjectRetrace] Moved {rescued.Count} hand-placed object(s) out of the old import into " +
@@ -178,6 +187,10 @@ namespace ProjectRetrace.EditorTools
             {
                 if (transform == oldRoot || transform.name == KeySpotName || transform.name == BackName) continue;
                 if (PrefabUtility.IsPartOfPrefabInstance(transform) && !PrefabUtility.IsAnyPrefabInstanceRoot(transform.gameObject)) continue;
+                // A twin's doors and drawers are nested model instances, so they count as
+                // prefab roots of their own; what marks them as hers is the prop they sit in.
+                var outermost = PrefabUtility.GetOutermostPrefabInstanceRoot(transform.gameObject);
+                if (outermost != null && outermost != transform.gameObject && sourcePaths.Contains(PathUnder(oldRoot, outermost.transform))) continue;
                 if (sourcePaths.Contains(PathUnder(oldRoot, transform))) continue;
                 if (transform.parent != oldRoot && !sourcePaths.Contains(PathUnder(oldRoot, transform.parent))) continue;
 
@@ -228,8 +241,9 @@ namespace ProjectRetrace.EditorTools
         {
             var summary = new Summary();
             summary.swapped = SwapStaticPropsForTwins(house);
-            summary.colliders = AddMissingColliders(house);
+            (summary.colliders, summary.boxed, summary.tuned) = FitColliders(house);
             summary.readableMeshes = MakeCollisionMeshesReadable(house);
+            summary.stairs = MarkStairs(house);
             foreach (var transform in house.GetComponentsInChildren<Transform>(true))
             {
                 if (!PrefabUtility.IsAnyPrefabInstanceRoot(transform.gameObject)) continue;
@@ -247,6 +261,22 @@ namespace ProjectRetrace.EditorTools
             }
 
             return summary;
+        }
+
+        /// <summary>The pack names its flights "Stairs_NN" and their side panels
+        /// "StairsPart_NN"; both get the marker, since the panel's collider is what the
+        /// controller's probe meets first from the hall.</summary>
+        private static int MarkStairs(Transform house)
+        {
+            var marked = 0;
+            foreach (var transform in house.GetComponentsInChildren<Transform>(true))
+            {
+                if (!transform.name.StartsWith("Stairs") || transform.GetComponent<Stairs>() != null) continue;
+                transform.gameObject.AddComponent<Stairs>();
+                marked++;
+            }
+
+            return marked;
         }
 
         /// <summary>Keeps the original's name and transform so the swapped prop still matches
@@ -319,20 +349,298 @@ namespace ProjectRetrace.EditorTools
             return bounds;
         }
 
-        /// <summary>The pack's prefabs carry MeshColliders but its raw FBX model instances do
-        /// not, and the artist mixes both freely; a floor tile without a collider is one the
-        /// player falls through and the navmesh never sees.</summary>
-        private static int AddMissingColliders(Transform house)
+        /// <summary>Static props collide as a few BoxColliders fitted to each mesh part's
+        /// vertical profile (see ProfileBoxes); only the shell,
+        /// the stairs, the room doors and the interactive furniture keep mesh collision.
+        /// The pack's chairs and cushions are sloped enough that a CharacterController
+        /// walks up them at any step height, and a box has no slope to climb. Interactive
+        /// furniture stays mesh because its interior has to be open: the interaction ray
+        /// must reach a key inside a drawer, and a hider has to fit in the cupboard.</summary>
+        private static (int added, int boxed, int tuned) FitColliders(Transform house)
         {
             var added = 0;
+            var boxed = 0;
+            var tuned = 0;
             foreach (var filter in house.GetComponentsInChildren<MeshFilter>(true))
             {
-                if (filter.sharedMesh == null || filter.GetComponent<Collider>() != null) continue;
-                Undo.AddComponent<MeshCollider>(filter.gameObject);
-                added++;
+                if (filter.sharedMesh == null || filter.name == BackName) continue;
+
+                var existing = filter.GetComponent<Collider>();
+                if (KeepsMeshCollision(house, filter.transform))
+                {
+                    if (UndoMistakenBoxes(filter.gameObject)) existing = null;
+                    if (existing != null) continue;
+                    Undo.AddComponent<MeshCollider>(filter.gameObject);
+                    added++;
+                    continue;
+                }
+
+                var wanted = ProfileBoxes(filter.sharedMesh);
+                if (IsHandTuned(filter.gameObject, wanted))
+                {
+                    tuned++;
+                    continue;
+                }
+
+                if (HasBoxes(filter.gameObject, wanted))
+                {
+                    Receipt(filter.gameObject).Record(filter.GetComponents<BoxCollider>());
+                    continue;
+                }
+
+                var colliders = filter.GetComponents<Collider>();
+                if (colliders.Length == 0) added++;
+                else boxed++;
+                foreach (var collider in colliders) Undo.DestroyObjectImmediate(collider);
+                foreach (var bounds in wanted)
+                {
+                    var box = Undo.AddComponent<BoxCollider>(filter.gameObject);
+                    box.center = bounds.center;
+                    box.size = bounds.size;
+                }
+
+                Receipt(filter.gameObject).Record(filter.GetComponents<BoxCollider>());
             }
 
-            return added;
+            return (added, boxed, tuned);
+        }
+
+        /// <summary>Boxes that differ from the receipt were edited by hand. A part with
+        /// boxes but no receipt predates receipts: adopt it as tuned if it differs from
+        /// the profile, since that is the only way it could have come to differ.</summary>
+        private static bool IsHandTuned(GameObject target, List<Bounds> wanted)
+        {
+            var boxes = target.GetComponents<BoxCollider>();
+            if (boxes.Length == 0) return false;
+
+            var receipt = target.GetComponent<CollisionFit>();
+            if (receipt != null && receipt.handTuned) return true;
+            if (receipt != null ? receipt.Matches(boxes) : HasBoxes(target, wanted)) return false;
+
+            receipt = Receipt(target);
+            receipt.handTuned = true;
+            receipt.Record(boxes);
+            EditorUtility.SetDirty(receipt);
+            return true;
+        }
+
+        private static CollisionFit Receipt(GameObject target)
+        {
+            var receipt = target.GetComponent<CollisionFit>();
+            if (receipt == null) receipt = Undo.AddComponent<CollisionFit>(target);
+            EditorUtility.SetDirty(receipt);
+            return receipt;
+        }
+
+        /// <summary>Hand-tuned box sets under the current import, keyed by path, so the
+        /// re-import can put them back on the same parts of the fresh copy.</summary>
+        private static Dictionary<string, CollisionFit> HarvestTunedCollision(Scene scene)
+        {
+            var tuned = new Dictionary<string, CollisionFit>();
+            foreach (var root in scene.GetRootGameObjects())
+            {
+                if (root.name != ImportedRootName) continue;
+                foreach (var fit in root.GetComponentsInChildren<CollisionFit>(true))
+                {
+                    if (!fit.handTuned) continue;
+                    var copy = new GameObject("tuned collision").AddComponent<CollisionFit>();
+                    copy.gameObject.hideFlags = HideFlags.HideAndDontSave;
+                    copy.handTuned = true;
+                    copy.centers.AddRange(fit.centers);
+                    copy.sizes.AddRange(fit.sizes);
+                    tuned[PathUnder(root.transform, fit.transform)] = copy;
+                }
+            }
+
+            return tuned;
+        }
+
+        private static int RestoreTunedCollision(Transform root, Dictionary<string, CollisionFit> tuned)
+        {
+            var restored = 0;
+            foreach (var (path, saved) in tuned)
+            {
+                var part = root.Find(path);
+                if (part != null)
+                {
+                    foreach (var collider in part.GetComponents<Collider>()) Undo.DestroyObjectImmediate(collider);
+                    for (var i = 0; i < saved.centers.Count; i++)
+                    {
+                        var box = Undo.AddComponent<BoxCollider>(part.gameObject);
+                        box.center = saved.centers[i];
+                        box.size = saved.sizes[i];
+                    }
+
+                    var receipt = Receipt(part.gameObject);
+                    receipt.handTuned = true;
+                    receipt.Record(part.GetComponents<BoxCollider>());
+                    restored++;
+                }
+                else
+                {
+                    Debug.LogWarning($"[ProjectRetrace] Hand-tuned colliders for \"{path}\" had no matching part in the new import and were dropped.");
+                }
+
+                Object.DestroyImmediate(saved.gameObject);
+            }
+
+            return restored;
+        }
+
+        private static bool HasBoxes(GameObject target, List<Bounds> wanted)
+        {
+            var boxes = target.GetComponents<BoxCollider>();
+            if (boxes.Length != wanted.Count || target.GetComponents<Collider>().Length != boxes.Length) return false;
+            for (var i = 0; i < boxes.Length; i++)
+            {
+                if ((boxes[i].center - wanted[i].center).sqrMagnitude > 1e-6f) return false;
+                if ((boxes[i].size - wanted[i].size).sqrMagnitude > 1e-6f) return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>One box per mesh is too coarse for anything with an overhang: a chair's
+        /// single box fills the space over its arms and blocks the interaction ray to the
+        /// drawer behind it. Slicing the mesh into horizontal slabs and boxing each run of
+        /// matching footprints gives a chair its base, seat and backrest, and a lamp its
+        /// pole and shade, with nothing sloped for the player to climb. Footprints come
+        /// from points sampled along every triangle edge, not the vertices alone: a tall
+        /// backrest is one quad with corners at its top and bottom, and the slabs between
+        /// would otherwise see nothing of it.</summary>
+        private static List<Bounds> ProfileBoxes(Mesh mesh)
+        {
+            var whole = mesh.bounds;
+            var slabCount = Mathf.Clamp(Mathf.CeilToInt(whole.size.y / ProfileSlabHeight), 1, 40);
+            if (slabCount < 3) return new List<Bounds> { whole };
+
+            var slabHeight = whole.size.y / slabCount;
+            var min = new Vector2[slabCount];
+            var max = new Vector2[slabCount];
+            var filled = new bool[slabCount];
+            for (var i = 0; i < slabCount; i++)
+            {
+                min[i] = new Vector2(float.MaxValue, float.MaxValue);
+                max[i] = new Vector2(float.MinValue, float.MinValue);
+            }
+
+            void Accumulate(Vector3 point)
+            {
+                var i = Mathf.Clamp(Mathf.FloorToInt((point.y - whole.min.y) / slabHeight), 0, slabCount - 1);
+                min[i] = Vector2.Min(min[i], new Vector2(point.x, point.z));
+                max[i] = Vector2.Max(max[i], new Vector2(point.x, point.z));
+                filled[i] = true;
+            }
+
+            var vertices = mesh.vertices;
+            var triangles = mesh.triangles;
+            for (var t = 0; t < triangles.Length; t += 3)
+            {
+                for (var e = 0; e < 3; e++)
+                {
+                    var a = vertices[triangles[t + e]];
+                    var b = vertices[triangles[t + (e + 1) % 3]];
+                    var steps = Mathf.CeilToInt(Mathf.Abs(b.y - a.y) / (slabHeight * 0.5f)) + 1;
+                    for (var k = 0; k <= steps; k++) Accumulate(Vector3.Lerp(a, b, (float)k / steps));
+                }
+            }
+
+            for (var i = 1; i < slabCount; i++)
+            {
+                if (filled[i]) continue;
+                min[i] = min[i - 1];
+                max[i] = max[i - 1];
+                filled[i] = true;
+            }
+
+            var runs = new List<(int first, int last, Vector2 min, Vector2 max)>();
+            for (var i = 0; i < slabCount; i++)
+            {
+                if (!filled[i]) continue;
+                if (runs.Count > 0 && FootprintsAgree(runs[runs.Count - 1].min, runs[runs.Count - 1].max, min[i], max[i]))
+                {
+                    var run = runs[runs.Count - 1];
+                    runs[runs.Count - 1] = (run.first, i, Vector2.Min(run.min, min[i]), Vector2.Max(run.max, max[i]));
+                }
+                else
+                {
+                    runs.Add((i, i, min[i], max[i]));
+                }
+            }
+
+            while (runs.Count > MaxProfileBoxes) MergeCheapestNeighbours(runs);
+
+            var boxes = new List<Bounds>();
+            foreach (var run in runs)
+            {
+                var bottom = whole.min.y + run.first * slabHeight;
+                var top = whole.min.y + (run.last + 1) * slabHeight;
+                var box = new Bounds();
+                box.SetMinMax(new Vector3(run.min.x, bottom, run.min.y), new Vector3(run.max.x, top, run.max.y));
+                boxes.Add(box);
+            }
+
+            return boxes;
+        }
+
+        private static bool FootprintsAgree(Vector2 minA, Vector2 maxA, Vector2 minB, Vector2 maxB)
+        {
+            return (minA - minB).magnitude <= ProfileMergeTolerance && (maxA - maxB).magnitude <= ProfileMergeTolerance;
+        }
+
+        private static void MergeCheapestNeighbours(List<(int first, int last, Vector2 min, Vector2 max)> runs)
+        {
+            var bestIndex = 0;
+            var bestCost = float.MaxValue;
+            for (var i = 0; i + 1 < runs.Count; i++)
+            {
+                var a = runs[i];
+                var b = runs[i + 1];
+                var union = Vector2.Max(a.max, b.max) - Vector2.Min(a.min, b.min);
+                var cost = union.x * union.y * (b.last - a.first + 1) - (a.max - a.min).x * (a.max - a.min).y * (a.last - a.first + 1)
+                    - (b.max - b.min).x * (b.max - b.min).y * (b.last - b.first + 1);
+                if (cost >= bestCost) continue;
+                bestCost = cost;
+                bestIndex = i;
+            }
+
+            var merged = runs[bestIndex];
+            var next = runs[bestIndex + 1];
+            runs[bestIndex] = (merged.first, next.last, Vector2.Min(merged.min, next.min), Vector2.Max(merged.max, next.max));
+            runs.RemoveAt(bestIndex + 1);
+        }
+
+        /// <summary>Boxes Prepare fitted to a part that must stay mesh, before it knew the
+        /// part was interactive. Hand-tuned boxes are the owner's and stay.</summary>
+        private static bool UndoMistakenBoxes(GameObject part)
+        {
+            var receipt = part.GetComponent<CollisionFit>();
+            if (receipt == null || receipt.handTuned) return false;
+            foreach (var box in part.GetComponents<BoxCollider>()) Undo.DestroyObjectImmediate(box);
+            Undo.DestroyObjectImmediate(receipt);
+            return part.GetComponent<Collider>() == null;
+        }
+
+        /// <summary>A twin's doors and drawers are nested model instances, so the nearest
+        /// prefab root names the FBX, not the interactive prefab; the outermost root does.</summary>
+        private static bool KeepsMeshCollision(Transform house, Transform part)
+        {
+            var top = part;
+            while (top.parent != null && top.parent != house) top = top.parent;
+            foreach (var prefix in MeshCollisionPrefixes)
+            {
+                if (top.name.StartsWith(prefix)) return true;
+            }
+
+            if (!PrefabUtility.IsPartOfPrefabInstance(part.gameObject)) return false;
+            if (IsInteractiveAsset(PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(part.gameObject))) return true;
+            var outermost = PrefabUtility.GetOutermostPrefabInstanceRoot(part.gameObject);
+            return outermost != null && IsInteractiveAsset(PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(outermost));
+        }
+
+        private static bool IsInteractiveAsset(string assetPath)
+        {
+            return assetPath == RoomDoorPrefabPath || assetPath.StartsWith(InteractivePrefabFolder) || assetPath.Contains("/InteractiveFurniture/");
         }
 
         /// <summary>The navmesh bakes from MeshColliders at runtime, which needs the mesh
@@ -606,6 +914,11 @@ namespace ProjectRetrace.EditorTools
             total.backs += part.backs;
             total.colliders += part.colliders;
             total.readableMeshes += part.readableMeshes;
+            total.boxed += part.boxed;
+            total.tuned += part.tuned;
+            total.swapped += part.swapped;
+            total.stairs += part.stairs;
+
         }
     }
 }
