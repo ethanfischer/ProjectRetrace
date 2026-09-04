@@ -216,9 +216,11 @@ namespace ProjectRetrace
             var before = transform.position;
             _controller.Move(motion * deltaTime);
 
+            // A teleport can leave the capsule resting inside the floor by up to its skin
+            // width, and the first move pushes it out upward; that push is not a climb.
             var y = transform.position.y;
             if (nearStairs || y < _floorY) _floorY = y;
-            else if (y > _floorY + config.stepHeight) SetPosition(before, transform.rotation);
+            else if (y > _floorY + config.stepHeight + _controller.skinWidth) SetPosition(before, transform.rotation);
         }
 
         private bool NearStairs()
