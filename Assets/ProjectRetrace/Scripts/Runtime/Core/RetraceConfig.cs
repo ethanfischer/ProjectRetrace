@@ -117,6 +117,23 @@ namespace ProjectRetrace
         public float snapshotHz = 12f;
         public float spectatorDelaySeconds = 0.15f;
 
+        // Look. Colours are HTML hex strings ("#6B669E") so they read and hand-edit as one
+        // token. LookSettings pushes these to the toon shaders as globals, so there is no
+        // per-material copy to drift. flatShading wins over everything under it.
+        [ConfigTab("Look")]
+        public bool flatShading = true;
+        public bool castShadows = false;
+        public int lightBands = 2;
+        public float bandSoftness = 0.04f;
+        public string shadowTint = "#6B669E";
+        public float ambientBoost = 0.9f;
+        public bool outline = true;
+        public string outlineColor = "#140F1A";
+        public float outlineThickness = 1.2f;
+        public float outlineDepthThreshold = 0.2f;
+        public float outlineNormalThreshold = 0.4f;
+        public float outlineFadeDistance = 30f;
+
         public Key InteractKey => ParseKey(interactKey, Key.E);
         public Key HideKey => ParseKey(hideKey, Key.H);
         public Key RestartKey => ParseKey(restartKey, Key.R);

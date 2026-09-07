@@ -40,6 +40,7 @@ namespace ProjectRetrace.EditorTools
             var online = systems.AddComponent<OnlineSession>();
             var spectator = systems.AddComponent<SpectatorRig>();
             var lobby = systems.AddComponent<OnlineLobby>();
+            systems.AddComponent<LookSettings>();
 
             var player = BuildPlayer(out var controller, out var interactor, out var cameraTransform);
             var spawnPoint = CreateObject("SpawnPoint", null).transform;
