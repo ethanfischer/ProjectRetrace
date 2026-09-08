@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 0}
+  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -15859,7 +15859,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e2e84bfef4c467788d1be459438a743, type: 3}
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.MusicPlayer
-  clip: {fileID: 8300000, guid: 70a8acaa2adcd4bf9a6b4ea80479a8d3, type: 3}
+  clip: {fileID: 0}
 --- !u!114 &793361596
 MonoBehaviour:
   m_ObjectHideFlags: 0
