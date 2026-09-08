@@ -7601,6 +7601,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2016798845}
     m_Modifications:
+    - target: {fileID: 3847975184537794189, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: a2dcc1387ed0e455b9f2dd26ea397f2e, type: 2}
+    - target: {fileID: 4411972152262832417, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: a2dcc1387ed0e455b9f2dd26ea397f2e, type: 2}
+    - target: {fileID: 5245682060063633462, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: a2dcc1387ed0e455b9f2dd26ea397f2e, type: 2}
     - target: {fileID: 5818855576741987075, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
       propertyPath: m_Name
       value: KitchenTabletop2_03
@@ -7645,6 +7657,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8019141213799772443, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: a2dcc1387ed0e455b9f2dd26ea397f2e, type: 2}
+    - target: {fileID: 8132519859896741698, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: a2dcc1387ed0e455b9f2dd26ea397f2e, type: 2}
     m_RemovedComponents:
     - {fileID: 867588965461297352, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
     - {fileID: 1898596296095189997, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
