@@ -104,13 +104,14 @@ namespace ProjectRetrace
 
         // Footsteps
         [ConfigTab("Audio")]
-        public float footstepVolume = 0.8f;
+        public float footstepVolume = 0.5f;
 
         /// <summary>Horizontal speed above which a stride uses the running sample. Sits
         /// between a walk and a sprint, and between a patrol and a chase, so both the
         /// player and the ghosts switch samples with their gait.</summary>
         public float runFootstepSpeed = 4.5f;
-        public float sfxVolume = 1f;
+        public float sfxVolume = 0.7f;
+        public float furniturePitchJitter = 0.1f;
 
         /// <summary>The track peaks at full scale and never stops, so it sits well under
         /// the one-shots by default: a cabinet creak has to read over it.</summary>

@@ -4,10 +4,11 @@ namespace ProjectRetrace
 {
     /// <summary>
     /// Every one-shot the game plays, on one component so a scene is wired once and the
-    /// callers stay free of clip references. World sounds go through PlayClipAtPoint so
-    /// they outlive whatever fired them -- a caught player's sentry is deactivated moments
-    /// after it whistles -- while UI clicks come from a flat 2D source, since a menu has no
-    /// position in the house.
+    /// callers stay free of clip references. World sounds get a throwaway source of their
+    /// own so they outlive whatever fired them -- a caught player's sentry is deactivated
+    /// moments after it whistles -- and so they can carry a pitch, which PlayClipAtPoint
+    /// cannot. UI clicks come from a flat 2D source, since a menu has no position in the
+    /// house.
     /// </summary>
     [DisallowMultipleComponent]
     public class SoundBank : MonoBehaviour
@@ -47,10 +48,27 @@ namespace ProjectRetrace
             _uiSource.spatialBlend = 0f;
         }
 
-        public static void PlayAt(AudioClip clip, Vector3 position)
+        public static void PlayAt(AudioClip clip, Vector3 position, float pitch = 1f)
         {
             if (clip == null) return;
-            AudioSource.PlayClipAtPoint(clip, position, RetraceConfig.Current.sfxVolume);
+
+            var holder = new GameObject("One shot audio: " + clip.name);
+            holder.transform.position = position;
+            var source = holder.AddComponent<AudioSource>();
+            source.clip = clip;
+            source.pitch = pitch;
+            source.volume = RetraceConfig.Current.sfxVolume;
+            source.spatialBlend = 1f;
+            source.dopplerLevel = 0f;
+
+            // Same linear indoor rolloff as the footsteps, for the same reason: the
+            // default logarithmic curve is near-silent past a few metres, so a drawer
+            // opening in the next room would give away nothing.
+            source.rolloffMode = AudioRolloffMode.Linear;
+            source.minDistance = 1.5f;
+            source.maxDistance = 18f;
+            source.Play();
+            Destroy(holder, clip.length / Mathf.Max(pitch, 0.1f));
         }
 
         public static void PlayUi(AudioClip clip)
@@ -78,12 +96,14 @@ namespace ProjectRetrace
 
         /// <summary>Plays the open or shut sound for a piece of furniture at its position.
         /// Callers fire it only on an actual state change, so a restore or a repeated
-        /// SetOpen from the spectator stream stays silent.</summary>
+        /// SetOpen from the spectator stream stays silent. Pitch jitter keeps a row of
+        /// drawers from sounding like the same sample three times.</summary>
         public static void PlayOpenable(OpenableSound sound, bool opened, Vector3 position)
         {
             var bank = Instance;
             if (bank == null) return;
-            PlayAt(opened ? bank.OpenClip(sound) : bank.CloseClip(sound), position);
+            var jitter = RetraceConfig.Current.furniturePitchJitter;
+            PlayAt(opened ? bank.OpenClip(sound) : bank.CloseClip(sound), position, 1f + Random.Range(-jitter, jitter));
         }
     }
 
