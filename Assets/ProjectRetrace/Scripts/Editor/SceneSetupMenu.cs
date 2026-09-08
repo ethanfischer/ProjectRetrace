@@ -40,6 +40,8 @@ namespace ProjectRetrace.EditorTools
             var online = systems.AddComponent<OnlineSession>();
             var spectator = systems.AddComponent<SpectatorRig>();
             var lobby = systems.AddComponent<OnlineLobby>();
+            SfxSetupMenu.WireBank(systems.AddComponent<SoundBank>());
+            SfxSetupMenu.WireMusic(systems.AddComponent<MusicPlayer>());
 
             var player = BuildPlayer(out var controller, out var interactor, out var cameraTransform);
             var spawnPoint = CreateObject("SpawnPoint", null).transform;
@@ -213,8 +215,6 @@ namespace ProjectRetrace.EditorTools
             sentry.SetActive(false);
             var patrol = sentry.AddComponent<PatrolSentry>();
             patrol.bodyTint = tint;
-            patrol.spottedClip = AssetDatabase.LoadAssetAtPath<AudioClip>(
-                "Assets/ProjectRetrace/Audio/whistle.wav");
             patrol.bodyMaterialTemplate = AssetDatabase.LoadAssetAtPath<Material>(
                 "Assets/ProjectRetrace/Art/GhostTransparent.mat");
             patrol.coneMaterialTemplate = AssetDatabase.LoadAssetAtPath<Material>(
@@ -225,8 +225,7 @@ namespace ProjectRetrace.EditorTools
 
         private static void AddFootsteps(GameObject walker)
         {
-            walker.AddComponent<FootstepEmitter>().clip = AssetDatabase.LoadAssetAtPath<AudioClip>(
-                "Assets/ProjectRetrace/Audio/footstep-tile.wav");
+            SfxSetupMenu.WireFootsteps(walker.AddComponent<FootstepEmitter>());
         }
 
         private static KeyItem BuildKeys()

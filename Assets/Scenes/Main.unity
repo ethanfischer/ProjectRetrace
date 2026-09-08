@@ -690,6 +690,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -711,6 +712,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -1187,6 +1189,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: door
+  sound: 1
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -2134,6 +2137,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -4842,6 +4846,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cupboard
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -4863,6 +4868,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cupboard
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -5483,6 +5489,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -6381,6 +6388,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -6402,6 +6410,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -7592,6 +7601,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2016798845}
     m_Modifications:
+    - target: {fileID: 3847975184537794189, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: a2dcc1387ed0e455b9f2dd26ea397f2e, type: 2}
+    - target: {fileID: 4411972152262832417, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: a2dcc1387ed0e455b9f2dd26ea397f2e, type: 2}
+    - target: {fileID: 5245682060063633462, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: a2dcc1387ed0e455b9f2dd26ea397f2e, type: 2}
     - target: {fileID: 5818855576741987075, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
       propertyPath: m_Name
       value: KitchenTabletop2_03
@@ -7636,6 +7657,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8019141213799772443, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: a2dcc1387ed0e455b9f2dd26ea397f2e, type: 2}
+    - target: {fileID: 8132519859896741698, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: a2dcc1387ed0e455b9f2dd26ea397f2e, type: 2}
     m_RemovedComponents:
     - {fileID: 867588965461297352, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
     - {fileID: 1898596296095189997, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
@@ -7748,6 +7777,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -7769,6 +7799,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -8094,6 +8125,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -8115,6 +8147,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -9136,6 +9169,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cupboard
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -9157,6 +9191,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cupboard
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -10601,6 +10636,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -12688,6 +12724,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -12709,6 +12746,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -13123,6 +13161,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -13172,7 +13211,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.PatrolSentry
   player: {fileID: 1455007735}
   bodyTint: {r: 1, g: 1, b: 1, a: 1}
-  spottedClip: {fileID: 8300000, guid: d9b6291dde35142d591fdb379ec83803, type: 3}
   bodyMaterialTemplate: {fileID: 2100000, guid: 6699e022b043c42d496b634762584762, type: 2}
   coneMaterialTemplate: {fileID: 2100000, guid: b5bae331f517043a29ea70da0dc8e1fb, type: 2}
 --- !u!195 &625525232
@@ -13226,7 +13264,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 93e423949e02d47468d2398d258f335c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.FootstepEmitter
-  clip: {fileID: 8300000, guid: 021dcde34f2e240d285304c2aa1e7589, type: 3}
+  clip: {fileID: 8300000, guid: 2680d367ca8d541d48b71176542e3e3f, type: 3}
+  runClip: {fileID: 8300000, guid: 448d2e10fa7e848d5a519cb1f04db2ab, type: 3}
 --- !u!1 &631978330 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 999817676069982447, guid: 118f5c0f8a845fa4eb7aba6fe0213be0, type: 3}
@@ -15070,6 +15109,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -15599,6 +15639,8 @@ GameObject:
   - component: {fileID: 791878638}
   - component: {fileID: 791878637}
   - component: {fileID: 791878636}
+  - component: {fileID: 791878639}
+  - component: {fileID: 791878640}
   m_Layer: 0
   m_Name: ProjectRetrace Systems
   m_TagString: Untagged
@@ -15781,6 +15823,43 @@ MonoBehaviour:
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.OnlineSession
   director: {fileID: 791878632}
   spectator: {fileID: 791878637}
+--- !u!114 &791878639
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 791878626}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb9142cc30884a86b92cc2372655c95d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.SoundBank
+  doorOpen: {fileID: 8300000, guid: 1fe31f3159ee44b8ab5586c9b7e85d60, type: 3}
+  doorClose: {fileID: 8300000, guid: 177835e9b9ef64938bb97dee8fbd902d, type: 3}
+  cabinetOpen: {fileID: 8300000, guid: 0c9279e6653fa469abeed870d7926b1f, type: 3}
+  cabinetClose: {fileID: 8300000, guid: c333f97ce4d9e4682a7338bc1eecdbe1, type: 3}
+  dresserOpen: {fileID: 8300000, guid: 67653548fd78640b69fd44cf194b86c3, type: 3}
+  dresserClose: {fileID: 8300000, guid: 2f0a648a4dceb48b99e9450336cc2445, type: 3}
+  ovenOpen: {fileID: 8300000, guid: c88b44d18088e430ea48aea53f7a30da, type: 3}
+  ovenClose: {fileID: 8300000, guid: 5883bd826ed094bb486da8cea3ed9d69, type: 3}
+  grabKeys: {fileID: 8300000, guid: 0db4aca1765a74fdbbcb16f5191074be, type: 3}
+  ghostSpawn: {fileID: 8300000, guid: 0a2f3726f106a41b49f473d5a63f71c5, type: 3}
+  spotted: {fileID: 8300000, guid: d9b6291dde35142d591fdb379ec83803, type: 3}
+  buttonClick: {fileID: 8300000, guid: 5d2e8066dcb9145829d5676f52a81dcc, type: 3}
+--- !u!114 &791878640
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 791878626}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e2e84bfef4c467788d1be459438a743, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.MusicPlayer
+  clip: {fileID: 0}
 --- !u!114 &793361596
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17323,6 +17402,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -17742,6 +17822,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -18827,6 +18908,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -19031,6 +19113,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -19052,6 +19135,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -25938,6 +26022,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -27390,7 +27475,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 93e423949e02d47468d2398d258f335c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.FootstepEmitter
-  clip: {fileID: 8300000, guid: 021dcde34f2e240d285304c2aa1e7589, type: 3}
+  clip: {fileID: 8300000, guid: 2680d367ca8d541d48b71176542e3e3f, type: 3}
+  runClip: {fileID: 8300000, guid: 448d2e10fa7e848d5a519cb1f04db2ab, type: 3}
 --- !u!1 &1457214950
 GameObject:
   m_ObjectHideFlags: 0
@@ -30185,6 +30271,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -30667,6 +30754,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -30688,6 +30776,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -31188,6 +31277,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -31524,6 +31614,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -31545,6 +31636,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -40729,6 +40821,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -41214,6 +41307,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 1, y: 0, z: 0}
   label: cabinet
+  sound: 3
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -42103,6 +42197,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -42760,6 +42855,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -43171,6 +43267,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cupboard
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
@@ -43192,6 +43289,7 @@ MonoBehaviour:
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cupboard
+  sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}

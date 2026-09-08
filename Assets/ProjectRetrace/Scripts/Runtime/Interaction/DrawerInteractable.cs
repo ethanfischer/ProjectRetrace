@@ -22,9 +22,14 @@ namespace ProjectRetrace
 
         public bool IsOpen => _isOpen;
 
-        public void Open() => _isOpen = true;
+        public void Open() => SetOpen(true);
 
-        public void SetOpen(bool open) => _isOpen = open;
+        public void SetOpen(bool open)
+        {
+            if (_isOpen == open) return;
+            _isOpen = open;
+            SoundBank.PlayOpenable(OpenableSound.Dresser, open, transform.position);
+        }
 
         private void Awake()
         {
@@ -33,7 +38,7 @@ namespace ProjectRetrace
 
         public override void Interact(PlayerInteractor interactor)
         {
-            _isOpen = !_isOpen;
+            SetOpen(!_isOpen);
         }
 
         private void Update()

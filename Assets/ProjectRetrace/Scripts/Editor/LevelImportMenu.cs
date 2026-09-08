@@ -44,6 +44,16 @@ namespace ProjectRetrace.EditorTools
             { "Room/OfficeTable_02", ("InteractiveFurniture/InteractiveFurniture_07", 0f) },
         };
         private const string InteractivePrefabFolder = "Assets/LowPolyInterior/Prefabs/InteractiveFurniture/";
+
+        /// <summary>The pack paints a twin from the same palette atlas as everything else,
+        /// so a twin whose UVs land on a different swatch than the static original comes in
+        /// the wrong colour; the kitchen's one such twin is brown in a row of blue. These
+        /// materials carry a copy of the atlas with the offending swatches repainted.</summary>
+        private static readonly Dictionary<string, string> TwinMaterials = new Dictionary<string, string>
+        {
+            { "Kitchen/KitchenTabletop2_03", "Assets/ProjectRetrace/Art/Materials/KitchenCabinetBlue.mat" },
+        };
+        private const string PackMainMaterialName = "LowPolyInterior_MAIN";
         private const string RoomDoorPrefabPath = "Assets/LowPolyInterior/Prefabs/Walls/Door_04.prefab";
         private const string BackMaterialPath = "Assets/ProjectRetrace/Art/Materials/FurnitureBack.mat";
         private const string BackName = "Back";
@@ -310,11 +320,38 @@ namespace ProjectRetrace.EditorTools
                 twin.transform.localScale = transform.localScale;
                 twin.transform.SetSiblingIndex(transform.GetSiblingIndex());
                 LiftWhatRestsOn(house, WorldBounds(transform), WorldBounds(twin.transform));
+                RecolourTwin(twin, key);
                 Undo.DestroyObjectImmediate(transform.gameObject);
                 swapped++;
             }
 
             return swapped;
+        }
+
+        private static void RecolourTwin(GameObject twin, string key)
+        {
+            if (!TwinMaterials.TryGetValue(key, out var materialPath)) return;
+
+            var material = AssetDatabase.LoadAssetAtPath<Material>(materialPath);
+            if (material == null)
+            {
+                Debug.LogWarning($"[ProjectRetrace] Recolour material '{materialPath}' for '{key}' not found; leaving the pack colour.");
+                return;
+            }
+
+            foreach (var renderer in twin.GetComponentsInChildren<Renderer>(true))
+            {
+                var materials = renderer.sharedMaterials;
+                var changed = false;
+                for (var i = 0; i < materials.Length; i++)
+                {
+                    if (materials[i] == null || materials[i].name != PackMainMaterialName) continue;
+                    materials[i] = material;
+                    changed = true;
+                }
+
+                if (changed) renderer.sharedMaterials = materials;
+            }
         }
 
         /// <summary>A taller twin would swallow the lamp or TV the artist stood on the

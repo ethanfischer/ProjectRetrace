@@ -168,6 +168,7 @@ namespace ProjectRetrace.EditorTools
             serialized.FindProperty("hingeAxis").vector3Value = axis;
             serialized.FindProperty("openAngle").floatValue = angle;
             serialized.FindProperty("label").stringValue = label;
+            serialized.FindProperty("sound").enumValueIndex = (int)SfxSetupMenu.SoundFor(hinge.transform, label);
             serialized.ApplyModifiedPropertiesWithoutUndo();
             return interactable;
         }
