@@ -46,7 +46,14 @@ namespace ProjectRetrace
         {
             var pressed = GUI.Button(rect, GUIContent.none, style);
             OutlinedLabel(rect, text, ButtonLabel(style.fontSize));
+            if (pressed) Click();
             return pressed;
+        }
+
+        public static void Click()
+        {
+            var bank = SoundBank.Instance;
+            if (bank != null) SoundBank.PlayUi(bank.buttonClick);
         }
 
         private static GUIStyle ButtonLabel(int fontSize)

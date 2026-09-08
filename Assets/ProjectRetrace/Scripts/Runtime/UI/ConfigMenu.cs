@@ -170,31 +170,38 @@ namespace ProjectRetrace
         private void DrawButtons()
         {
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button("Save & close", GUILayout.Height(32f)))
+            if (Button("Save & close"))
             {
                 RetraceConfig.Save(_draft);
                 SetOpen(false);
             }
 
-            if (GUILayout.Button("Reload from file", GUILayout.Height(32f)))
+            if (Button("Reload from file"))
             {
                 RetraceConfig.Reload();
                 LoadDraft(RetraceConfig.Current);
                 _status = "Reloaded.";
             }
 
-            if (GUILayout.Button("Reset to defaults", GUILayout.Height(32f)))
+            if (Button("Reset to defaults"))
             {
                 LoadDraft(new RetraceConfig());
                 _status = "Defaults loaded -- save to keep them.";
             }
 
-            if (GUILayout.Button("Cancel", GUILayout.Height(32f)))
+            if (Button("Cancel"))
             {
                 SetOpen(false);
             }
 
             GUILayout.EndHorizontal();
+        }
+
+        private static bool Button(string label)
+        {
+            var pressed = GUILayout.Button(label, GUILayout.Height(32f));
+            if (pressed) HudText.Click();
+            return pressed;
         }
 
         private static string Format(object value)

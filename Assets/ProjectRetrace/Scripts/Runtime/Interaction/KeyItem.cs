@@ -14,6 +14,8 @@ namespace ProjectRetrace
 
         protected override void OnTaken(PlayerInteractor interactor)
         {
+            var bank = SoundBank.Instance;
+            if (bank != null) SoundBank.PlayAt(bank.grabKeys, transform.position);
             if (GameDirector.Instance != null)
             {
                 GameDirector.Instance.OnKeyTaken();

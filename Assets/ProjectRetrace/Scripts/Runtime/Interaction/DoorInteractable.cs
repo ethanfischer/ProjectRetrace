@@ -19,6 +19,8 @@ namespace ProjectRetrace
         [Tooltip("Noun shown in the prompt: 'Open door', 'Open chest', ...")]
         [SerializeField] private string label = "door";
 
+        [SerializeField] private OpenableSound sound = OpenableSound.Cabinet;
+
         [Tooltip("Displayed round number from which this door can be opened. 0 = never locked.")]
         [Min(0)]
         [SerializeField] private int unlocksAtRound;
@@ -53,7 +55,14 @@ namespace ProjectRetrace
         public void SetOpen(bool open)
         {
             if (Locked) return;
+            ChangeOpenState(open);
+        }
+
+        private void ChangeOpenState(bool open)
+        {
+            if (_isOpen == open) return;
             _isOpen = open;
+            SoundBank.PlayOpenable(sound, open, transform.position);
         }
 
         /// <summary>True on the round this door first opens, so the HUD can call it out once.</summary>
@@ -70,7 +79,7 @@ namespace ProjectRetrace
         public override void Interact(PlayerInteractor interactor)
         {
             if (Locked) return;
-            _isOpen = !_isOpen;
+            ChangeOpenState(!_isOpen);
         }
 
         private void Update()

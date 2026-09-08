@@ -43,9 +43,6 @@ namespace ProjectRetrace
         [Tooltip("Body colour, so two sentries on different routes read as two characters.")]
         public Color bodyTint = Color.white;
 
-        [Tooltip("Played once at the moment of detection.")]
-        public AudioClip spottedClip;
-
         [Tooltip("A transparent URP material asset. The body is cloned from it rather than built from Shader.Find so the transparent variant survives build-time shader stripping; without it a WebGL ghost fades in fully opaque.")]
         public Material bodyMaterialTemplate;
 
@@ -213,6 +210,13 @@ namespace ProjectRetrace
             UpdateConeVisual();
             State = SentryState.Materializing;
             _agent.isStopped = true;
+            PlaySpawn();
+        }
+
+        private void PlaySpawn()
+        {
+            var bank = SoundBank.Instance;
+            if (bank != null) SoundBank.PlayAt(bank.ghostSpawn, transform.position + Vector3.up * EyeHeight);
         }
 
         /// <summary>Called by GameDirector on run end and restart.</summary>
@@ -417,6 +421,7 @@ namespace ProjectRetrace
             ApplyAlpha();
             State = SentryState.Materializing;
             _agent.isStopped = true;
+            PlaySpawn();
         }
 
         /// <summary>The fade-in is meant to stay shorter than the grace period, so the
@@ -486,12 +491,8 @@ namespace ProjectRetrace
             _agent.speed = config.chaseSpeed;
             SetConeAlarmed(true);
 
-            // PlayClipAtPoint rather than an owned AudioSource: the whistle must outlive the
-            // sentry, which gets deactivated moments later when the catch ends the attempt.
-            if (spottedClip != null)
-            {
-                AudioSource.PlayClipAtPoint(spottedClip, transform.position + Vector3.up * EyeHeight);
-            }
+            var bank = SoundBank.Instance;
+            if (bank != null) SoundBank.PlayAt(bank.spotted, transform.position + Vector3.up * EyeHeight);
 
             if (GameDirector.Instance != null) GameDirector.Instance.OnPlayerSpotted();
         }

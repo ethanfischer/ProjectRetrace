@@ -104,9 +104,17 @@ namespace ProjectRetrace
 
         // Footsteps
         [ConfigTab("Audio")]
-        public float footstepStrideMetres = 1.7f;
         public float footstepVolume = 0.8f;
-        public float footstepPitchJitter = 0.1f;
+
+        /// <summary>Horizontal speed above which a stride uses the running sample. Sits
+        /// between a walk and a sprint, and between a patrol and a chase, so both the
+        /// player and the ghosts switch samples with their gait.</summary>
+        public float runFootstepSpeed = 4.5f;
+        public float sfxVolume = 1f;
+
+        /// <summary>The track peaks at full scale and never stops, so it sits well under
+        /// the one-shots by default: a cabinet creak has to read over it.</summary>
+        public float musicVolume = 0.3f;
 
         // Online. The relay is the tiny Node process in relay/, deployed on Render; the
         // default is the public one so a shipped build works untouched. Empty means "the
