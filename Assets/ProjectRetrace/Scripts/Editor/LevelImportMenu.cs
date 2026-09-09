@@ -94,6 +94,15 @@ namespace ProjectRetrace.EditorTools
         private const string BackName = "Back";
         private const string LandingName = "Stair Landing";
 
+        /// <summary>Art-scene roots the import switches off by name, each with its reason.
+        /// The list is the record of what was hand-deleted from the playable copy, so a
+        /// re-import cannot quietly bring it back.</summary>
+        private static readonly Dictionary<string, string> DroppedProps = new Dictionary<string, string>
+        {
+            // Ceiling fan on the upper floor: hangs 1.5 m over the plate, at head height.
+            { "Light_05", "hangs at head height" },
+        };
+
         /// <summary>The upper floor's plate is tiled straight across the stair flight below
         /// it. Any tile covering this much of the flight's footprint is cut out to make the
         /// stairwell; the sliver a tile shares with the flight's edge rail is left alone.</summary>
@@ -208,6 +217,7 @@ namespace ProjectRetrace.EditorTools
 
             var summary = PrepareFurniture(root.transform);
             var restored = RestoreTunedCollision(root.transform, tunedCollision);
+            ShelveDroppedProps(root.transform);
             var stairwells = JoinFloors(target);
             if (firstImport && floor.IsGround) PlaceSpawnPoint();
 
@@ -394,23 +404,60 @@ namespace ProjectRetrace.EditorTools
         /// so moving them in the art scene brings them back on the next import.</summary>
         private static void ShelvePropsOverHole(Transform upper, Bounds hole, float elevation)
         {
-            var shelved = new List<string>();
+            var shelved = new List<Transform>();
             foreach (Transform child in upper)
             {
                 if (child.name.StartsWith("Wall") || child.name.StartsWith("Floor") || child.name == LandingName) continue;
-                var renderers = child.GetComponentsInChildren<Renderer>(true);
-                if (renderers.Length == 0) continue;
+                if (child.GetComponentsInChildren<Renderer>(true).Length == 0) continue;
                 var bounds = WorldBounds(child);
                 var standsOnPlate = Mathf.Abs(bounds.min.y - elevation) < 0.1f;
-                if (!standsOnPlate || OverlapXZ(bounds, hole) <= 0f) continue;
-
-                Undo.RecordObject(child.gameObject, "Shelve prop over stairwell");
-                child.gameObject.SetActive(false);
-                shelved.Add(child.name);
+                if (standsOnPlate && OverlapXZ(bounds, hole) > 0f) shelved.Add(child);
             }
 
+            ShelveWhatRestsOn(upper, shelved);
             if (shelved.Count == 0) return;
-            Debug.LogWarning($"[ProjectRetrace] {shelved.Count} prop(s) stood over the stairwell cut from the upper floor and were switched off; move them in the art scene: {string.Join(", ", shelved)}.");
+
+            var names = new List<string>();
+            foreach (var prop in shelved)
+            {
+                Undo.RecordObject(prop.gameObject, "Shelve prop over stairwell");
+                prop.gameObject.SetActive(false);
+                names.Add(prop.name);
+            }
+
+            Debug.LogWarning($"[ProjectRetrace] {names.Count} prop(s) stood over the stairwell cut from the upper floor and were switched off; move them in the art scene: {string.Join(", ", names)}.");
+        }
+
+        private static void ShelveDroppedProps(Transform house)
+        {
+            foreach (Transform child in house)
+            {
+                if (!DroppedProps.TryGetValue(child.name, out var reason)) continue;
+                Undo.RecordObject(child.gameObject, "Shelve dropped prop");
+                child.gameObject.SetActive(false);
+                Debug.Log($"[ProjectRetrace] Switched off '{child.name}' ({reason}).");
+            }
+        }
+
+        /// <summary>A lamp or photo on a shelved nightstand would be left floating where
+        /// the nightstand was, so whatever sits on a shelved prop's top goes with it. Only
+        /// the furniture is checked, not what it carried: a wall picture hung just above a
+        /// plant reads as resting on it and would be chained off with it.</summary>
+        private static void ShelveWhatRestsOn(Transform upper, List<Transform> shelved)
+        {
+            var furniture = shelved.Count;
+            for (var i = 0; i < furniture; i++)
+            {
+                var top = WorldBounds(shelved[i]);
+                foreach (Transform child in upper)
+                {
+                    if (shelved.Contains(child) || child.GetComponentsInChildren<Renderer>(true).Length == 0) continue;
+                    var bounds = WorldBounds(child);
+                    var restsOnTop = Mathf.Abs(bounds.min.y - top.max.y) < 0.06f;
+                    var withinFootprint = bounds.center.x > top.min.x && bounds.center.x < top.max.x && bounds.center.z > top.min.z && bounds.center.z < top.max.z;
+                    if (restsOnTop && withinFootprint) shelved.Add(child);
+                }
+            }
         }
 
         /// <summary>The room door nearest the flight is the stair closet's. Its seal wraps the
