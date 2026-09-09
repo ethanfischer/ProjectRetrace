@@ -66,6 +66,10 @@ namespace ProjectRetrace.EditorTools
             // 21 cm taller than the original; anything sitting on top needs lifting.
             { "Room/RoomFurniture_05", ("InteractiveFurniture/InteractiveFurniture_05", 0f) },
             { "Room/OfficeTable_02", ("InteractiveFurniture/InteractiveFurniture_07", 0f) },
+            // The upper floor's wardrobes, nightstands and bedside chests.
+            { "Room/RoomFurniture_08", ("InteractiveFurniture/InteractiveFurniture_06", 0f) },
+            { "Room/Bed_Table_01", ("InteractiveFurniture/InteractiveFurniture_02", 0f) },
+            { "Room/RoomFurniture_04", ("InteractiveFurniture/InteractiveFurniture_03", 0f) },
         };
         private const string InteractivePrefabFolder = "Assets/LowPolyInterior/Prefabs/InteractiveFurniture/";
 
@@ -94,6 +98,11 @@ namespace ProjectRetrace.EditorTools
         /// it. Any tile covering this much of the flight's footprint is cut out to make the
         /// stairwell; the sliver a tile shares with the flight's edge rail is left alone.</summary>
         private const float StairwellTileOverlap = 0.25f;
+
+        /// <summary>The plate sits only 2.4 m over the ground, so a player on the first few
+        /// treads still has a tile above them at head height; the cut runs this far past the
+        /// bottom of the flight (one tile row) to open that up.</summary>
+        private const float StairwellRunPastBottom = 1.2f;
 
         /// <summary>The stair closet stays shut, and the whole upper floor unhidden, until
         /// this displayed round -- the same pacing as the generated house.</summary>
@@ -263,13 +272,16 @@ namespace ProjectRetrace.EditorTools
             foreach (var flight in StairFlights(ground))
             {
                 var footprint = WorldBounds(flight);
+                var alongX = footprint.size.x >= footprint.size.z;
+                var topAtMax = TreadHeight(flight, footprint, alongX, true) > TreadHeight(flight, footprint, alongX, false);
+                var cutArea = ExtendPastBottom(footprint, alongX, topAtMax);
                 Bounds hole = default;
                 var holeFound = false;
                 foreach (var filter in upper.GetComponentsInChildren<MeshFilter>(true))
                 {
                     if (!IsFloorTile(filter, elevation)) continue;
                     var tile = filter.GetComponent<Renderer>().bounds;
-                    if (OverlapXZ(tile, footprint) < StairwellTileOverlap * tile.size.x * tile.size.z) continue;
+                    if (OverlapXZ(tile, cutArea) < StairwellTileOverlap * tile.size.x * tile.size.z) continue;
 
                     if (holeFound) hole.Encapsulate(tile);
                     else { hole = tile; holeFound = true; }
@@ -280,7 +292,7 @@ namespace ProjectRetrace.EditorTools
                 if (holeFound)
                 {
                     ShelvePropsOverHole(upper, hole, elevation);
-                    AddLanding(upper, flight, footprint, hole);
+                    AddLanding(upper, footprint, hole, alongX, topAtMax);
                 }
             }
 
@@ -299,6 +311,14 @@ namespace ProjectRetrace.EditorTools
             }
 
             return flights;
+        }
+
+        private static Bounds ExtendPastBottom(Bounds footprint, bool alongX, bool topAtMax)
+        {
+            var run = (alongX ? Vector3.right : Vector3.forward) * StairwellRunPastBottom;
+            var extended = footprint;
+            extended.Encapsulate(topAtMax ? footprint.min - run : footprint.max + run);
+            return extended;
         }
 
         private static bool IsFloorTile(MeshFilter filter, float elevation)
@@ -321,12 +341,10 @@ namespace ProjectRetrace.EditorTools
         /// landing fills the hole from that end to the hole's edge, across the hole's
         /// width, at the plate's own thickness. It counts as stairs so the controller's
         /// stair step height covers the lip between the top tread and the slab.</summary>
-        private static void AddLanding(Transform upper, Transform flight, Bounds footprint, Bounds hole)
+        private static void AddLanding(Transform upper, Bounds footprint, Bounds hole, bool alongX, bool topAtMax)
         {
             if (upper.Find(LandingName) != null) return;
 
-            var alongX = footprint.size.x >= footprint.size.z;
-            var topAtMax = TreadHeight(flight, footprint, alongX, true) > TreadHeight(flight, footprint, alongX, false);
             var landing = new Bounds();
             if (alongX)
             {
