@@ -20,9 +20,11 @@ committed blind:
 1. Menu: **ProjectRetrace → Level → Import Both Floors** to bring the art team's dressed
    floors into the open scene as a playable house (each floor has its own Import entry
    too; re-run after an art scene changes, it replaces that floor's previous copy, so put
-   anything you add by hand under the `TestHouse (Additions)` root). The stair closet door
-   locks until round 4 and the stairwell is cut through the upper floor automatically; the
-   console names any props the cut left hanging over it. Or **ProjectRetrace → Generate Test House** for a
+   anything you add by hand under the `TestHouse (Additions)` root). The stairwell is cut
+   through the upper floor automatically and the console names any props the cut left
+   hanging over it. The `InvisibleBarrier` under Additions carries a `FloorGate`: the
+   stairs stay shut until `upstairsUnlockRound` (config, default 4), then open for good,
+   and the keys hide downstairs only until then and upstairs only after. Or **ProjectRetrace → Generate Test House** for a
    seeded two-story primitive house, or add your own floor and props.
 2. Menu: **ProjectRetrace → Setup Scene Systems**. This creates and wires everything:
    the director, the trail, the player rig, a spawn point, the keys, the sentry, and the

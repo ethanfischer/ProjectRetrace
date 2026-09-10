@@ -113,14 +113,7 @@ namespace ProjectRetrace.EditorTools
         /// bottom of the flight (one tile row) to open that up.</summary>
         private const float StairwellRunPastBottom = 1.2f;
 
-        /// <summary>The stair closet stays shut, and the whole upper floor unhidden, until
-        /// this displayed round -- the same pacing as the generated house.</summary>
-        private const int UpstairsUnlockRound = 4;
 
-        /// <summary>The sealed volume starts this far under the upper plate: above the
-        /// tallest ground-floor key spot (the wall cabinets, just under 2 m), so no ground
-        /// spot is ever caught by the seal.</summary>
-        private const float SealBelowPlate = 0.3f;
         private static readonly string[] MeshCollisionPrefixes = { "Floor", "Wall", "Corner", "Stairs", "Door" };
 
         // Profile boxing: a static mesh is sliced into horizontal slabs this thick, slabs
@@ -248,9 +241,9 @@ namespace ProjectRetrace.EditorTools
             Debug.Log($"[ProjectRetrace] Prepared LowPoly furniture: {summary}; {stairwells}.");
         }
 
-        /// <summary>Each storey above the ground gets its stairwell cut and the stair closet
-        /// below it locked. Runs after every import, so whichever floor arrives second
-        /// finds the other, and a re-imported ground floor gets its lock back.</summary>
+        /// <summary>Each storey above the ground gets its stairwell cut. Runs after every
+        /// import, so whichever floor arrives second finds the other. Locking the stairs
+        /// is the hand-placed FloorGate's job, under the Additions root.</summary>
         private static string JoinFloors(Scene scene)
         {
             var ground = FindRoot(scene, GroundFloor.RootName);
@@ -258,8 +251,7 @@ namespace ProjectRetrace.EditorTools
             if (ground == null || upper == null) return "no stairwell (one floor only)";
 
             var cut = CutStairwell(upper, ground, UpperFloor.Elevation);
-            var locked = LockStairDoor(ground, upper, UpperFloor.Elevation);
-            return $"{cut} floor tile(s) cut for the stairwell, stair door {(locked ? "locked until round " + UpstairsUnlockRound : "not found")}";
+            return $"{cut} floor tile(s) cut for the stairwell";
         }
 
         private static Transform FindRoot(Scene scene, string name)
@@ -458,49 +450,6 @@ namespace ProjectRetrace.EditorTools
                     if (restsOnTop && withinFootprint) shelved.Add(child);
                 }
             }
-        }
-
-        /// <summary>The room door nearest the flight is the stair closet's. Its seal wraps the
-        /// upper floor's colliders, so KeySpawner never hides a key upstairs before the
-        /// door opens, and starts just under the plate so no ground spot is caught.</summary>
-        private static bool LockStairDoor(Transform ground, Transform upper, float elevation)
-        {
-            var flights = StairFlights(ground);
-            if (flights.Count == 0) return false;
-
-            DoorInteractable closest = null;
-            var closestDistance = float.MaxValue;
-            foreach (var door in ground.GetComponentsInChildren<DoorInteractable>(true))
-            {
-                if (!RoomDoorPrefabPaths.Contains(PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(door.gameObject))) continue;
-                foreach (var flight in flights)
-                {
-                    var distance = Vector3.Distance(door.transform.position, WorldBounds(flight).center);
-                    if (distance >= closestDistance) continue;
-                    closestDistance = distance;
-                    closest = door;
-                }
-            }
-
-            if (closest == null) return false;
-
-            var sealedArea = ColliderBounds(upper);
-            sealedArea.Expand(new Vector3(1f, 0f, 1f));
-            sealedArea.SetMinMax(new Vector3(sealedArea.min.x, elevation - SealBelowPlate, sealedArea.min.z), sealedArea.max + Vector3.up);
-
-            var serialized = new SerializedObject(closest);
-            serialized.FindProperty("unlocksAtRound").intValue = UpstairsUnlockRound;
-            serialized.FindProperty("sealedArea").boundsValue = sealedArea;
-            serialized.ApplyModifiedProperties();
-            return true;
-        }
-
-        private static Bounds ColliderBounds(Transform root)
-        {
-            var colliders = root.GetComponentsInChildren<Collider>(true);
-            var bounds = colliders.Length > 0 ? colliders[0].bounds : new Bounds(root.position, Vector3.zero);
-            foreach (var collider in colliders) bounds.Encapsulate(collider.bounds);
-            return bounds;
         }
 
         private static bool IsDirectionalLight(GameObject sceneObject)

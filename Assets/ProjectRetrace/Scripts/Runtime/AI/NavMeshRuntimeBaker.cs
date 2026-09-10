@@ -122,6 +122,16 @@ namespace ProjectRetrace
             {
                 markups.Add(new NavMeshBuildMarkup { root = door.transform, ignoreFromBuild = true });
             }
+
+            // The stair barrier drops mid-run, after the one bake; baked in, it would wall
+            // the upstairs routes off from the ghosts that own them.
+            var gates = root != null
+                ? root.GetComponentsInChildren<FloorGate>(true)
+                : FindObjectsByType<FloorGate>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (var gate in gates)
+            {
+                markups.Add(new NavMeshBuildMarkup { root = gate.transform, ignoreFromBuild = true });
+            }
         }
     }
 }

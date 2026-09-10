@@ -111,7 +111,7 @@ ProjectRetrace > Furniture > Add Hiding Spots To Cupboards retrofits an older sc
 `DoorInteractable` can be round-locked (`unlocksAtRound`, a displayed round number, read
 against `GameDirector.Instance.StealthRound`) and carries a `sealedArea`; `KeySpawner`
 skips any hiding spot inside a locked door's sealed volume. The generated house uses this
-to keep the upper floor shut until round 4.
+to keep the upper floor shut until round 4; the imported house uses `FloorGate` instead.
 
 Online (`Runtime/Net/`, design in [ONLINE.md](ONLINE.md)) is couch mode split across two
 machines. `OnlineSession` owns the socket and translates wire messages into director
@@ -134,9 +134,14 @@ so re-importing after her next PR is one click. Whenever both floors are present
 import also joins them: the upper plate's tiles over the stair flight are cut out (a
 plain landing slab bridges any gap past the top tread), props that stood on those tiles
 are switched off and named in the log for the artist to move (left in place, their
-colliders pinch the navmesh off the stairs), and the room door nearest the flight
-becomes the round-4 lock with the whole upper floor as its sealed volume. All of it is
-rule-based, so once she cuts a real stairwell nothing is left to remove.
+colliders pinch the navmesh off the stairs). All of it is rule-based, so once she cuts a
+real stairwell nothing is left to remove. The stairs themselves are locked by `FloorGate`
+on the hand-placed `InvisibleBarrier` under the Additions root: it reads
+`upstairsUnlockRound` from the config, is solid until that displayed round and gone from
+it on, and `KeySpawner` asks it where keys may hide -- downstairs only while locked,
+upstairs only once open, so the round that opens the house is the round the player has
+to climb. The baker leaves it out of the bake like a door. Upstairs is "above
+`floorHeight`", a height rather than a volume, because that is all a floor is.
 Prepare is idempotent: it gives every static prop a BoxCollider per mesh part (the pack's
 mesh colliders are sloped enough to walk up; only the shell, stairs, room doors and the
 interactive furniture keep mesh collision, the last so drawers and cupboards stay open

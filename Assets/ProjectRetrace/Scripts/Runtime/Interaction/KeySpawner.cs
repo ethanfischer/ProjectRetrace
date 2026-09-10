@@ -92,7 +92,8 @@ namespace ProjectRetrace
             var spots = new List<Transform>(markers.Length);
             for (var i = 0; i < markers.Length; i++)
             {
-                if (IsSealed(markers[i].transform.position, doors)) continue;
+                var point = markers[i].transform.position;
+                if (IsSealed(point, doors) || !FloorGate.Allows(point)) continue;
                 spots.Add(markers[i].transform);
             }
 

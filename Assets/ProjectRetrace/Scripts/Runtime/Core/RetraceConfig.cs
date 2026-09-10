@@ -97,6 +97,10 @@ namespace ProjectRetrace
         public bool randomiseKeySpots = true;
         public int keySpotSeed = 12345;
 
+        /// <summary>Displayed round from which the stairs open; until then the keys stay
+        /// downstairs, from then on they hide only upstairs.</summary>
+        public int upstairsUnlockRound = 4;
+
         /// <summary>Testing aid: part of a prop's name (say "InteractiveFurniture_06 (1)")
         /// restricts the hide to key spots inside matching props. Empty for normal play.</summary>
         public string forceKeySpot = "";

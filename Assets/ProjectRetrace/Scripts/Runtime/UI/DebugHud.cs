@@ -197,7 +197,7 @@ namespace ProjectRetrace
                     }
 
                     var toast = $"{who}Round {director.StealthRound + 1}";
-                    if (AnyDoorUnlocksThisRound()) toast += " -- 2nd floor unlocked!";
+                    if (FloorGate.UnlocksThisRound || AnyDoorUnlocksThisRound()) toast += "\nLook upstairs";
                     return toast;
                 default:
                     return string.Empty;
@@ -223,8 +223,9 @@ namespace ProjectRetrace
                 return;
             }
 
-            // Above the reticle, clear of the interaction prompt that sits just below it.
-            HudText.OutlinedLabel(new Rect(0f, HudScale.Height * 0.5f - 90f, HudScale.Width, 36f), _toast, _centered, alpha);
+            // Above the reticle, clear of the interaction prompt that sits just below it;
+            // tall enough for the two-line round toast, which grows downward from the same top.
+            HudText.OutlinedLabel(new Rect(0f, HudScale.Height * 0.5f - 90f, HudScale.Width, 72f), _toast, _centered, alpha);
         }
 
         /// <summary>Online only: a quiet line so a stalled stream reads as "they dropped",
