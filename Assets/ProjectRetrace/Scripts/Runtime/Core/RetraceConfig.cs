@@ -105,6 +105,10 @@ namespace ProjectRetrace
         /// downstairs, from then on they hide only upstairs.</summary>
         public int upstairsUnlockRound = 4;
 
+        /// <summary>Off, the stair barrier never appears and the keys may hide on either
+        /// floor from round one.</summary>
+        public bool lockUpstairs = true;
+
         /// <summary>Testing aid: part of a prop's name (say "InteractiveFurniture_06 (1)")
         /// restricts the hide to key spots inside matching props. Empty for normal play.</summary>
         public string forceKeySpot = "";
