@@ -13,6 +13,7 @@ namespace ProjectRetrace
     public class KeySpawner : MonoBehaviour
     {
         public KeyItem key;
+        public BombItem bomb;
 
         /// <summary>The spot chosen by the most recent placement, for the transition to exclude.</summary>
         public Transform LastSpot { get; private set; }
@@ -27,6 +28,7 @@ namespace ProjectRetrace
 
             var spots = ValidSpots();
             RestrictToForcedProp(spots);
+            ExcludeArmedBomb(spots);
 
             // Only honour the exclusion when another spot exists; a one-spot scene reusing
             // the phase-1 hiding place beats the keys not existing at all.
@@ -52,6 +54,54 @@ namespace ProjectRetrace
             // closed state, so the phase transition puts them back correctly regardless.
             key.transform.SetParent(spot, false);
             key.MakeAvailableAt(spot.position, spot.rotation);
+        }
+
+        /// <summary>Once per run, right after the keys: the same rule set, but never in the
+        /// prop the keys are in -- a bomb in the next drawer down would be found with them
+        /// and cost the search nothing.</summary>
+        public void PlaceBomb(int seed)
+        {
+            if (bomb == null) return;
+            bomb.ResetForRun();
+
+            var spots = ValidSpots();
+            if (LastSpot != null)
+            {
+                var keyProp = PropRootOf(LastSpot);
+                spots.RemoveAll(spot => PropRootOf(spot) == keyProp);
+            }
+
+            if (spots.Count == 0)
+            {
+                Debug.LogWarning("[KeySpawner] No spot left for the bomb -- this run has none.", this);
+                bomb.Retire();
+                return;
+            }
+
+            var random = new System.Random(seed);
+            bomb.MakeAvailableAt(spots[random.Next(spots.Count)]);
+        }
+
+        public void RemoveBomb()
+        {
+            if (bomb != null) bomb.Retire();
+        }
+
+        /// <summary>The keys must never hide behind the armed bomb: opening it is the
+        /// trigger, and a round whose only way forward is to blow yourself up is not a round.</summary>
+        private void ExcludeArmedBomb(List<Transform> spots)
+        {
+            if (bomb == null || !bomb.Armed || spots.Count <= 1) return;
+            var kept = spots.FindAll(spot => !ReferenceEquals(spot.GetComponent<KeySpotMarker>()?.Openable, bomb.ArmedIn));
+            if (kept.Count == 0) return;
+            spots.Clear();
+            spots.AddRange(kept);
+        }
+
+        private static Transform PropRootOf(Transform spot)
+        {
+            var marker = spot.GetComponent<KeySpotMarker>();
+            return marker != null ? marker.PropRoot : spot.parent;
         }
 
         /// <summary>A playtester chasing one cupboard should not have to reroll until the

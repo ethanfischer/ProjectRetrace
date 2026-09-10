@@ -18,5 +18,9 @@ namespace ProjectRetrace
         /// past routes hunt you and your opponent alike -- the tint tells whose ghost is
         /// whose.</summary>
         public int Owner = 1;
+
+        /// <summary>Its ghost walked into the bomb. The route stays in the pool so the
+        /// round numbering and the wire log hold, but it never patrols again.</summary>
+        public bool Destroyed;
     }
 }

@@ -31,6 +31,7 @@ namespace ProjectRetrace
         public bool interactWithLeftClick = true;
         public string hideKey = "H";
         public string throwKey = "F";
+        public string bombKey = "C";
         public string restartKey = "R";
         public string manualFinishKey = "Enter";
         public string debugToggleKey = "Backquote";
@@ -127,6 +128,11 @@ namespace ProjectRetrace
         /// floor from round one.</summary>
         public bool lockUpstairs = true;
 
+        /// <summary>Off, no bomb spawns and the run plays as before. The bomb removes a
+        /// ghost for the rest of the run, which flattens the difficulty curve the game is
+        /// built on, so it is opt-in.</summary>
+        public bool bombEnabled = false;
+
         /// <summary>Testing aid: part of a prop's name (say "InteractiveFurniture_06 (1)")
         /// restricts the hide to key spots inside matching props. Empty for normal play.</summary>
         public string forceKeySpot = "";
@@ -134,6 +140,11 @@ namespace ProjectRetrace
 
         // Footsteps
         [ConfigTab("Audio")]
+        /// <summary>Scales everything through AudioListener.volume: one number the player
+        /// reaches for first, rather than three to balance. Range makes the menu draw it
+        /// as a slider.</summary>
+        [Range(0f, 1f)]
+        public float masterVolume = 1f;
         public float footstepVolume = 0.5f;
 
         /// <summary>Horizontal speed above which a stride uses the running sample. Sits
@@ -147,6 +158,10 @@ namespace ProjectRetrace
         /// the one-shots by default: a cabinet creak has to read over it.</summary>
         public float musicVolume = 0.3f;
 
+        /// <summary>Off by default: the track is a placeholder, and a setting beats a
+        /// disabled component that only one scene remembers.</summary>
+        public bool musicEnabled = false;
+
         // Online. The relay is the tiny Node process in relay/, deployed on Render; the
         // default is the public one so a shipped build works untouched. Empty means "the
         // machine this page came from, port 8787" (or localhost in the editor), for local
@@ -159,6 +174,7 @@ namespace ProjectRetrace
         public Key InteractKey => ParseKey(interactKey, Key.E);
         public Key HideKey => ParseKey(hideKey, Key.H);
         public Key ThrowKey => ParseKey(throwKey, Key.F);
+        public Key BombKey => ParseKey(bombKey, Key.C);
         public Key RestartKey => ParseKey(restartKey, Key.R);
         public Key ManualFinishKey => ParseKey(manualFinishKey, Key.Enter);
         public Key DebugToggleKey => ParseKey(debugToggleKey, Key.Backquote);

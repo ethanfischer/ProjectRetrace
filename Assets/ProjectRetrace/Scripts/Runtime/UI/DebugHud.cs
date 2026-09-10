@@ -12,6 +12,7 @@ namespace ProjectRetrace
         public GameDirector director;
         public PlayerInteractor interactor;
         public PlayerThrower thrower;
+        public PlayerBombCarrier bombCarrier;
         public BreadcrumbTrail trail;
 
         private KeyItem _key;
@@ -48,12 +49,14 @@ namespace ProjectRetrace
             if (GameDirector.DebugVisible)
             {
                 DrawKeyLocator();
+                DrawBombLocator();
             }
 
             if (director == null || (director.Phase != GamePhase.Results && director.Phase != GamePhase.Spectate))
             {
                 DrawReticle();
                 DrawPrompt();
+                DrawBombIcon();
             }
 
             DrawPhaseBanner();
@@ -78,17 +81,32 @@ namespace ProjectRetrace
         private void DrawKeyLocator()
         {
             var key = Key;
-            var camera = Camera.main;
-            if (key == null || camera == null) return;
+            if (key == null) return;
+            DrawLocator(key.transform.position, "KEYS", key.CanInteract);
+        }
 
-            var screen = camera.WorldToScreenPoint(key.transform.position);
+        /// <summary>Same aid for the bomb. Once armed it is marked in red at the container
+        /// it waits in; while carried or spent there is nothing in the world to point at.</summary>
+        private void DrawBombLocator()
+        {
+            var bomb = BombItem.Current;
+            if (bomb == null || bomb.Carried || bomb.Spent) return;
+            DrawLocator(bomb.transform.position, bomb.Armed ? "BOMB (armed)" : "BOMB", !bomb.Armed);
+        }
+
+        private void DrawLocator(Vector3 worldPosition, string label, bool available)
+        {
+            var camera = Camera.main;
+            if (camera == null) return;
+
+            var screen = camera.WorldToScreenPoint(worldPosition);
             if (screen.z <= 0f) return;
 
             // WorldToScreenPoint is in device pixels; the GUI matrix works in reference units.
-            var rect = new Rect(screen.x / HudScale.Factor - 60f,
-                HudScale.Height - screen.y / HudScale.Factor - 14f, 120f, 28f);
-            GUI.color = key.CanInteract ? new Color(1f, 0.9f, 0.3f) : new Color(1f, 0.4f, 0.4f);
-            GUI.Label(rect, string.Format("v KEYS {0:0.0}m", screen.z), _centered);
+            var rect = new Rect(screen.x / HudScale.Factor - 80f,
+                HudScale.Height - screen.y / HudScale.Factor - 14f, 160f, 28f);
+            GUI.color = available ? new Color(1f, 0.9f, 0.3f) : new Color(1f, 0.4f, 0.4f);
+            GUI.Label(rect, string.Format("v {0} {1:0.0}m", label, screen.z), _centered);
             GUI.color = Color.white;
         }
 
@@ -101,6 +119,31 @@ namespace ProjectRetrace
             var parent = key.transform.parent != null ? key.transform.parent.name : "no parent";
             return string.Format("Keys: ({0:0.0}, {1:0.0}, {2:0.0}) in \"{3}\"{4}",
                 pos.x, pos.y, pos.z, parent, key.CanInteract ? "" : "  [TAKEN/DISABLED]");
+        }
+
+        /// <summary>The pocket, shown rather than written: a carried bomb is a standing
+        /// state, not a prompt, and a line of text under the reticle read as one.</summary>
+        private void DrawBombIcon()
+        {
+            if (bombCarrier == null || !bombCarrier.Carrying) return;
+            var icon = BombIcon.Texture;
+            const float size = 64f;
+            var rect = new Rect(HudScale.Width - size - 24f, HudScale.Height - size - 24f, size, size);
+            GUI.DrawTexture(rect, icon, ScaleMode.ScaleToFit, true);
+        }
+
+        private static string BombStatusLine()
+        {
+            var bomb = BombItem.Current;
+            if (bomb == null) return "Bomb: NOT FOUND IN SCENE";
+            if (bomb.Spent) return "Bomb: spent";
+            if (bomb.Carried) return "Bomb: in pocket";
+
+            var pos = bomb.transform.position;
+            var spot = bomb.GetComponentInParent<KeySpotMarker>();
+            var propName = spot != null && spot.PropRoot != null ? spot.PropRoot.name : "no prop";
+            return string.Format("Bomb: ({0:0.0}, {1:0.0}, {2:0.0}) in \"{3}\"{4}",
+                pos.x, pos.y, pos.z, propName, bomb.Armed ? "  [ARMED]" : "");
         }
 
         private void EnsureStyles()
@@ -142,6 +185,12 @@ namespace ProjectRetrace
             {
                 if (text.Length > 0) text += "     ";
                 text += "[" + config.throwKey + "] " + thrower.Prompt;
+            }
+
+            if (bombCarrier != null && !string.IsNullOrEmpty(bombCarrier.Prompt))
+            {
+                if (text.Length > 0) text += "     ";
+                text += "[" + config.bombKey + "] " + bombCarrier.Prompt;
             }
 
             if (text.Length == 0) return;
@@ -318,6 +367,7 @@ namespace ProjectRetrace
             GUILayout.Label(SentryStatusLine(), _label);
             GUILayout.Label(string.Format("spacing {0:0.00}m", settings.dotSpacing), _label);
             GUILayout.Label(KeyStatusLine(), _label);
+            GUILayout.Label(BombStatusLine(), _label);
             GUILayout.Label("config: " + RetraceConfig.FilePath, _label);
             GUILayout.EndVertical();
             GUILayout.EndArea();

@@ -45,10 +45,12 @@ namespace ProjectRetrace.EditorTools
 
             var player = BuildPlayer(out var controller, out var interactor, out var cameraTransform);
             var thrower = EnsureThrower(controller, cameraTransform);
+            var bombCarrier = EnsureBombCarrier(controller, interactor);
             var spawnPoint = CreateObject("SpawnPoint", null).transform;
             spawnPoint.position = new Vector3(0f, 0.05f, 0f);
 
             var keys = BuildKeys();
+            var bomb = BuildBomb();
             var sentryTemplate = BuildSentry("Sentry Template", Color.white);
             CreateObject("NavMesh Baker", null).AddComponent<NavMeshRuntimeBaker>();
 
@@ -56,6 +58,7 @@ namespace ProjectRetrace.EditorTools
             director.player = controller;
             director.interactor = interactor;
             director.thrower = thrower;
+            director.bombCarrier = bombCarrier;
             director.trail = trail;
             director.keySpawner = keySpawner;
             director.spawnPoint = spawnPoint;
@@ -74,12 +77,14 @@ namespace ProjectRetrace.EditorTools
             trail.tracked = player.transform;
 
             keySpawner.key = keys;
+            keySpawner.bomb = bomb;
 
             sentryTemplate.player = controller;
 
             hud.director = director;
             hud.interactor = interactor;
             hud.thrower = thrower;
+            hud.bombCarrier = bombCarrier;
             hud.trail = trail;
             results.director = director;
             menu.director = director;
@@ -151,6 +156,83 @@ namespace ProjectRetrace.EditorTools
             EditorSceneManager.MarkSceneDirty(systems.scene);
             EditorSceneManager.SaveScene(systems.scene);
             Debug.Log("[ProjectRetrace] Online systems wired into " + systems.scene.name);
+        }
+
+        /// <summary>Retrofits the bomb onto a scene that already has the rig: the prop,
+        /// the player's pocket, and the spawner and HUD references. Idempotent.</summary>
+        [MenuItem("ProjectRetrace/Setup Bomb", false, 2)]
+        public static void SetupBomb()
+        {
+            var director = Object.FindFirstObjectByType<GameDirector>();
+            if (director == null || director.player == null || director.interactor == null)
+            {
+                Debug.LogError("[ProjectRetrace] No wired GameDirector in the scene -- run Setup Scene Systems first.");
+                return;
+            }
+
+            var carrier = EnsureBombCarrier(director.player, director.interactor);
+            director.bombCarrier = carrier;
+
+            var bomb = Object.FindFirstObjectByType<BombItem>(FindObjectsInactive.Include);
+            if (bomb == null) bomb = BuildBomb();
+            if (director.keySpawner != null) director.keySpawner.bomb = bomb;
+
+            var hud = director.GetComponent<DebugHud>();
+            if (hud != null) hud.bombCarrier = carrier;
+
+            EditorUtility.SetDirty(director);
+            EditorSceneManager.MarkSceneDirty(director.gameObject.scene);
+            Debug.Log("[ProjectRetrace] Bomb wired into " + director.gameObject.scene.name);
+        }
+
+        private static PlayerBombCarrier EnsureBombCarrier(FirstPersonController controller, PlayerInteractor interactor)
+        {
+            var player = controller.gameObject;
+            var carrier = player.GetComponent<PlayerBombCarrier>();
+            if (carrier == null) carrier = Undo.AddComponent<PlayerBombCarrier>(player);
+            carrier.interactor = interactor;
+            EditorUtility.SetDirty(carrier);
+            return carrier;
+        }
+
+        /// <summary>The art team's prefab, with the collider the pickup ray needs -- the
+        /// FBX imports without one -- and parked by the keys until the spawner moves it.</summary>
+        private static BombItem BuildBomb()
+        {
+            const string prefabPath = "Assets/ModelsNew/Bomb_PF.prefab";
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+            GameObject bomb;
+            if (prefab != null)
+            {
+                bomb = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
+            }
+            else
+            {
+                Debug.LogWarning("[ProjectRetrace] " + prefabPath + " is missing -- using a placeholder sphere for the bomb.");
+                bomb = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                bomb.transform.localScale = Vector3.one * 0.2f;
+            }
+
+            bomb.name = "Bomb";
+            bomb.transform.position = new Vector3(0f, 1f, 3.5f);
+            if (bomb.GetComponentInChildren<Collider>() == null)
+            {
+                var collider = bomb.AddComponent<SphereCollider>();
+                collider.radius = FitRadius(bomb);
+            }
+
+            Undo.RegisterCreatedObjectUndo(bomb, "Create Bomb");
+            return bomb.AddComponent<BombItem>();
+        }
+
+        private static float FitRadius(GameObject bomb)
+        {
+            var renderer = bomb.GetComponentInChildren<Renderer>();
+            if (renderer == null) return 0.15f;
+            var extents = renderer.bounds.extents;
+            var world = Mathf.Max(extents.x, extents.y, extents.z);
+            var scale = Mathf.Max(bomb.transform.lossyScale.x, 0.0001f);
+            return Mathf.Max(0.05f, world / scale);
         }
 
         private static GameObject BuildPlayer(

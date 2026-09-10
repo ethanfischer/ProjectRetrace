@@ -83,8 +83,21 @@ namespace ProjectRetrace
 
         private void Use(IInteractable target)
         {
+            var openable = target as IOpenable;
+            var wasOpen = openable != null && openable.IsOpen;
             target.Interact(this);
             Interacted?.Invoke(target);
+            if (openable != null && !wasOpen && openable.IsOpen) CheckBomb(target);
+        }
+
+        /// <summary>The player's own trap cuts both ways -- but only while there are lives
+        /// to lose. In the search there is nothing to take, so the bomb stays put and the
+        /// player can still see where they planted it.</summary>
+        private static void CheckBomb(IInteractable opened)
+        {
+            var director = GameDirector.Instance;
+            if (director == null || director.Phase != GamePhase.Stealth) return;
+            if (opened is InteractableBase prop && BombItem.TryDetonateAt(prop)) director.OnPlayerBombed();
         }
 
         private static bool HidePressedThisFrame()

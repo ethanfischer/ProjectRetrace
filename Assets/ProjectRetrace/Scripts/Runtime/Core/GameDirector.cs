@@ -36,6 +36,7 @@ namespace ProjectRetrace
         public FirstPersonController player;
         public PlayerInteractor interactor;
         public PlayerThrower thrower;
+        public PlayerBombCarrier bombCarrier;
         public BreadcrumbTrail trail;
         public KeySpawner keySpawner;
         public Transform spawnPoint;
@@ -51,6 +52,7 @@ namespace ProjectRetrace
         [SerializeField] private int playerCount = 1;
 
         private readonly List<PatrolSentry> _sentries = new List<PatrolSentry>();
+        private readonly List<RecordedRoute> _patrolledRoutes = new List<RecordedRoute>();
 
         private int _seed;
         private Transform _excludedSpot;
@@ -112,7 +114,7 @@ namespace ProjectRetrace
             }
         }
 
-        private bool Haunts(RecordedRoute route) => !Multiplayer || route.Owner != CurrentPlayer;
+        private bool Haunts(RecordedRoute route) => !route.Destroyed && (!Multiplayer || route.Owner != CurrentPlayer);
 
         /// <summary>The ghost pool: runtime clones of the template, one per patrolled route.
         /// Grows as rounds accumulate and is never trimmed -- StopPatrol just deactivates.</summary>
@@ -235,7 +237,15 @@ namespace ProjectRetrace
             InteractableRegistry.RestoreAll();
             InteractableRegistry.CaptureAll();
 
-            if (keySpawner != null) keySpawner.PlaceKey(_seed);
+            if (keySpawner != null)
+            {
+                keySpawner.PlaceKey(_seed);
+                // The bomb is not on the wire yet, so an online match plays without it
+                // rather than with two houses that disagree.
+                if (Online || !config.bombEnabled) keySpawner.RemoveBomb();
+                else keySpawner.PlaceBomb(RoundSeed(_seed, -1));
+            }
+
             _excludedSpot = null;
             if (trail != null) trail.SetRoutes(System.Array.Empty<RecordedRoute>());
         }
@@ -365,11 +375,13 @@ namespace ProjectRetrace
         {
             if (trail == null) return;
             EnsureSentries(GhostCount);
+            _patrolledRoutes.Clear();
             var next = 0;
             for (var i = 0; i < trail.CompletedRouteCount && next < _sentries.Count; i++)
             {
                 var route = trail.Routes[i];
                 if (!Haunts(route)) continue;
+                _patrolledRoutes.Add(route);
 
                 if (Multiplayer) _sentries[next].bodyTint = GhostTint(route.Owner, next);
                 if (puppet) _sentries[next].BeginPuppet();
@@ -593,6 +605,23 @@ namespace ProjectRetrace
             OnPlayerCaught();
         }
 
+        /// <summary>Called by PatrolSentry when it opens the bomb. The route it was
+        /// walking is struck from the pool for the rest of the run: the bomb costs a
+        /// whole round to set up, and the payoff has to outlast the round.</summary>
+        public void OnSentryDestroyed(PatrolSentry sentry)
+        {
+            var index = _sentries.IndexOf(sentry);
+            if (index < 0 || index >= _patrolledRoutes.Count) return;
+            _patrolledRoutes[index].Destroyed = true;
+        }
+
+        /// <summary>Called by PlayerInteractor when the player opens the armed bomb.
+        /// Same beat as a projectile hit.</summary>
+        public void OnPlayerBombed()
+        {
+            OnPlayerHitByProjectile();
+        }
+
         /// <summary>Derived rather than random so a fixed seed reproduces every hiding spot.
         /// Static and pure: an online opponent derives the same spot from the same two ints.</summary>
         public static int RoundSeed(int runSeed, int round)
@@ -689,6 +718,7 @@ namespace ProjectRetrace
             if (player != null) player.SetInputEnabled(inputEnabled);
             if (interactor != null) interactor.SetInputEnabled(inputEnabled);
             if (thrower != null) thrower.SetInputEnabled(inputEnabled);
+            if (bombCarrier != null) bombCarrier.SetInputEnabled(inputEnabled);
         }
 
         private void SetPhase(GamePhase phase)

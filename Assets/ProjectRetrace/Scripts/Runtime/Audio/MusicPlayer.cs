@@ -17,7 +17,10 @@ namespace ProjectRetrace
 
         private void Awake()
         {
-            _source = gameObject.AddComponent<AudioSource>();
+            // Reuse a source the scene already saved rather than stacking a second one:
+            // a disabled-then-enabled component had left one behind.
+            _source = GetComponent<AudioSource>();
+            if (_source == null) _source = gameObject.AddComponent<AudioSource>();
             _source.playOnAwake = false;
             _source.loop = true;
             _source.spatialBlend = 0f;
@@ -25,15 +28,20 @@ namespace ProjectRetrace
 
         private void Start()
         {
-            if (clip == null) return;
             _source.clip = clip;
-            _source.volume = RetraceConfig.Current.musicVolume;
-            _source.Play();
         }
 
+        /// <summary>The toggle is polled like the volume, so flipping it in the Tab menu
+        /// starts or stops the track on the spot. The master level rides along here too:
+        /// this is the one component that already reads audio config every frame.</summary>
         private void Update()
         {
-            _source.volume = RetraceConfig.Current.musicVolume;
+            var config = RetraceConfig.Current;
+            AudioListener.volume = Mathf.Clamp01(config.masterVolume);
+            _source.volume = config.musicVolume;
+            var wanted = config.musicEnabled && clip != null;
+            if (wanted && !_source.isPlaying) _source.Play();
+            else if (!wanted && _source.isPlaying) _source.Stop();
         }
     }
 }

@@ -71,6 +71,7 @@ namespace ProjectRetrace.EditorTools
             bank.projectileThud = OptionalClip("projectile thud");
             bank.projectileHit = OptionalClip("projectile hit");
             bank.ghostStunned = OptionalClip("ghost stunned");
+            bank.bombExplode = OptionalClip("explosion");
             EditorUtility.SetDirty(bank);
         }
 
