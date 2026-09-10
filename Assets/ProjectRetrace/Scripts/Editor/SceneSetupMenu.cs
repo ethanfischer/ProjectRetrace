@@ -44,6 +44,7 @@ namespace ProjectRetrace.EditorTools
             SfxSetupMenu.WireMusic(systems.AddComponent<MusicPlayer>());
 
             var player = BuildPlayer(out var controller, out var interactor, out var cameraTransform);
+            var thrower = EnsureThrower(controller, cameraTransform);
             var spawnPoint = CreateObject("SpawnPoint", null).transform;
             spawnPoint.position = new Vector3(0f, 0.05f, 0f);
 
@@ -54,6 +55,7 @@ namespace ProjectRetrace.EditorTools
             // Wiring.
             director.player = controller;
             director.interactor = interactor;
+            director.thrower = thrower;
             director.trail = trail;
             director.keySpawner = keySpawner;
             director.spawnPoint = spawnPoint;
@@ -77,6 +79,7 @@ namespace ProjectRetrace.EditorTools
 
             hud.director = director;
             hud.interactor = interactor;
+            hud.thrower = thrower;
             hud.trail = trail;
             results.director = director;
             menu.director = director;
@@ -127,6 +130,13 @@ namespace ProjectRetrace.EditorTools
             lobby.director = director;
             lobby.session = online;
             if (menu != null) menu.online = online;
+
+            if (director.player != null && director.player.cameraPivot != null)
+            {
+                director.thrower = EnsureThrower(director.player, director.player.cameraPivot);
+                var hud = systems.GetComponent<DebugHud>();
+                if (hud != null) hud.thrower = director.thrower;
+            }
 
             if (director.sentryTemplate != null)
             {
@@ -182,6 +192,27 @@ namespace ProjectRetrace.EditorTools
             }
 
             return player;
+        }
+
+        /// <summary>The hands, and the anchor a carried item sits at: under the camera,
+        /// low and to the right, so it reads as held and stays out of the reticle.</summary>
+        private static PlayerThrower EnsureThrower(FirstPersonController controller, Transform cameraTransform)
+        {
+            var player = controller.gameObject;
+            var thrower = player.GetComponent<PlayerThrower>();
+            if (thrower == null) thrower = Undo.AddComponent<PlayerThrower>(player);
+            var anchor = cameraTransform.Find("HandAnchor");
+            if (anchor == null)
+            {
+                anchor = CreateObject("HandAnchor", cameraTransform).transform;
+                anchor.localPosition = new Vector3(0.35f, -0.3f, 0.6f);
+                anchor.localRotation = Quaternion.identity;
+            }
+
+            thrower.handAnchor = anchor;
+            thrower.rayOrigin = cameraTransform;
+            EditorUtility.SetDirty(thrower);
+            return thrower;
         }
 
         private static PatrolSentry BuildSentry(string name, Color tint)

@@ -17,6 +17,7 @@ namespace ProjectRetrace
         public float distance;
         public List<CrumbData> crumbs = new List<CrumbData>();
         public List<DwellData> dwells = new List<DwellData>();
+        public List<ThrowData> throws = new List<ThrowData>();
 
         public static RouteData From(RecordedRoute route)
         {
@@ -31,6 +32,11 @@ namespace ProjectRetrace
                 data.dwells.Add(new DwellData { p = dwell.Position, yaw = dwell.FacingYaw, crumb = dwell.CrumbIndex, prop = dwell.PropId });
             }
 
+            foreach (var t in route.Throws)
+            {
+                data.throws.Add(new ThrowData { p = t.Position, off = t.HandOffset, yaw = t.Yaw, pitch = t.Pitch, speed = t.Speed, crumb = t.CrumbIndex, prop = t.PropId });
+            }
+
             return data;
         }
 
@@ -39,6 +45,7 @@ namespace ProjectRetrace
             var route = new RecordedRoute { Owner = owner, Distance = distance };
             foreach (var crumb in crumbs) route.Crumbs.Add(new Breadcrumb(crumb.p, crumb.d));
             foreach (var dwell in dwells) route.Dwells.Add(new DwellPoint(dwell.p, dwell.yaw, dwell.crumb, dwell.prop));
+            foreach (var t in throws) route.Throws.Add(new ThrowPoint(t.p, t.off, t.yaw, t.pitch, t.speed, t.crumb, t.prop));
             return route;
         }
     }
@@ -55,6 +62,18 @@ namespace ProjectRetrace
     {
         public Vector3 p;
         public float yaw;
+        public int crumb;
+        public string prop;
+    }
+
+    [Serializable]
+    public class ThrowData
+    {
+        public Vector3 p;
+        public Vector3 off;
+        public float yaw;
+        public float pitch;
+        public float speed;
         public int crumb;
         public string prop;
     }

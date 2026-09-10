@@ -11,7 +11,7 @@ namespace ProjectRetrace
     /// </summary>
     public static class HouseIdentity
     {
-        public const int Protocol = 1;
+        public const int Protocol = 2;
 
         public static string Current
         {

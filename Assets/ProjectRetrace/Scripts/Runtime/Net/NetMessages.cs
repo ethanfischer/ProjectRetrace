@@ -111,6 +111,7 @@ namespace ProjectRetrace
         public PlayerSnap player = new PlayerSnap();
         public List<SentrySnap> sentries = new List<SentrySnap>();
         public List<PropState> props = new List<PropState>();
+        public List<ProjectileSnap> projectiles = new List<ProjectileSnap>();
         public SnapshotMsg() : base("snapshot") { }
     }
 
@@ -132,6 +133,8 @@ namespace ProjectRetrace
         public float yaw;
         public float pitch;
         public bool hiding;
+        /// <summary>Registry id of the throwable in hand, or empty.</summary>
+        public string held;
     }
 
     [Serializable]
@@ -142,5 +145,16 @@ namespace ProjectRetrace
         public float yaw;
         public int state;
         public float alpha;
+    }
+
+    /// <summary>A projectile in flight. id names it on the stream; src is the prop a
+    /// ghost's copy was cloned from, so the spectator can conjure the same look-alike.</summary>
+    [Serializable]
+    public class ProjectileSnap
+    {
+        public string id;
+        public string src;
+        public Vector3 p;
+        public Vector3 r;
     }
 }

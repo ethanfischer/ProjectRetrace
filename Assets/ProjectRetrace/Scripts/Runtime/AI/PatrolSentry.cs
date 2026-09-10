@@ -13,7 +13,12 @@ namespace ProjectRetrace
         Waiting,
         /// <summary>Just (re)spawned at the route start: frozen and blind until fully faded in.</summary>
         Materializing,
-        Chasing
+        Chasing,
+        /// <summary>Stopped at a recorded throw, winding up. Appended after Chasing so the
+        /// wire ints of the older states never shift.</summary>
+        Throwing,
+        /// <summary>Hit by the player's throw: fading out, out for the rest of the attempt.</summary>
+        Dead
     }
 
     /// <summary>
@@ -52,8 +57,16 @@ namespace ProjectRetrace
         private NavMeshAgent _agent;
         private IReadOnlyList<Breadcrumb> _route;
         private readonly Dictionary<int, DwellPoint> _dwellByCrumb = new Dictionary<int, DwellPoint>();
+        private readonly Dictionary<int, List<ThrowPoint>> _throwsByCrumb = new Dictionary<int, List<ThrowPoint>>();
         private int _targetIndex;
         private bool _lookedAtTarget;
+        private bool _threwAtTarget;
+        private List<ThrowPoint> _pendingThrows;
+        private int _throwCursor;
+        private float _windupUntil;
+        private Projectile _inHand;
+        private float _diedAt;
+        private float _alphaAtDeath;
         private float _lookTimer;
         private float _lookYaw;
         private DwellPoint _pendingRummage;
@@ -74,6 +87,9 @@ namespace ProjectRetrace
         public SentryState State { get; private set; }
         public int TargetIndex => _targetIndex;
         public float Alpha => _alpha;
+
+        /// <summary>A projectile can only kill a ghost that is still on the field.</summary>
+        public bool Alive => State != SentryState.Dead && State != SentryState.Inactive;
 
         private void Awake()
         {
@@ -153,7 +169,7 @@ namespace ProjectRetrace
 
         /// <summary>Called by GameDirector when a stealth round starts, with the recorded
         /// route this sentry is to retrace.</summary>
-        public void BeginPatrol(IReadOnlyList<Breadcrumb> route, IReadOnlyList<DwellPoint> dwells)
+        public void BeginPatrol(IReadOnlyList<Breadcrumb> route, IReadOnlyList<DwellPoint> dwells, IReadOnlyList<ThrowPoint> throws = null)
         {
             if (route == null || route.Count < 2)
             {
@@ -190,6 +206,18 @@ namespace ProjectRetrace
                 }
             }
 
+            _throwsByCrumb.Clear();
+            _inHand = null;
+            if (throws != null)
+            {
+                foreach (var t in throws)
+                {
+                    var crumb = Mathf.Max(0, t.CrumbIndex);
+                    if (!_throwsByCrumb.TryGetValue(crumb, out var list)) _throwsByCrumb[crumb] = list = new List<ThrowPoint>();
+                    list.Add(t);
+                }
+            }
+
             // The route can begin off the mesh -- the spawn point may sit outside the baked
             // house -- so start at the first crumb past the head start that actually lands
             // on it. Warping to an off-mesh point would strand the agent entirely.
@@ -204,6 +232,7 @@ namespace ProjectRetrace
             _agent.Warp(route[_targetIndex].Position);
             transform.rotation = Quaternion.LookRotation(route[_targetIndex].Direction, Vector3.up);
             _lookedAtTarget = true;
+            _threwAtTarget = true;
 
             _graceUntil = Time.time + config.graceSeconds;
             _alpha = 0f;
@@ -228,6 +257,9 @@ namespace ProjectRetrace
             {
                 _agent.isStopped = true;
             }
+
+            _inHand = null;
+            _pendingThrows = null;
 
             // A puppet had its agent switched off; the next real patrol needs it back on
             // before Warp.
@@ -279,6 +311,14 @@ namespace ProjectRetrace
                 return;
             }
 
+            // A dead ghost only fades. It stays active rather than switched off so the
+            // stream keeps reporting it dead until the attempt resets.
+            if (State == SentryState.Dead)
+            {
+                UpdateFade();
+                return;
+            }
+
             UpdateFade();
             UpdateConeVisual();
 
@@ -305,6 +345,10 @@ namespace ProjectRetrace
             {
                 UpdateLook();
             }
+            else if (State == SentryState.Throwing)
+            {
+                UpdateThrow();
+            }
             else
             {
                 UpdateWalk();
@@ -325,7 +369,116 @@ namespace ProjectRetrace
                 return;
             }
 
+            ContinueRoute();
+        }
+
+        /// <summary>Look first, then throw: a crumb can carry both, and the look-around
+        /// ends by coming back through here.</summary>
+        private void ContinueRoute()
+        {
+            if (!_threwAtTarget && _throwsByCrumb.TryGetValue(_targetIndex, out var throws))
+            {
+                _threwAtTarget = true;
+                BeginThrow(throws);
+                return;
+            }
+
             AdvanceOrRestart();
+        }
+
+        private void BeginThrow(List<ThrowPoint> throws)
+        {
+            State = SentryState.Throwing;
+            _agent.isStopped = true;
+            _agent.updateRotation = false;
+            _pendingThrows = throws;
+            _throwCursor = 0;
+            StartWindup();
+        }
+
+        private void StartWindup()
+        {
+            var t = _pendingThrows[_throwCursor];
+            _windupUntil = Time.time + RetraceConfig.Current.throwWindupSeconds;
+            _inHand = AcquireProjectile(t);
+        }
+
+        /// <summary>The real prop when it is free; a look-alike when the player is holding
+        /// it or another ghost has it in the air. A prop the scene no longer has is a
+        /// warning and a skipped throw, not a stalled patrol.</summary>
+        private Projectile AcquireProjectile(ThrowPoint t)
+        {
+            var prop = InteractableRegistry.Find(t.PropId) as ThrowableInteractable;
+            if (prop == null)
+            {
+                Debug.LogWarning("[PatrolSentry] Recorded throwable '" + t.PropId + "' is not in the scene -- skipping the throw.", this);
+                return null;
+            }
+
+            if (prop.AvailableToGhost) return prop.Projectile;
+            return Projectile.SpawnClone(prop, "clone:" + name + ":" + t.PropId);
+        }
+
+        /// <summary>Turn to the recorded facing with the item raised, then release the
+        /// recorded vector from the ghost's own root -- the hand offset, not the player's
+        /// old position, so a ghost pushed a little off the crumb still throws from beside
+        /// its body.</summary>
+        private void UpdateThrow()
+        {
+            var t = _pendingThrows[_throwCursor];
+            var facing = Quaternion.Euler(0f, t.Yaw, 0f);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, facing, _agent.angularSpeed * Time.deltaTime);
+
+            t.Reconstruct(transform.position, out var origin, out var velocity);
+            if (_inHand != null) _inHand.HoldAt(origin, transform.rotation);
+            if (Time.time < _windupUntil) return;
+
+            if (_inHand != null)
+            {
+                _inHand.Launch(Projectile.Thrower.Ghost, this, origin, velocity);
+                _inHand = null;
+                var bank = SoundBank.Instance;
+                if (bank != null) SoundBank.PlayAt(bank.throwWhoosh, origin);
+            }
+
+            _throwCursor++;
+            if (_throwCursor < _pendingThrows.Count)
+            {
+                StartWindup();
+                return;
+            }
+
+            _pendingThrows = null;
+            State = SentryState.Patrolling;
+            _agent.updateRotation = true;
+            _agent.isStopped = false;
+            AdvanceOrRestart();
+        }
+
+        /// <summary>Hit by the player's throw. A chasing ghost shrugs it off: the spot
+        /// already decided the attempt, and killing the chaser would leave the frozen
+        /// player waiting for a catch that never comes.</summary>
+        public void Kill()
+        {
+            if (_puppet || State == SentryState.Dead || State == SentryState.Inactive || State == SentryState.Chasing) return;
+
+            State = SentryState.Dead;
+            _diedAt = Time.time;
+            _alphaAtDeath = _alpha;
+            if (_agent.isActiveAndEnabled && _agent.isOnNavMesh) _agent.isStopped = true;
+            SetConeAlarmed(false);
+
+            // Whatever was raised to throw just drops: launched at rest so it lands and
+            // stays inert like any other spent projectile.
+            if (_inHand != null)
+            {
+                _inHand.Launch(Projectile.Thrower.Ghost, this, _inHand.transform.position, Vector3.zero);
+                _inHand = null;
+            }
+
+            _pendingThrows = null;
+            var bank = SoundBank.Instance;
+            if (bank != null) SoundBank.PlayAt(bank.ghostDeath, transform.position + Vector3.up * EyeHeight);
         }
 
         /// <summary>The ghost faces what it is about to use before using it: the recorded
@@ -373,7 +526,7 @@ namespace ProjectRetrace
         /// were behind.</summary>
         public void SpotPlayer()
         {
-            if (State == SentryState.Chasing || State == SentryState.Inactive) return;
+            if (State == SentryState.Chasing || State == SentryState.Inactive || State == SentryState.Dead) return;
             OnPlayerSeen();
         }
 
@@ -403,7 +556,7 @@ namespace ProjectRetrace
             State = SentryState.Patrolling;
             _agent.updateRotation = true;
             _agent.isStopped = false;
-            AdvanceOrRestart();
+            ContinueRoute();
         }
 
         /// <summary>At the route's end the sentry pauses, then teleports back to the start
@@ -422,6 +575,7 @@ namespace ProjectRetrace
 
             _targetIndex++;
             _lookedAtTarget = false;
+            _threwAtTarget = false;
             _agent.SetDestination(_route[_targetIndex].Position);
         }
 
@@ -442,6 +596,7 @@ namespace ProjectRetrace
             _agent.Warp(_route[_targetIndex].Position);
             transform.rotation = Quaternion.LookRotation(_route[_targetIndex].Direction, Vector3.up);
             _lookedAtTarget = true;
+            _threwAtTarget = true;
             _graceUntil = Time.time + config.graceSeconds;
             _alpha = 0f;
             ApplyAlpha();
@@ -455,9 +610,10 @@ namespace ProjectRetrace
         private void UpdateFade()
         {
             var config = RetraceConfig.Current;
-            var alpha = State == SentryState.Waiting
-                ? Mathf.Clamp01((_restartAt - Time.time) / config.restartDelaySeconds)
-                : Mathf.Min(1f, _alpha + Time.deltaTime / config.fadeInSeconds);
+            float alpha;
+            if (State == SentryState.Waiting) alpha = Mathf.Clamp01((_restartAt - Time.time) / config.restartDelaySeconds);
+            else if (State == SentryState.Dead) alpha = _alphaAtDeath * Mathf.Clamp01(1f - (Time.time - _diedAt) / Mathf.Max(0.01f, config.ghostKillFadeSeconds));
+            else alpha = Mathf.Min(1f, _alpha + Time.deltaTime / config.fadeInSeconds);
             if (Mathf.Approximately(alpha, _alpha)) return;
 
             _alpha = alpha;

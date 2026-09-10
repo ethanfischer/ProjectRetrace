@@ -9,7 +9,9 @@ you take, including everywhere you stop to look around. Every round records.
 
 **Every round after — Hunt.** The house resets, the keys hide somewhere **new**, and one
 more sentry joins the patrol: each walks one of your past routes, in your direction,
-pausing to look around wherever you did. Round N has N ghosts. There is no winning — only
+pausing to look around wherever you did. Round N has N ghosts. Loose props can be picked
+up and thrown: a hit ghost is gone for the attempt, but the throw is recorded too, and
+next round a ghost throws it back from the same spot; get hit and it costs a life. There is no winning — only
 how deep you get before your tries run out. The door to the stairs stays locked until
 round 4, so the early rounds play out on the ground floor and the house doubles once
 you've earned it.

@@ -35,6 +35,7 @@ namespace ProjectRetrace
         [Header("Scene references")]
         public FirstPersonController player;
         public PlayerInteractor interactor;
+        public PlayerThrower thrower;
         public BreadcrumbTrail trail;
         public KeySpawner keySpawner;
         public Transform spawnPoint;
@@ -230,6 +231,7 @@ namespace ProjectRetrace
 
             // Restore before capturing: on a restart the house is mid-run, and capturing that
             // state would bake open drawers in as the new "initial" state.
+            Projectile.ClearClones();
             InteractableRegistry.RestoreAll();
             InteractableRegistry.CaptureAll();
 
@@ -349,6 +351,7 @@ namespace ProjectRetrace
         /// spectator, whose house must match the owner's exactly.</summary>
         private void RebuildHouseForRound()
         {
+            Projectile.ClearClones();
             InteractableRegistry.RestoreAll();
             if (keySpawner != null)
             {
@@ -370,7 +373,7 @@ namespace ProjectRetrace
 
                 if (Multiplayer) _sentries[next].bodyTint = GhostTint(route.Owner, next);
                 if (puppet) _sentries[next].BeginPuppet();
-                else _sentries[next].BeginPatrol(route.Crumbs, route.Dwells);
+                else _sentries[next].BeginPatrol(route.Crumbs, route.Dwells, route.Throws);
                 next++;
             }
         }
@@ -580,6 +583,16 @@ namespace ProjectRetrace
             FinishRun();
         }
 
+        /// <summary>Called by a ghost's projectile on contact. Same beat as a catch -- the
+        /// freeze first, so the player is not still walking through the pause that
+        /// follows, then the catch bookkeeping: one life, one retry with the same seed.</summary>
+        public void OnPlayerHitByProjectile()
+        {
+            if (Phase != GamePhase.Stealth) return;
+            SetPlayerInputEnabled(false);
+            OnPlayerCaught();
+        }
+
         /// <summary>Derived rather than random so a fixed seed reproduces every hiding spot.
         /// Static and pure: an online opponent derives the same spot from the same two ints.</summary>
         public static int RoundSeed(int runSeed, int round)
@@ -675,6 +688,7 @@ namespace ProjectRetrace
         {
             if (player != null) player.SetInputEnabled(inputEnabled);
             if (interactor != null) interactor.SetInputEnabled(inputEnabled);
+            if (thrower != null) thrower.SetInputEnabled(inputEnabled);
         }
 
         private void SetPhase(GamePhase phase)

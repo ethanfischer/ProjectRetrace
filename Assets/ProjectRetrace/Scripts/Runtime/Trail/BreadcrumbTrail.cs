@@ -31,6 +31,7 @@ namespace ProjectRetrace
         private Vector3 _lastCrumbPosition;
         private float _distanceSinceLastCrumb;
         private PlayerInteractor _interactor;
+        private PlayerThrower _thrower;
 
         /// <summary>All routes, oldest first. The last entry is still being written while
         /// Recording is true.</summary>
@@ -100,7 +101,7 @@ namespace ProjectRetrace
 
         private void OnDisable()
         {
-            ListenTo(null);
+            ListenTo(null, null);
         }
 
         private void StartRoute(int owner)
@@ -112,7 +113,7 @@ namespace ProjectRetrace
                 return;
             }
 
-            ListenTo(tracked.GetComponentInChildren<PlayerInteractor>());
+            ListenTo(tracked.GetComponentInChildren<PlayerInteractor>(), tracked.GetComponentInChildren<PlayerThrower>());
 
             _routes.Add(new RecordedRoute { Owner = owner });
             _recording = true;
@@ -122,12 +123,21 @@ namespace ProjectRetrace
             DropCrumb(tracked.position);
         }
 
-        private void ListenTo(PlayerInteractor interactor)
+        private void ListenTo(PlayerInteractor interactor, PlayerThrower thrower)
         {
-            if (_interactor == interactor) return;
-            if (_interactor != null) _interactor.Interacted -= RecordDwell;
-            _interactor = interactor;
-            if (_interactor != null) _interactor.Interacted += RecordDwell;
+            if (_interactor != interactor)
+            {
+                if (_interactor != null) _interactor.Interacted -= RecordDwell;
+                _interactor = interactor;
+                if (_interactor != null) _interactor.Interacted += RecordDwell;
+            }
+
+            if (_thrower != thrower)
+            {
+                if (_thrower != null) _thrower.Thrown -= RecordThrow;
+                _thrower = thrower;
+                if (_thrower != null) _thrower.Thrown += RecordThrow;
+            }
         }
 
         private void Update()
@@ -163,6 +173,18 @@ namespace ProjectRetrace
 
             var propId = InteractableRegistry.IdOf(used);
             route.Dwells.Add(new DwellPoint(tracked.position, tracked.eulerAngles.y, route.Crumbs.Count - 1, propId));
+        }
+
+        /// <summary>No radius collapse here, unlike a dwell: two throws from one spot are
+        /// two throws, and a throw beside the drawer just opened must not vanish into
+        /// that stop.</summary>
+        private void RecordThrow(ThrowableInteractable thrown, Vector3 origin, Vector3 direction, float speed)
+        {
+            if (!_recording) return;
+
+            var route = CurrentRoute;
+            var propId = InteractableRegistry.IdOf(thrown);
+            route.Throws.Add(ThrowPoint.Record(tracked.position, origin, direction, speed, route.Crumbs.Count - 1, propId));
         }
 
         /// <summary>A dresser's three drawers are one stop, not three: anything used within
