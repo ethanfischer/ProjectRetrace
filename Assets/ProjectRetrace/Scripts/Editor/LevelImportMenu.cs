@@ -97,11 +97,7 @@ namespace ProjectRetrace.EditorTools
         /// <summary>Art-scene roots the import switches off by name, each with its reason.
         /// The list is the record of what was hand-deleted from the playable copy, so a
         /// re-import cannot quietly bring it back.</summary>
-        private static readonly Dictionary<string, string> DroppedProps = new Dictionary<string, string>
-        {
-            // Ceiling fan on the upper floor: hangs 1.5 m over the plate, at head height.
-            { "Light_05", "hangs at head height" },
-        };
+        private static readonly Dictionary<string, string> DroppedProps = new Dictionary<string, string>();
 
         /// <summary>The upper floor's plate is tiled straight across the stair flight below
         /// it. Any tile covering this much of the flight's footprint is cut out to make the
