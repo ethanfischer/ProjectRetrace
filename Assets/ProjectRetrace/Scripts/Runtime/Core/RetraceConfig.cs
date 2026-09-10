@@ -140,6 +140,11 @@ namespace ProjectRetrace
 
         // Footsteps
         [ConfigTab("Audio")]
+        /// <summary>Scales everything through AudioListener.volume: one number the player
+        /// reaches for first, rather than three to balance. Range makes the menu draw it
+        /// as a slider.</summary>
+        [Range(0f, 1f)]
+        public float masterVolume = 1f;
         public float footstepVolume = 0.5f;
 
         /// <summary>Horizontal speed above which a stride uses the running sample. Sits
@@ -152,6 +157,10 @@ namespace ProjectRetrace
         /// <summary>The track peaks at full scale and never stops, so it sits well under
         /// the one-shots by default: a cabinet creak has to read over it.</summary>
         public float musicVolume = 0.3f;
+
+        /// <summary>Off by default: the track is a placeholder, and a setting beats a
+        /// disabled component that only one scene remembers.</summary>
+        public bool musicEnabled = false;
 
         // Online. The relay is the tiny Node process in relay/, deployed on Render; the
         // default is the public one so a shipped build works untouched. Empty means "the

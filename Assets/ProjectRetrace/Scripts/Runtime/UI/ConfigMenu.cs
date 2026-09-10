@@ -147,7 +147,11 @@ namespace ProjectRetrace
             GUILayout.BeginHorizontal();
             GUILayout.Label(field.Name, _label, GUILayout.Width(300f));
 
-            if (field.FieldType == typeof(bool))
+            if (field.FieldType == typeof(float) && field.GetCustomAttribute<RangeAttribute>() is RangeAttribute range)
+            {
+                DrawSlider(field, range);
+            }
+            else if (field.FieldType == typeof(bool))
             {
                 var value = (bool)field.GetValue(_draft);
                 var toggled = GUILayout.Toggle(value, string.Empty);
@@ -165,6 +169,20 @@ namespace ProjectRetrace
             }
 
             GUILayout.EndHorizontal();
+        }
+
+        /// <summary>A ranged float is dragged, not typed, and is applied to the live
+        /// config as it moves: a volume you cannot hear while setting it is a guess.</summary>
+        private void DrawSlider(FieldInfo field, RangeAttribute range)
+        {
+            var value = (float)field.GetValue(_draft);
+            var edited = GUILayout.HorizontalSlider(value, range.min, range.max, GUILayout.Width(200f));
+            GUILayout.Label(edited.ToString("0.00", CultureInfo.InvariantCulture), _label, GUILayout.Width(50f));
+            if (Mathf.Approximately(edited, value)) return;
+
+            field.SetValue(_draft, edited);
+            field.SetValue(RetraceConfig.Current, edited);
+            _buffers[field.Name] = edited.ToString(CultureInfo.InvariantCulture);
         }
 
         private void DrawButtons()
@@ -189,8 +207,10 @@ namespace ProjectRetrace
                 _status = "Defaults loaded -- save to keep them.";
             }
 
+            // Sliders were heard live; Cancel takes the file's word over the drag.
             if (Button("Cancel"))
             {
+                RetraceConfig.Reload();
                 SetOpen(false);
             }
 
