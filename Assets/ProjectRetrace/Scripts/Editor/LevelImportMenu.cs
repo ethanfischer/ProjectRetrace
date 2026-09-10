@@ -155,11 +155,11 @@ namespace ProjectRetrace.EditorTools
 
         private struct Summary
         {
-            public int props, doors, drawers, keySpots, hidingSpots, roomDoors, backs, colliders, boxed, tuned, readableMeshes, swapped, stairs;
+            public int props, doors, drawers, keySpots, hidingSpots, roomDoors, backs, colliders, boxed, tuned, readableMeshes, swapped, stairs, batched;
             public override string ToString() =>
                 $"{swapped} static prop(s) swapped for interactive twins; {props} prop(s): {doors} door(s), {drawers} drawer(s), {keySpots} key spot(s), " +
                 $"{hidingSpots} hiding spot(s), {roomDoors} room door(s), {backs} back(s); {colliders} collider(s) added, {boxed} part(s) boxed, {tuned} hand-tuned part(s) kept, " +
-                $"{readableMeshes} mesh import(s) made readable, {stairs} stair flight(s) marked";
+                $"{readableMeshes} mesh import(s) made readable, {stairs} stair flight(s) marked, {batched} renderer(s) marked static for batching";
         }
 
         [MenuItem("ProjectRetrace/Level/Import HomeInterior_FirstFloor", false, 42)]
@@ -554,6 +554,7 @@ namespace ProjectRetrace.EditorTools
             (summary.colliders, summary.boxed, summary.tuned) = FitColliders(house);
             summary.readableMeshes = MakeCollisionMeshesReadable(house);
             summary.stairs = MarkStairs(house);
+            summary.batched = MarkStaticForBatching(house);
             foreach (var transform in house.GetComponentsInChildren<Transform>(true))
             {
                 if (!PrefabUtility.IsAnyPrefabInstanceRoot(transform.gameObject)) continue;
@@ -571,6 +572,25 @@ namespace ProjectRetrace.EditorTools
             }
 
             return summary;
+        }
+
+        /// <summary>Nearly a thousand small meshes, each drawn once per shadow cascade on
+        /// top of the main pass, is the whole frame cost of this house; static batching
+        /// folds everything that never moves into a few combined meshes. Only the parts
+        /// that swing or slide -- anything carrying an interactable -- are left out.</summary>
+        private static int MarkStaticForBatching(Transform house)
+        {
+            var marked = 0;
+            foreach (var renderer in house.GetComponentsInChildren<MeshRenderer>(true))
+            {
+                if (renderer.GetComponentInParent<InteractableBase>(true) != null) continue;
+                var flags = GameObjectUtility.GetStaticEditorFlags(renderer.gameObject);
+                if ((flags & StaticEditorFlags.BatchingStatic) != 0) continue;
+                GameObjectUtility.SetStaticEditorFlags(renderer.gameObject, flags | StaticEditorFlags.BatchingStatic);
+                marked++;
+            }
+
+            return marked;
         }
 
         /// <summary>The pack names its flights "Stairs_NN" and their side panels
@@ -1285,6 +1305,7 @@ namespace ProjectRetrace.EditorTools
             total.tuned += part.tuned;
             total.swapped += part.swapped;
             total.stairs += part.stairs;
+            total.batched += part.batched;
 
         }
     }
