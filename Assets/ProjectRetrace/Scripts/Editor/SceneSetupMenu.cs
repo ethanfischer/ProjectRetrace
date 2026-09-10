@@ -205,7 +205,7 @@ namespace ProjectRetrace.EditorTools
             if (anchor == null)
             {
                 anchor = CreateObject("HandAnchor", cameraTransform).transform;
-                anchor.localPosition = new Vector3(0.35f, -0.3f, 0.6f);
+                anchor.localPosition = new Vector3(0.28f, -0.22f, 0.7f);
                 anchor.localRotation = Quaternion.identity;
             }
 

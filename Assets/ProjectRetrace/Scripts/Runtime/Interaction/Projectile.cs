@@ -75,6 +75,7 @@ namespace ProjectRetrace
             // this a throw right after a pick-up would launch from wherever the prop was.
             _rigidbody.position = origin;
             _rigidbody.rotation = transform.rotation;
+            _rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
             SetCollidersEnabled(true);
             _rigidbody.isKinematic = false;
             _rigidbody.linearVelocity = velocity;
@@ -94,7 +95,12 @@ namespace ProjectRetrace
         {
             StopMoving();
             SetCollidersEnabled(false);
+            // Interpolation smooths the body between physics steps, which is exactly wrong
+            // for something riding the camera: it would trail the view by a frame or two.
+            _rigidbody.interpolation = RigidbodyInterpolation.None;
             transform.SetPositionAndRotation(position, rotation);
+            _rigidbody.position = position;
+            _rigidbody.rotation = rotation;
         }
 
         /// <summary>Inert until the attempt resets.</summary>
