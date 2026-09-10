@@ -112,13 +112,16 @@ stun, since the spot already decided the attempt. Throwables are excluded from t
 bake like doors. Mark a prop with ProjectRetrace > Furniture > Mark Selection Throwable;
 the test house generator drops one mug per room.
 
-The bomb (`BombItem` on the `Bomb_PF` prefab, `PlayerBombCarrier` on the player) spawns once
-per run right after the phase-1 keys, from the same spot list with a seed derived from the run
-seed, never inside the keys' prop. It spawns unarmed, so finding it is safe. Taking it puts it in
-the pocket (hidden, HUD says so); the bomb key (`bombKey`, C) plants it in whatever open
+The bomb (`BombItem` on the `Bomb_PF` prefab, `PlayerBombCarrier` on the player) is opt-in
+(`bombEnabled`, off by default: striking a ghost for the rest of the run flattens the curve the
+game is built on). On, it spawns once per run right after the phase-1 keys, from the same spot
+list with a seed derived from the run seed, never inside the keys' prop. It spawns unarmed, so
+finding it is safe. Taking it puts it in the pocket (hidden; the HUD shows a procedural
+`BombIcon` bottom-right); the bomb key (`bombKey`, C) plants it in whatever open
 `IOpenable` the interactor has under the reticle, via `KeySpotMarker.OwnedBy`, which resolves
 the spot behind a drawer or door by geometry (a drawer's spot rides on the drawer; a door's
-sits on the carcass, so the nearest leaf on the prop claims it). Planting re-captures the bomb's
+sits on the carcass, so the nearest leaf on the prop claims it). Planting lights a fuse (a flickering point light and an unlit tip built at the mesh top on
+first use, so the prefab stays the artist's) and re-captures the bomb's
 restore pose, so it rides through every `RestoreAll` like the keys; `RestoreInitialState` keeps a
 carried bomb in the pocket and a spent one gone. Anyone opening the armed container sets it off:
 a ghost's `Rummage` at that prop marks its `RecordedRoute.Destroyed`, which `Haunts` excludes for

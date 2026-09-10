@@ -242,7 +242,7 @@ namespace ProjectRetrace
                 keySpawner.PlaceKey(_seed);
                 // The bomb is not on the wire yet, so an online match plays without it
                 // rather than with two houses that disagree.
-                if (Online) keySpawner.RemoveBomb();
+                if (Online || !config.bombEnabled) keySpawner.RemoveBomb();
                 else keySpawner.PlaceBomb(RoundSeed(_seed, -1));
             }
 

@@ -56,6 +56,7 @@ namespace ProjectRetrace
             {
                 DrawReticle();
                 DrawPrompt();
+                DrawBombIcon();
             }
 
             DrawPhaseBanner();
@@ -120,6 +121,17 @@ namespace ProjectRetrace
                 pos.x, pos.y, pos.z, parent, key.CanInteract ? "" : "  [TAKEN/DISABLED]");
         }
 
+        /// <summary>The pocket, shown rather than written: a carried bomb is a standing
+        /// state, not a prompt, and a line of text under the reticle read as one.</summary>
+        private void DrawBombIcon()
+        {
+            if (bombCarrier == null || !bombCarrier.Carrying) return;
+            var icon = BombIcon.Texture;
+            const float size = 64f;
+            var rect = new Rect(HudScale.Width - size - 24f, HudScale.Height - size - 24f, size, size);
+            GUI.DrawTexture(rect, icon, ScaleMode.ScaleToFit, true);
+        }
+
         private static string BombStatusLine()
         {
             var bomb = BombItem.Current;
@@ -175,10 +187,10 @@ namespace ProjectRetrace
                 text += "[" + config.throwKey + "] " + thrower.Prompt;
             }
 
-            if (bombCarrier != null && bombCarrier.Carrying)
+            if (bombCarrier != null && !string.IsNullOrEmpty(bombCarrier.Prompt))
             {
                 if (text.Length > 0) text += "     ";
-                text += !string.IsNullOrEmpty(bombCarrier.Prompt) ? "[" + config.bombKey + "] " + bombCarrier.Prompt : "Bomb in pocket";
+                text += "[" + config.bombKey + "] " + bombCarrier.Prompt;
             }
 
             if (text.Length == 0) return;

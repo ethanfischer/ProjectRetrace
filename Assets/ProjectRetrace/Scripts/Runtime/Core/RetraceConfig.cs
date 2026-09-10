@@ -128,6 +128,11 @@ namespace ProjectRetrace
         /// floor from round one.</summary>
         public bool lockUpstairs = true;
 
+        /// <summary>Off, no bomb spawns and the run plays as before. The bomb removes a
+        /// ghost for the rest of the run, which flattens the difficulty curve the game is
+        /// built on, so it is opt-in.</summary>
+        public bool bombEnabled = false;
+
         /// <summary>Testing aid: part of a prop's name (say "InteractiveFurniture_06 (1)")
         /// restricts the hide to key spots inside matching props. Empty for normal play.</summary>
         public string forceKeySpot = "";
