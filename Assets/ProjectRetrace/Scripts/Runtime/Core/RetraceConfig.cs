@@ -81,6 +81,10 @@ namespace ProjectRetrace
         public float lookSweepDegrees = 0.1f;
         public float lookTurnDegreesPerSecond = 0.1f;
 
+        // How fast a ghost turns to face the prop it is about to use. Separate from the
+        // look-around sweep, which is tuned to near zero so a stop reads as a stare.
+        public float interactTurnDegreesPerSecond = 240f;
+
         // Ghosts re-open whatever the player used at each stop -- drawers, lids, doors.
         // Off, a cupboard is only opened when someone is hiding in it.
         public bool sentriesOpenFurniture = true;

@@ -56,6 +56,7 @@ namespace ProjectRetrace
         private bool _lookedAtTarget;
         private float _lookTimer;
         private float _lookYaw;
+        private DwellPoint _pendingRummage;
         private float _graceUntil;
         private float _chaseDeadline;
         private float _restartAt;
@@ -327,14 +328,29 @@ namespace ProjectRetrace
             AdvanceOrRestart();
         }
 
+        /// <summary>The ghost faces what it is about to use before using it: the recorded
+        /// yaw is where the player's camera pointed, which for a drawer at the player's
+        /// hip or a door beside them is not the prop, and a door swinging open behind a
+        /// ghost that never turned reads as a glitch. The rummage waits for the turn.</summary>
         private void BeginLook(DwellPoint dwell)
         {
             State = SentryState.Looking;
             _agent.isStopped = true;
             _agent.updateRotation = false;
             _lookTimer = 0f;
-            _lookYaw = dwell.FacingYaw;
-            Rummage(dwell);
+            _lookYaw = YawToward(InteractableRegistry.Find(dwell.PropId)) ?? dwell.FacingYaw;
+            _pendingRummage = dwell;
+        }
+
+        private float? YawToward(InteractableBase prop)
+        {
+            if (prop == null) return null;
+            var collider = prop.GetComponentInChildren<Collider>();
+            var target = collider != null ? collider.bounds.center : prop.transform.position;
+            var flat = target - transform.position;
+            flat.y = 0f;
+            if (flat.sqrMagnitude < 0.0001f) return null;
+            return Quaternion.LookRotation(flat, Vector3.up).eulerAngles.y;
         }
 
         /// <summary>The ghost repeats the player's use of whatever they touched here. The
@@ -370,7 +386,17 @@ namespace ProjectRetrace
             // scans the area the player was interested in rather than freezing in place.
             var sweep = Mathf.Sin(_lookTimer / config.lookAroundSeconds * Mathf.PI * 2f) * config.lookSweepDegrees;
             var target = Quaternion.Euler(0f, _lookYaw + sweep, 0f);
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, target, config.lookTurnDegreesPerSecond * Time.deltaTime);
+            var turnSpeed = _pendingRummage != null ? config.interactTurnDegreesPerSecond : config.lookTurnDegreesPerSecond;
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, target, turnSpeed * Time.deltaTime);
+
+            // Use the prop once facing it, or halfway through the pause at the latest, so
+            // a stuck turn never skips the cupboard check that finds a hider.
+            var facing = Quaternion.Angle(transform.rotation, Quaternion.Euler(0f, _lookYaw, 0f)) < 3f;
+            if (_pendingRummage != null && (facing || _lookTimer >= config.lookAroundSeconds * 0.5f))
+            {
+                Rummage(_pendingRummage);
+                _pendingRummage = null;
+            }
 
             if (_lookTimer < config.lookAroundSeconds) return;
 
