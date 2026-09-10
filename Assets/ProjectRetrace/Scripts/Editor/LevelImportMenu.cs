@@ -550,7 +550,6 @@ namespace ProjectRetrace.EditorTools
             (summary.colliders, summary.boxed, summary.tuned) = FitColliders(house);
             summary.readableMeshes = MakeCollisionMeshesReadable(house);
             summary.stairs = MarkStairs(house);
-            summary.batched = MarkStaticForBatching(house);
             foreach (var transform in house.GetComponentsInChildren<Transform>(true))
             {
                 if (!PrefabUtility.IsAnyPrefabInstanceRoot(transform.gameObject)) continue;
@@ -567,23 +566,28 @@ namespace ProjectRetrace.EditorTools
                 }
             }
 
+            summary.batched = MarkStaticForBatching(house);
             return summary;
         }
 
         /// <summary>Nearly a thousand small meshes, each drawn once per shadow cascade on
         /// top of the main pass, is the whole frame cost of this house; static batching
         /// folds everything that never moves into a few combined meshes. Only the parts
-        /// that swing or slide -- anything carrying an interactable -- are left out.</summary>
+        /// that swing or slide -- anything carrying an interactable -- are left out, which
+        /// is why this runs last: a door batched before it was wired stays drawn shut in
+        /// the combined mesh while its own copy swings open beside it. A part that was
+        /// marked before it became interactive is unmarked here for the same reason.</summary>
         private static int MarkStaticForBatching(Transform house)
         {
             var marked = 0;
             foreach (var renderer in house.GetComponentsInChildren<MeshRenderer>(true))
             {
-                if (renderer.GetComponentInParent<InteractableBase>(true) != null) continue;
                 var flags = GameObjectUtility.GetStaticEditorFlags(renderer.gameObject);
-                if ((flags & StaticEditorFlags.BatchingStatic) != 0) continue;
-                GameObjectUtility.SetStaticEditorFlags(renderer.gameObject, flags | StaticEditorFlags.BatchingStatic);
-                marked++;
+                var isStatic = (flags & StaticEditorFlags.BatchingStatic) != 0;
+                var moves = renderer.GetComponentInParent<InteractableBase>(true) != null;
+                if (moves == !isStatic) continue;
+                GameObjectUtility.SetStaticEditorFlags(renderer.gameObject, moves ? flags & ~StaticEditorFlags.BatchingStatic : flags | StaticEditorFlags.BatchingStatic);
+                if (!moves) marked++;
             }
 
             return marked;
