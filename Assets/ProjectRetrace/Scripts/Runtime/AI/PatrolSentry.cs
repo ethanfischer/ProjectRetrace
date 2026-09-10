@@ -17,8 +17,8 @@ namespace ProjectRetrace
         /// <summary>Stopped at a recorded throw, winding up. Appended after Chasing so the
         /// wire ints of the older states never shift.</summary>
         Throwing,
-        /// <summary>Hit by the player's throw: fading out, out for the rest of the attempt.</summary>
-        Dead
+        /// <summary>Hit by the player's throw: faded out and blind until the stun wears off.</summary>
+        Stunned
     }
 
     /// <summary>
@@ -65,8 +65,8 @@ namespace ProjectRetrace
         private int _throwCursor;
         private float _windupUntil;
         private Projectile _inHand;
-        private float _diedAt;
-        private float _alphaAtDeath;
+        private float _stunnedAt;
+        private float _alphaAtStun;
         private float _lookTimer;
         private float _lookYaw;
         private DwellPoint _pendingRummage;
@@ -89,7 +89,7 @@ namespace ProjectRetrace
         public float Alpha => _alpha;
 
         /// <summary>A projectile can only kill a ghost that is still on the field.</summary>
-        public bool Alive => State != SentryState.Dead && State != SentryState.Inactive;
+        public bool Alive => State != SentryState.Stunned && State != SentryState.Inactive;
 
         private void Awake()
         {
@@ -319,11 +319,12 @@ namespace ProjectRetrace
                 return;
             }
 
-            // A dead ghost only fades. It stays active rather than switched off so the
-            // stream keeps reporting it dead until the attempt resets.
-            if (State == SentryState.Dead)
+            // A stunned ghost only fades, then comes back the way it first arrived. It
+            // stays active rather than switched off so the stream keeps reporting it.
+            if (State == SentryState.Stunned)
             {
                 UpdateFade();
+                if (Time.time >= _stunnedAt + RetraceConfig.Current.sentryStunSeconds) Revive();
                 return;
             }
 
@@ -464,15 +465,15 @@ namespace ProjectRetrace
         }
 
         /// <summary>Hit by the player's throw. A chasing ghost shrugs it off: the spot
-        /// already decided the attempt, and killing the chaser would leave the frozen
+        /// already decided the attempt, and stunning the chaser would leave the frozen
         /// player waiting for a catch that never comes.</summary>
-        public void Kill()
+        public void Stun()
         {
-            if (_puppet || State == SentryState.Dead || State == SentryState.Inactive || State == SentryState.Chasing) return;
+            if (_puppet || State == SentryState.Stunned || State == SentryState.Inactive || State == SentryState.Chasing) return;
 
-            State = SentryState.Dead;
-            _diedAt = Time.time;
-            _alphaAtDeath = _alpha;
+            State = SentryState.Stunned;
+            _stunnedAt = Time.time;
+            _alphaAtStun = _alpha;
             if (_agent.isActiveAndEnabled && _agent.isOnNavMesh) _agent.isStopped = true;
             SetConeAlarmed(false);
 
@@ -486,7 +487,21 @@ namespace ProjectRetrace
 
             _pendingThrows = null;
             var bank = SoundBank.Instance;
-            if (bank != null) SoundBank.PlayAt(bank.ghostDeath, transform.position + Vector3.up * EyeHeight);
+            if (bank != null) SoundBank.PlayAt(bank.ghostStunned, transform.position + Vector3.up * EyeHeight);
+        }
+
+        /// <summary>The stun ends where it began: the ghost materialises in place, grace
+        /// period included, and carries on down its route from the next crumb.</summary>
+        private void Revive()
+        {
+            var config = RetraceConfig.Current;
+            _graceUntil = Time.time + config.graceSeconds;
+            _alpha = 0f;
+            ApplyAlpha();
+            State = SentryState.Materializing;
+            _agent.updateRotation = true;
+            if (_agent.isActiveAndEnabled && _agent.isOnNavMesh) _agent.isStopped = true;
+            PlaySpawn();
         }
 
         /// <summary>The ghost faces what it is about to use before using it: the recorded
@@ -534,7 +549,7 @@ namespace ProjectRetrace
         /// were behind.</summary>
         public void SpotPlayer()
         {
-            if (State == SentryState.Chasing || State == SentryState.Inactive || State == SentryState.Dead) return;
+            if (State == SentryState.Chasing || State == SentryState.Inactive || State == SentryState.Stunned) return;
             OnPlayerSeen();
         }
 
@@ -620,7 +635,7 @@ namespace ProjectRetrace
             var config = RetraceConfig.Current;
             float alpha;
             if (State == SentryState.Waiting) alpha = Mathf.Clamp01((_restartAt - Time.time) / config.restartDelaySeconds);
-            else if (State == SentryState.Dead) alpha = _alphaAtDeath * Mathf.Clamp01(1f - (Time.time - _diedAt) / Mathf.Max(0.01f, config.ghostKillFadeSeconds));
+            else if (State == SentryState.Stunned) alpha = _alphaAtStun * Mathf.Clamp01(1f - (Time.time - _stunnedAt) / Mathf.Max(0.01f, config.sentryStunFadeSeconds));
             else alpha = Mathf.Min(1f, _alpha + Time.deltaTime / config.fadeInSeconds);
             if (Mathf.Approximately(alpha, _alpha)) return;
 

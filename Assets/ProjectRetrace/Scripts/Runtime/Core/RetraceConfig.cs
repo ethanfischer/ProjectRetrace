@@ -90,6 +90,11 @@ namespace ProjectRetrace
         // Off, a cupboard is only opened when someone is hiding in it.
         public bool sentriesOpenFurniture = true;
 
+        // A thrown prop stuns a ghost: it fades out, stays blind this long, then fades
+        // back in where it stood with the usual grace period.
+        public float sentryStunSeconds = 5f;
+        public float sentryStunFadeSeconds = 0.8f;
+
         // Vision
         public float visionRange = 7f;
         public float visionAngle = 30f;
@@ -101,7 +106,6 @@ namespace ProjectRetrace
         [ConfigTab("Throwing")]
         public float throwSpeed = 11f;
         public float throwWindupSeconds = 0.6f;
-        public float ghostKillFadeSeconds = 0.8f;
         public float projectileHitRadius = 0.35f;
         public float projectileHitMinSpeed = 3f;
         public float projectileArmSeconds = 0.1f;
@@ -117,6 +121,10 @@ namespace ProjectRetrace
         /// <summary>Displayed round from which the stairs open; until then the keys stay
         /// downstairs, from then on they hide only upstairs.</summary>
         public int upstairsUnlockRound = 4;
+
+        /// <summary>Off, the stair barrier never appears and the keys may hide on either
+        /// floor from round one.</summary>
+        public bool lockUpstairs = true;
 
         /// <summary>Testing aid: part of a prop's name (say "InteractiveFurniture_06 (1)")
         /// restricts the hide to key spots inside matching props. Empty for normal play.</summary>

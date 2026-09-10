@@ -98,17 +98,17 @@ Every `DoorInteractable` is excluded from that bake: ghosts never operate doors,
 walk through them rather than being stranded by one that restored closed.
 
 Throwing (`ThrowableInteractable` + `Projectile` on a prop, `PlayerThrower` on the player)
-lets the player pick a loose prop up (E) and throw it (F) to kill a ghost for the rest of
-the attempt. The throw is recorded as a `ThrowPoint` on the route (a separate list from
+lets the player pick a loose prop up (E) and throw it (F) to stun a ghost: it fades out,
+stays blind for `sentryStunSeconds`, then materialises in place and carries on. The throw is recorded as a `ThrowPoint` on the route (a separate list from
 dwells, because dwell-radius collapse would swallow it) as origin offset, yaw, pitch and
 speed only: the ghost stops at that crumb, winds up for `throwWindupSeconds`, and launches
 the recorded vector from its own root, so the flight is live physics and dodgeable. Hits
 are a capsule-distance test in `Projectile.FixedUpdate`, not collisions, because sentries
-carry no colliders; a player's projectile only kills ghosts, a ghost's only hits the player,
+carry no colliders; a player's projectile only stuns ghosts, a ghost's only hits the player,
 and a hit routes through `OnPlayerHitByProjectile` into the caught bookkeeping. A ghost
 throws the real prop when it is free and a `Projectile.SpawnClone` look-alike when the
 player holds it; `ClearClones` runs before every `RestoreAll`. A chasing ghost ignores a
-kill, since the spot already decided the attempt. Throwables are excluded from the navmesh
+stun, since the spot already decided the attempt. Throwables are excluded from the navmesh
 bake like doors. Mark a prop with ProjectRetrace > Furniture > Mark Selection Throwable;
 the test house generator drops one mug per room.
 

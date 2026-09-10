@@ -69,7 +69,7 @@ namespace ProjectRetrace.EditorTools
             bank.throwWhoosh = OptionalClip("throw");
             bank.projectileThud = OptionalClip("projectile thud");
             bank.projectileHit = OptionalClip("projectile hit");
-            bank.ghostDeath = OptionalClip("ghost death");
+            bank.ghostStunned = OptionalClip("ghost stunned");
             EditorUtility.SetDirty(bank);
         }
 

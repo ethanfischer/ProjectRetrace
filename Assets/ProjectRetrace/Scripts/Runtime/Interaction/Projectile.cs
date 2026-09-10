@@ -71,6 +71,10 @@ namespace ProjectRetrace
             ThrownBy = by;
             ThrowingGhost = ghost;
             transform.position = origin;
+            // The body learns of transform moves only at the next physics step; without
+            // this a throw right after a pick-up would launch from wherever the prop was.
+            _rigidbody.position = origin;
+            _rigidbody.rotation = transform.rotation;
             SetCollidersEnabled(true);
             _rigidbody.isKinematic = false;
             _rigidbody.linearVelocity = velocity;
@@ -156,7 +160,7 @@ namespace ProjectRetrace
 
                     Spent = true;
                     PlayHit();
-                    sentry.Kill();
+                    sentry.Stun();
                     return;
                 }
 

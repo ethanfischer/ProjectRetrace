@@ -97,11 +97,7 @@ namespace ProjectRetrace.EditorTools
         /// <summary>Art-scene roots the import switches off by name, each with its reason.
         /// The list is the record of what was hand-deleted from the playable copy, so a
         /// re-import cannot quietly bring it back.</summary>
-        private static readonly Dictionary<string, string> DroppedProps = new Dictionary<string, string>
-        {
-            // Ceiling fan on the upper floor: hangs 1.5 m over the plate, at head height.
-            { "Light_05", "hangs at head height" },
-        };
+        private static readonly Dictionary<string, string> DroppedProps = new Dictionary<string, string>();
 
         /// <summary>The upper floor's plate is tiled straight across the stair flight below
         /// it. Any tile covering this much of the flight's footprint is cut out to make the
@@ -597,7 +593,6 @@ namespace ProjectRetrace.EditorTools
             (summary.colliders, summary.boxed, summary.tuned) = FitColliders(house);
             summary.readableMeshes = MakeCollisionMeshesReadable(house);
             summary.stairs = MarkStairs(house);
-            summary.batched = MarkStaticForBatching(house);
             foreach (var transform in house.GetComponentsInChildren<Transform>(true))
             {
                 if (!PrefabUtility.IsAnyPrefabInstanceRoot(transform.gameObject)) continue;
@@ -614,23 +609,28 @@ namespace ProjectRetrace.EditorTools
                 }
             }
 
+            summary.batched = MarkStaticForBatching(house);
             return summary;
         }
 
         /// <summary>Nearly a thousand small meshes, each drawn once per shadow cascade on
         /// top of the main pass, is the whole frame cost of this house; static batching
         /// folds everything that never moves into a few combined meshes. Only the parts
-        /// that swing or slide -- anything carrying an interactable -- are left out.</summary>
+        /// that swing or slide -- anything carrying an interactable -- are left out, which
+        /// is why this runs last: a door batched before it was wired stays drawn shut in
+        /// the combined mesh while its own copy swings open beside it. A part that was
+        /// marked before it became interactive is unmarked here for the same reason.</summary>
         private static int MarkStaticForBatching(Transform house)
         {
             var marked = 0;
             foreach (var renderer in house.GetComponentsInChildren<MeshRenderer>(true))
             {
-                if (renderer.GetComponentInParent<InteractableBase>(true) != null) continue;
                 var flags = GameObjectUtility.GetStaticEditorFlags(renderer.gameObject);
-                if ((flags & StaticEditorFlags.BatchingStatic) != 0) continue;
-                GameObjectUtility.SetStaticEditorFlags(renderer.gameObject, flags | StaticEditorFlags.BatchingStatic);
-                marked++;
+                var isStatic = (flags & StaticEditorFlags.BatchingStatic) != 0;
+                var moves = renderer.GetComponentInParent<InteractableBase>(true) != null;
+                if (moves == !isStatic) continue;
+                GameObjectUtility.SetStaticEditorFlags(renderer.gameObject, moves ? flags & ~StaticEditorFlags.BatchingStatic : flags | StaticEditorFlags.BatchingStatic);
+                if (!moves) marked++;
             }
 
             return marked;

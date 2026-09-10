@@ -36,6 +36,10 @@
         companyName: {{{ JSON.stringify(COMPANY_NAME) }}},
         productName: {{{ JSON.stringify(PRODUCT_NAME) }}},
         productVersion: {{{ JSON.stringify(PRODUCT_VERSION) }}},
+        // Retina screens double every axis: a 1900px iframe becomes a 10 megapixel render
+        // target, and the frame alternates between 60 and 30 fps. One CSS pixel per game
+        // pixel keeps a steady 60 on the same machines with no visible loss in this art.
+        devicePixelRatio: 2,
       });
     </script>
   </body>
