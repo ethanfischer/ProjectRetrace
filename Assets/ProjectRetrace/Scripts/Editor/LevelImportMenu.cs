@@ -252,6 +252,7 @@ namespace ProjectRetrace.EditorTools
             "Cup", "Cupcake", "Cookie", "Donut", "Pizza", "Burger", "Steak", "Orange", "Pear", "Tomato", "Cola",
             "Plate", "Book", "NoteBook", "PhotoFrame", "Flower", "Candle", "KubikRubik", "Boat", "TV_Remote",
             "PC_Mouse", "SoapBottle", "ToiletPaper", "Toothbrush", "Kettle", "Pot", "Pan", "Knife", "Pillow", "Toaster",
+            "Cake", "CoffeeCup", "GiftBox", "Darts", "GlassToothbrush", "Mushroom", "Box",
         };
 
         private const float ThrowableMaxSize = 0.7f;

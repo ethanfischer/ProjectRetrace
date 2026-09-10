@@ -19238,7 +19238,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1753955851246699273, guid: a30a1848c63e8504eade6a510775e9d2, type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 4
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 64890725957050384, guid: a30a1848c63e8504eade6a510775e9d2, type: 3}
@@ -19251,6 +19251,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1753955851246699273, guid: a30a1848c63e8504eade6a510775e9d2, type: 3}
       insertIndex: -1
       addedObject: {fileID: 319299673}
+    - targetCorrespondingSourceObject: {fileID: 1753955851246699273, guid: a30a1848c63e8504eade6a510775e9d2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 319299679}
+    - targetCorrespondingSourceObject: {fileID: 1753955851246699273, guid: a30a1848c63e8504eade6a510775e9d2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 319299678}
+    - targetCorrespondingSourceObject: {fileID: 1753955851246699273, guid: a30a1848c63e8504eade6a510775e9d2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 319299677}
   m_SourcePrefab: {fileID: 100100000, guid: a30a1848c63e8504eade6a510775e9d2, type: 3}
 --- !u!4 &319299671 stripped
 Transform:
@@ -19300,6 +19309,58 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.24015659, y: 0.21372595, z: 0.19069633}
   m_Center: {x: 0, y: 0.10686298, z: 0}
+--- !u!114 &319299677
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 319299672}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52a842a1e50f469ab20c67f44966d3cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.ThrowableInteractable
+  prompt: Use
+--- !u!114 &319299678
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 319299672}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 865f6c70531943e99a65bfb89595aa9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.Projectile
+--- !u!54 &319299679
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 319299672}
+  serializedVersion: 5
+  m_Mass: 0.5
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 1
+  m_Constraints: 0
+  m_CollisionDetection: 2
 --- !u!1001 &320350063
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -22756,7 +22817,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4966731299109542133, guid: 4356324233a18dd46af69751c0460ffe, type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 4
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 8778781088111904148, guid: 4356324233a18dd46af69751c0460ffe, type: 3}
@@ -22769,6 +22830,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4966731299109542133, guid: 4356324233a18dd46af69751c0460ffe, type: 3}
       insertIndex: -1
       addedObject: {fileID: 403492599}
+    - targetCorrespondingSourceObject: {fileID: 4966731299109542133, guid: 4356324233a18dd46af69751c0460ffe, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 403492605}
+    - targetCorrespondingSourceObject: {fileID: 4966731299109542133, guid: 4356324233a18dd46af69751c0460ffe, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 403492604}
+    - targetCorrespondingSourceObject: {fileID: 4966731299109542133, guid: 4356324233a18dd46af69751c0460ffe, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 403492603}
   m_SourcePrefab: {fileID: 100100000, guid: 4356324233a18dd46af69751c0460ffe, type: 3}
 --- !u!4 &403492597 stripped
 Transform:
@@ -22818,6 +22888,58 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.12659946, y: 0.14590125, z: 0.12659945}
   m_Center: {x: -0.0000000037252903, y: 0.072950624, z: -0.000000007450581}
+--- !u!114 &403492603
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 403492598}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52a842a1e50f469ab20c67f44966d3cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.ThrowableInteractable
+  prompt: Use
+--- !u!114 &403492604
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 403492598}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 865f6c70531943e99a65bfb89595aa9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.Projectile
+--- !u!54 &403492605
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 403492598}
+  serializedVersion: 5
+  m_Mass: 0.5
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 1
+  m_Constraints: 0
+  m_CollisionDetection: 2
 --- !u!1001 &403522387
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -28821,7 +28943,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5985208719208488628, guid: 5b55b907b4100414a9d8171ff823e8e4, type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 4
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 2974589490362214392, guid: 5b55b907b4100414a9d8171ff823e8e4, type: 3}
@@ -28834,6 +28956,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5985208719208488628, guid: 5b55b907b4100414a9d8171ff823e8e4, type: 3}
       insertIndex: -1
       addedObject: {fileID: 517186712}
+    - targetCorrespondingSourceObject: {fileID: 5985208719208488628, guid: 5b55b907b4100414a9d8171ff823e8e4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 517186718}
+    - targetCorrespondingSourceObject: {fileID: 5985208719208488628, guid: 5b55b907b4100414a9d8171ff823e8e4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 517186717}
+    - targetCorrespondingSourceObject: {fileID: 5985208719208488628, guid: 5b55b907b4100414a9d8171ff823e8e4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 517186716}
   m_SourcePrefab: {fileID: 100100000, guid: 5b55b907b4100414a9d8171ff823e8e4, type: 3}
 --- !u!4 &517186710 stripped
 Transform:
@@ -28883,6 +29014,58 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.34017724, y: 0.20738623, z: 0.34017724}
   m_Center: {x: 0, y: 0.10369305, z: 0.000000029802322}
+--- !u!114 &517186716
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 517186711}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52a842a1e50f469ab20c67f44966d3cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.ThrowableInteractable
+  prompt: Use
+--- !u!114 &517186717
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 517186711}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 865f6c70531943e99a65bfb89595aa9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.Projectile
+--- !u!54 &517186718
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 517186711}
+  serializedVersion: 5
+  m_Mass: 0.5
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 1
+  m_Constraints: 0
+  m_CollisionDetection: 2
 --- !u!1001 &517939423
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -29279,7 +29462,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4966731299109542133, guid: 4356324233a18dd46af69751c0460ffe, type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 4
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 8778781088111904148, guid: 4356324233a18dd46af69751c0460ffe, type: 3}
@@ -29292,6 +29475,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4966731299109542133, guid: 4356324233a18dd46af69751c0460ffe, type: 3}
       insertIndex: -1
       addedObject: {fileID: 527029365}
+    - targetCorrespondingSourceObject: {fileID: 4966731299109542133, guid: 4356324233a18dd46af69751c0460ffe, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 527029371}
+    - targetCorrespondingSourceObject: {fileID: 4966731299109542133, guid: 4356324233a18dd46af69751c0460ffe, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 527029370}
+    - targetCorrespondingSourceObject: {fileID: 4966731299109542133, guid: 4356324233a18dd46af69751c0460ffe, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 527029369}
   m_SourcePrefab: {fileID: 100100000, guid: 4356324233a18dd46af69751c0460ffe, type: 3}
 --- !u!4 &527029363 stripped
 Transform:
@@ -29341,6 +29533,58 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.12659946, y: 0.14590125, z: 0.12659945}
   m_Center: {x: -0.0000000037252903, y: 0.072950624, z: -0.000000007450581}
+--- !u!114 &527029369
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 527029364}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52a842a1e50f469ab20c67f44966d3cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.ThrowableInteractable
+  prompt: Use
+--- !u!114 &527029370
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 527029364}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 865f6c70531943e99a65bfb89595aa9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.Projectile
+--- !u!54 &527029371
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 527029364}
+  serializedVersion: 5
+  m_Mass: 0.5
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 1
+  m_Constraints: 0
+  m_CollisionDetection: 2
 --- !u!1 &529161019
 GameObject:
   m_ObjectHideFlags: 0
@@ -41646,7 +41890,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3381483483517175452, guid: db2dcde823a1cae49ae90c5e5c7ffa47, type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 4
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 2641840275909887650, guid: db2dcde823a1cae49ae90c5e5c7ffa47, type: 3}
@@ -41659,6 +41903,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 3381483483517175452, guid: db2dcde823a1cae49ae90c5e5c7ffa47, type: 3}
       insertIndex: -1
       addedObject: {fileID: 771870146}
+    - targetCorrespondingSourceObject: {fileID: 3381483483517175452, guid: db2dcde823a1cae49ae90c5e5c7ffa47, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 771870152}
+    - targetCorrespondingSourceObject: {fileID: 3381483483517175452, guid: db2dcde823a1cae49ae90c5e5c7ffa47, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 771870151}
+    - targetCorrespondingSourceObject: {fileID: 3381483483517175452, guid: db2dcde823a1cae49ae90c5e5c7ffa47, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 771870150}
   m_SourcePrefab: {fileID: 100100000, guid: db2dcde823a1cae49ae90c5e5c7ffa47, type: 3}
 --- !u!4 &771870144 stripped
 Transform:
@@ -41708,6 +41961,58 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.16050074, y: 0.120681494, z: 0.19933549}
   m_Center: {x: -0.00021205842, y: 0.060340725, z: 0.017963644}
+--- !u!114 &771870150
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 771870145}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52a842a1e50f469ab20c67f44966d3cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.ThrowableInteractable
+  prompt: Use
+--- !u!114 &771870151
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 771870145}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 865f6c70531943e99a65bfb89595aa9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.Projectile
+--- !u!54 &771870152
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 771870145}
+  serializedVersion: 5
+  m_Mass: 0.5
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 1
+  m_Constraints: 0
+  m_CollisionDetection: 2
 --- !u!1001 &772555215
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -45908,7 +46213,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8206829263213674635, guid: 204b50f754c9a1e458f314ab942f170c, type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 4
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8206829263213976747, guid: 204b50f754c9a1e458f314ab942f170c, type: 3}
       propertyPath: m_LocalPosition.x
@@ -45961,6 +46266,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8206829263213674635, guid: 204b50f754c9a1e458f314ab942f170c, type: 3}
       insertIndex: -1
       addedObject: {fileID: 852724777}
+    - targetCorrespondingSourceObject: {fileID: 8206829263213674635, guid: 204b50f754c9a1e458f314ab942f170c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 852724783}
+    - targetCorrespondingSourceObject: {fileID: 8206829263213674635, guid: 204b50f754c9a1e458f314ab942f170c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 852724782}
+    - targetCorrespondingSourceObject: {fileID: 8206829263213674635, guid: 204b50f754c9a1e458f314ab942f170c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 852724781}
   m_SourcePrefab: {fileID: 100100000, guid: 204b50f754c9a1e458f314ab942f170c, type: 3}
 --- !u!4 &852724775 stripped
 Transform:
@@ -46010,6 +46324,58 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.17922163, y: 0.18141009, z: 0.17735729}
   m_Center: {x: -0.0003065616, y: 0.090677924, z: -0.0006034337}
+--- !u!114 &852724781
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 852724776}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52a842a1e50f469ab20c67f44966d3cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.ThrowableInteractable
+  prompt: Use
+--- !u!114 &852724782
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 852724776}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 865f6c70531943e99a65bfb89595aa9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.Projectile
+--- !u!54 &852724783
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 852724776}
+  serializedVersion: 5
+  m_Mass: 0.5
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 1
+  m_Constraints: 0
+  m_CollisionDetection: 2
 --- !u!1001 &856552723
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -60149,7 +60515,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1445200731879326104, guid: 386f27937ef02ae4f90d0a138eb53743, type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 4
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 7019385131216940946, guid: 386f27937ef02ae4f90d0a138eb53743, type: 3}
@@ -60162,6 +60528,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1445200731879326104, guid: 386f27937ef02ae4f90d0a138eb53743, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1154874015}
+    - targetCorrespondingSourceObject: {fileID: 1445200731879326104, guid: 386f27937ef02ae4f90d0a138eb53743, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1154874021}
+    - targetCorrespondingSourceObject: {fileID: 1445200731879326104, guid: 386f27937ef02ae4f90d0a138eb53743, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1154874020}
+    - targetCorrespondingSourceObject: {fileID: 1445200731879326104, guid: 386f27937ef02ae4f90d0a138eb53743, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1154874019}
   m_SourcePrefab: {fileID: 100100000, guid: 386f27937ef02ae4f90d0a138eb53743, type: 3}
 --- !u!4 &1154874013 stripped
 Transform:
@@ -60211,6 +60586,58 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.15624005, y: 0.19696762, z: 0.15624005}
   m_Center: {x: 0, y: 0.09925596, z: 0.000000029802322}
+--- !u!114 &1154874019
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1154874014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52a842a1e50f469ab20c67f44966d3cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.ThrowableInteractable
+  prompt: Use
+--- !u!114 &1154874020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1154874014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 865f6c70531943e99a65bfb89595aa9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.Projectile
+--- !u!54 &1154874021
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1154874014}
+  serializedVersion: 5
+  m_Mass: 0.5
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 1
+  m_Constraints: 0
+  m_CollisionDetection: 2
 --- !u!1001 &1157297904
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -71563,7 +71990,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5979030009953467602, guid: 98cd4b9d7a9e35b42855c2000df412c5, type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 4
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 7182661549793222974, guid: 98cd4b9d7a9e35b42855c2000df412c5, type: 3}
@@ -71576,6 +72003,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5979030009953467602, guid: 98cd4b9d7a9e35b42855c2000df412c5, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1385062682}
+    - targetCorrespondingSourceObject: {fileID: 5979030009953467602, guid: 98cd4b9d7a9e35b42855c2000df412c5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1385062688}
+    - targetCorrespondingSourceObject: {fileID: 5979030009953467602, guid: 98cd4b9d7a9e35b42855c2000df412c5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1385062687}
+    - targetCorrespondingSourceObject: {fileID: 5979030009953467602, guid: 98cd4b9d7a9e35b42855c2000df412c5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1385062686}
   m_SourcePrefab: {fileID: 100100000, guid: 98cd4b9d7a9e35b42855c2000df412c5, type: 3}
 --- !u!4 &1385062680 stripped
 Transform:
@@ -71625,6 +72061,58 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.34017724, y: 0.20738623, z: 0.34017724}
   m_Center: {x: 0, y: 0.10369305, z: 0.000000029802322}
+--- !u!114 &1385062686
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1385062681}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52a842a1e50f469ab20c67f44966d3cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.ThrowableInteractable
+  prompt: Use
+--- !u!114 &1385062687
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1385062681}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 865f6c70531943e99a65bfb89595aa9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.Projectile
+--- !u!54 &1385062688
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1385062681}
+  serializedVersion: 5
+  m_Mass: 0.5
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 1
+  m_Constraints: 0
+  m_CollisionDetection: 2
 --- !u!1001 &1385249455
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -72031,7 +72519,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1445200731879326104, guid: 386f27937ef02ae4f90d0a138eb53743, type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 4
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 7019385131216940946, guid: 386f27937ef02ae4f90d0a138eb53743, type: 3}
@@ -72044,6 +72532,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1445200731879326104, guid: 386f27937ef02ae4f90d0a138eb53743, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1390496175}
+    - targetCorrespondingSourceObject: {fileID: 1445200731879326104, guid: 386f27937ef02ae4f90d0a138eb53743, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1390496181}
+    - targetCorrespondingSourceObject: {fileID: 1445200731879326104, guid: 386f27937ef02ae4f90d0a138eb53743, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1390496180}
+    - targetCorrespondingSourceObject: {fileID: 1445200731879326104, guid: 386f27937ef02ae4f90d0a138eb53743, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1390496179}
   m_SourcePrefab: {fileID: 100100000, guid: 386f27937ef02ae4f90d0a138eb53743, type: 3}
 --- !u!4 &1390496173 stripped
 Transform:
@@ -72093,6 +72590,58 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.15624005, y: 0.19696762, z: 0.15624005}
   m_Center: {x: 0, y: 0.09925596, z: 0.000000029802322}
+--- !u!114 &1390496179
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1390496174}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52a842a1e50f469ab20c67f44966d3cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.ThrowableInteractable
+  prompt: Use
+--- !u!114 &1390496180
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1390496174}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 865f6c70531943e99a65bfb89595aa9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.Projectile
+--- !u!54 &1390496181
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1390496174}
+  serializedVersion: 5
+  m_Mass: 0.5
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 1
+  m_Constraints: 0
+  m_CollisionDetection: 2
 --- !u!1001 &1391945381
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -102948,7 +103497,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5681479133522933946, guid: 05b19b84434e65c4b96f440208104d6c, type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 4
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 64354885635854076, guid: 05b19b84434e65c4b96f440208104d6c, type: 3}
@@ -102967,6 +103516,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5681479133522933946, guid: 05b19b84434e65c4b96f440208104d6c, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1976910683}
+    - targetCorrespondingSourceObject: {fileID: 5681479133522933946, guid: 05b19b84434e65c4b96f440208104d6c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1976910691}
+    - targetCorrespondingSourceObject: {fileID: 5681479133522933946, guid: 05b19b84434e65c4b96f440208104d6c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1976910690}
+    - targetCorrespondingSourceObject: {fileID: 5681479133522933946, guid: 05b19b84434e65c4b96f440208104d6c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1976910689}
   m_SourcePrefab: {fileID: 100100000, guid: 05b19b84434e65c4b96f440208104d6c, type: 3}
 --- !u!4 &1976910681 stripped
 Transform:
@@ -103062,6 +103620,58 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.36599025, y: 0.09220812, z: 0.03367892}
   m_Center: {x: 0.000000059604645, y: -0.23052026, z: -0.000000009313226}
+--- !u!114 &1976910689
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1976910682}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52a842a1e50f469ab20c67f44966d3cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.ThrowableInteractable
+  prompt: Use
+--- !u!114 &1976910690
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1976910682}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 865f6c70531943e99a65bfb89595aa9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.Projectile
+--- !u!54 &1976910691
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1976910682}
+  serializedVersion: 5
+  m_Mass: 0.5
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 1
+  m_Constraints: 0
+  m_CollisionDetection: 2
 --- !u!1 &1978929918
 GameObject:
   m_ObjectHideFlags: 0
@@ -107627,7 +108237,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1445200731879326104, guid: 386f27937ef02ae4f90d0a138eb53743, type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 4
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 7019385131216940946, guid: 386f27937ef02ae4f90d0a138eb53743, type: 3}
@@ -107640,6 +108250,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1445200731879326104, guid: 386f27937ef02ae4f90d0a138eb53743, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2047684585}
+    - targetCorrespondingSourceObject: {fileID: 1445200731879326104, guid: 386f27937ef02ae4f90d0a138eb53743, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2047684591}
+    - targetCorrespondingSourceObject: {fileID: 1445200731879326104, guid: 386f27937ef02ae4f90d0a138eb53743, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2047684590}
+    - targetCorrespondingSourceObject: {fileID: 1445200731879326104, guid: 386f27937ef02ae4f90d0a138eb53743, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2047684589}
   m_SourcePrefab: {fileID: 100100000, guid: 386f27937ef02ae4f90d0a138eb53743, type: 3}
 --- !u!4 &2047684583 stripped
 Transform:
@@ -107689,6 +108308,58 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.15624005, y: 0.19696762, z: 0.15624005}
   m_Center: {x: 0, y: 0.09925596, z: 0.000000029802322}
+--- !u!114 &2047684589
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2047684584}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52a842a1e50f469ab20c67f44966d3cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.ThrowableInteractable
+  prompt: Use
+--- !u!114 &2047684590
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2047684584}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 865f6c70531943e99a65bfb89595aa9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.Projectile
+--- !u!54 &2047684591
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2047684584}
+  serializedVersion: 5
+  m_Mass: 0.5
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 1
+  m_Constraints: 0
+  m_CollisionDetection: 2
 --- !u!1001 &2048458565
 PrefabInstance:
   m_ObjectHideFlags: 0
