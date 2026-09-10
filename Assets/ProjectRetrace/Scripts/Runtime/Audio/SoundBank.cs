@@ -25,6 +25,11 @@ namespace ProjectRetrace
         public AudioClip ghostSpawn;
         public AudioClip spotted;
         public AudioClip buttonClick;
+        public AudioClip pickUp;
+        public AudioClip throwWhoosh;
+        public AudioClip projectileThud;
+        public AudioClip projectileHit;
+        public AudioClip ghostStunned;
 
         private static SoundBank _instance;
         private AudioSource _uiSource;
@@ -48,7 +53,7 @@ namespace ProjectRetrace
             _uiSource.spatialBlend = 0f;
         }
 
-        public static void PlayAt(AudioClip clip, Vector3 position, float pitch = 1f)
+        public static void PlayAt(AudioClip clip, Vector3 position, float pitch = 1f, float volumeScale = 1f)
         {
             if (clip == null) return;
 
@@ -57,7 +62,7 @@ namespace ProjectRetrace
             var source = holder.AddComponent<AudioSource>();
             source.clip = clip;
             source.pitch = pitch;
-            source.volume = RetraceConfig.Current.sfxVolume;
+            source.volume = Mathf.Clamp01(RetraceConfig.Current.sfxVolume * volumeScale);
             source.spatialBlend = 1f;
             source.dopplerLevel = 0f;
 

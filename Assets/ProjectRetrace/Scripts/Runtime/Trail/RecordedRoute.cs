@@ -11,6 +11,7 @@ namespace ProjectRetrace
     {
         public readonly List<Breadcrumb> Crumbs = new List<Breadcrumb>();
         public readonly List<DwellPoint> Dwells = new List<DwellPoint>();
+        public readonly List<ThrowPoint> Throws = new List<ThrowPoint>();
         public float Distance;
 
         /// <summary>Which player walked it (1 in single player). In couch mode your own

@@ -97,6 +97,21 @@ the generated 1.1m doorways) — no baked asset to go stale when the test house 
 Every `DoorInteractable` is excluded from that bake: ghosts never operate doors, so they
 walk through them rather than being stranded by one that restored closed.
 
+Throwing (`ThrowableInteractable` + `Projectile` on a prop, `PlayerThrower` on the player)
+lets the player pick a loose prop up (E) and throw it (F) to stun a ghost: it fades out,
+stays blind for `sentryStunSeconds`, then materialises in place and carries on. The throw is recorded as a `ThrowPoint` on the route (a separate list from
+dwells, because dwell-radius collapse would swallow it) as origin offset, yaw, pitch and
+speed only: the ghost stops at that crumb, winds up for `throwWindupSeconds`, and launches
+the recorded vector from its own root, so the flight is live physics and dodgeable. Hits
+are a capsule-distance test in `Projectile.FixedUpdate`, not collisions, because sentries
+carry no colliders; a player's projectile only stuns ghosts, a ghost's only hits the player,
+and a hit routes through `OnPlayerHitByProjectile` into the caught bookkeeping. A ghost
+throws the real prop when it is free and a `Projectile.SpawnClone` look-alike when the
+player holds it; `ClearClones` runs before every `RestoreAll`. A chasing ghost ignores a
+stun, since the spot already decided the attempt. Throwables are excluded from the navmesh
+bake like doors. Mark a prop with ProjectRetrace > Furniture > Mark Selection Throwable;
+the test house generator drops one mug per room.
+
 `HidingSpot` sits on a cupboard's root beside its `DoorInteractable` and answers the hide
 key (`hideKey`, H), never Use: with the door open, H climbs in and shuts it; while hidden
 Use is dead and H is "Leave". Keeping the two on separate keys means E always operates
@@ -105,7 +120,7 @@ that got you there: a `DwellPoint` carries the
 `Prop` that was used, and a ghost pausing at one calls `HidingSpot.OpenedBy`, which opens
 the door and hauls out (and spots) anyone inside. Ghosts never hide themselves. With
 `sentriesOpenFurniture` on, a ghost also re-opens whatever `IOpenable` the player used at
-each stop (the default); off, furniture only opens when a hider is found.
+each stop; off (the default), furniture only opens when a hider is found.
 ProjectRetrace > Furniture > Add Hiding Spots To Cupboards retrofits an older scene.
 
 `DoorInteractable` can be round-locked (`unlocksAtRound`, a displayed round number, read

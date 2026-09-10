@@ -94,11 +94,49 @@ namespace ProjectRetrace
             {
                 var point = markers[i].transform.position;
                 if (IsSealed(point, doors) || !FloorGate.Allows(point)) continue;
+                if (IsExcluded(HierarchyPath.Of(markers[i].transform))) continue;
                 spots.Add(markers[i].transform);
             }
 
             spots.Sort((a, b) => string.CompareOrdinal(HierarchyPath.Of(a), HierarchyPath.Of(b)));
             return spots;
+        }
+
+        /// <summary>Spots the house geometry makes unreachable -- a corner cupboard's far
+        /// half that opens onto the stove, a cabinet wedged where nobody can stand. Too
+        /// few and too particular for a rule (floor-in-front also condemns every wall
+        /// cabinet over a counter), so they are named. Segments match by name, or by
+        /// name plus sibling index when the entry carries one, so the art scene's
+        /// re-import order cannot silently shift the list onto other props.</summary>
+        private static readonly string[] ExcludedSpots =
+        {
+            "KitchenTabletop2_03/InteractiveFurniture10_05",
+            "KitchenTabletop2_03/KeySpot#6",
+            "InteractiveFurniture_06 (4)",
+        };
+
+        private static bool IsExcluded(string path)
+        {
+            var segments = path.Split('/');
+            foreach (var entry in ExcludedSpots)
+            {
+                var wanted = entry.Split('/');
+                for (var start = 0; start + wanted.Length <= segments.Length; start++)
+                {
+                    var match = true;
+                    for (var i = 0; i < wanted.Length && match; i++) match = SegmentMatches(segments[start + i], wanted[i]);
+                    if (match) return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool SegmentMatches(string segment, string wanted)
+        {
+            if (segment == wanted) return true;
+            var hash = segment.LastIndexOf('#');
+            return hash >= 0 && segment.Substring(0, hash) == wanted;
         }
 
         /// <summary>Keys behind a locked door would make the round unwinnable.</summary>

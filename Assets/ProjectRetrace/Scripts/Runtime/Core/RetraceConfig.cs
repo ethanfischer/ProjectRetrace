@@ -30,6 +30,7 @@ namespace ProjectRetrace
         public string interactKey = "E";
         public bool interactWithLeftClick = true;
         public string hideKey = "H";
+        public string throwKey = "F";
         public string restartKey = "R";
         public string manualFinishKey = "Enter";
         public string debugToggleKey = "Backquote";
@@ -85,14 +86,31 @@ namespace ProjectRetrace
         // look-around sweep, which is tuned to near zero so a stop reads as a stare.
         public float interactTurnDegreesPerSecond = 240f;
 
-        // Ghosts re-open whatever the player used at each stop -- drawers, lids, doors.
-        // Off, a cupboard is only opened when someone is hiding in it.
-        public bool sentriesOpenFurniture = true;
+        // On, ghosts re-open whatever the player used at each stop -- drawers, lids, doors.
+        // Off by default: a cupboard is only opened when someone is hiding in it, which
+        // keeps the house quiet enough to read where a ghost has actually been.
+        public bool sentriesOpenFurniture = false;
+
+        // A thrown prop stuns a ghost: it fades out, stays blind this long, then fades
+        // back in where it stood with the usual grace period.
+        public float sentryStunSeconds = 3f;
+        public float sentryStunFadeSeconds = 0.3f;
 
         // Vision
         public float visionRange = 7f;
         public float visionAngle = 30f;
         public float graceSeconds = 3f;
+
+        // Throwing. A hit ghost is out for the attempt; a ghost replays your throw with
+        // the recorded vector after a short wind-up, and a projectile counts only while it
+        // is genuinely flying (armed, and above the minimum speed).
+        [ConfigTab("Throwing")]
+        public float throwSpeed = 11f;
+        public float throwWindupSeconds = 0.6f;
+        public float projectileHitRadius = 0.35f;
+        public float projectileHitMinSpeed = 3f;
+        public float projectileArmSeconds = 0.1f;
+        public float projectileRestSeconds = 1f;
 
         // Run. The seed decides only where the keys hide, in the search and every round
         // after; turn randomisation off to replay the same hiding spots.
@@ -140,6 +158,7 @@ namespace ProjectRetrace
 
         public Key InteractKey => ParseKey(interactKey, Key.E);
         public Key HideKey => ParseKey(hideKey, Key.H);
+        public Key ThrowKey => ParseKey(throwKey, Key.F);
         public Key RestartKey => ParseKey(restartKey, Key.R);
         public Key ManualFinishKey => ParseKey(manualFinishKey, Key.Enter);
         public Key DebugToggleKey => ParseKey(debugToggleKey, Key.Backquote);

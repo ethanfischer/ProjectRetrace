@@ -11,6 +11,7 @@ namespace ProjectRetrace
     {
         public GameDirector director;
         public PlayerInteractor interactor;
+        public PlayerThrower thrower;
         public BreadcrumbTrail trail;
 
         private KeyItem _key;
@@ -135,6 +136,12 @@ namespace ProjectRetrace
             {
                 if (text.Length > 0) text += "     ";
                 text += "[" + config.hideKey + "] " + interactor.HidePrompt;
+            }
+
+            if (thrower != null && !string.IsNullOrEmpty(thrower.Prompt))
+            {
+                if (text.Length > 0) text += "     ";
+                text += "[" + config.throwKey + "] " + thrower.Prompt;
             }
 
             if (text.Length == 0) return;

@@ -124,6 +124,7 @@ namespace ProjectRetrace.EditorTools
             foreach (var room in rooms)
             {
                 total += FillRoom(furniture, room, rnd, doorways, placed);
+                PlaceThrowable(furniture, room, rnd, doorways, placed);
             }
 
             EditorSceneManager.MarkSceneDirty(UnityEngine.SceneManagement.SceneManager.GetActiveScene());
@@ -342,6 +343,27 @@ namespace ProjectRetrace.EditorTools
             }
 
             return made;
+        }
+
+        /// <summary>One loose mug per room, somewhere in the open: enough to arm every
+        /// round without turning the house into an armoury.</summary>
+        private static void PlaceThrowable(Transform parent, Room room, System.Random rnd, List<Vector2> doorways, List<Vector2> placed)
+        {
+            var b = room.bounds;
+            for (var attempt = 0; attempt < 20; attempt++)
+            {
+                var p = new Vector2(Lerp(rnd, b.xMin + 1f, b.xMax - 1f), Lerp(rnd, b.zMin + 1f, b.zMax - 1f));
+                if (!Clear(p, room, doorways, placed)) continue;
+
+                var mug = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                mug.name = "Throwable Mug";
+                mug.transform.SetParent(parent, false);
+                mug.transform.localScale = Vector3.one * 0.15f;
+                mug.transform.position = new Vector3(p.x, room.floorY + 0.075f, p.y);
+                ThrowableMenu.MakeThrowable(mug);
+                placed.Add(p);
+                return;
+            }
         }
 
         /// <summary>

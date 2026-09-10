@@ -439,6 +439,21 @@ namespace ProjectRetrace
                 snapshot.player.yaw = player.transform.eulerAngles.y;
                 snapshot.player.pitch = player.cameraPivot != null ? NormalisePitch(player.cameraPivot.localEulerAngles.x) : 0f;
                 snapshot.player.hiding = director.interactor != null && director.interactor.Hiding != null;
+                snapshot.player.held = director.thrower != null && director.thrower.Held != null ? director.thrower.Held.Id : null;
+            }
+
+            var projectiles = Projectile.Live;
+            for (var i = 0; i < projectiles.Count; i++)
+            {
+                var projectile = projectiles[i];
+                if (projectile == null || !projectile.Launched || projectile.Resting) continue;
+                snapshot.projectiles.Add(new ProjectileSnap
+                {
+                    id = projectile.StreamId,
+                    src = projectile.IsClone ? CloneSource(projectile.StreamId) : null,
+                    p = projectile.transform.position,
+                    r = projectile.transform.eulerAngles
+                });
             }
 
             var sentries = director.Sentries;
@@ -478,5 +493,14 @@ namespace ProjectRetrace
         }
 
         private static float NormalisePitch(float degrees) => degrees > 180f ? degrees - 360f : degrees;
+
+        /// <summary>A copy's stream id is "clone:&lt;ghost&gt;:&lt;prop id&gt;"; the prop id
+        /// is everything after the second colon, since ids themselves contain none.</summary>
+        private static string CloneSource(string streamId)
+        {
+            var first = streamId.IndexOf(':');
+            var second = first >= 0 ? streamId.IndexOf(':', first + 1) : -1;
+            return second >= 0 ? streamId.Substring(second + 1) : null;
+        }
     }
 }

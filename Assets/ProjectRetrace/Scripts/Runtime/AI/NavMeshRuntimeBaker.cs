@@ -65,14 +65,14 @@ namespace ProjectRetrace
                 if (!root.name.StartsWith("TestHouse")) continue;
                 bounds = foundHouse ? Union(bounds, ColliderBounds(root)) : ColliderBounds(root);
                 foundHouse = true;
-                IgnoreDoors(root.transform, markups);
+                IgnoreDynamic(root.transform, markups);
                 sources.AddRange(CollectUnder(root.transform, markups));
             }
 
             if (!foundHouse)
             {
                 Debug.LogWarning("[NavMeshRuntimeBaker] No TestHouse root in the scene -- baking from every collider instead.", null);
-                IgnoreDoors(null, markups);
+                IgnoreDynamic(null, markups);
                 NavMeshBuilder.CollectSources((Transform)null, ~0, NavMeshCollectGeometry.PhysicsColliders, 0, markups, sources);
             }
 
@@ -110,14 +110,15 @@ namespace ProjectRetrace
         /// Doors open and close at runtime but the bake happens once, and the sentries retrace
         /// routes without ever operating a door. A closed door baked as a wall would strand a
         /// ghost whose route runs through it, so doors are left out of the bake and the
-        /// agents simply walk through them -- fittingly for ghosts.
+        /// agents simply walk through them -- fittingly for ghosts. Throwables are left
+        /// out for the mirror-image reason: they move, and a mug baked where it sat at
+        /// bake time would be a permanent bump in the floor.
         /// </summary>
-        private static void IgnoreDoors(Transform root, List<NavMeshBuildMarkup> markups)
+        private static void IgnoreDynamic(Transform root, List<NavMeshBuildMarkup> markups)
         {
             var doors = root != null
                 ? root.GetComponentsInChildren<DoorInteractable>(true)
                 : FindObjectsByType<DoorInteractable>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-
             foreach (var door in doors)
             {
                 markups.Add(new NavMeshBuildMarkup { root = door.transform, ignoreFromBuild = true });
@@ -131,6 +132,14 @@ namespace ProjectRetrace
             foreach (var gate in gates)
             {
                 markups.Add(new NavMeshBuildMarkup { root = gate.transform, ignoreFromBuild = true });
+            }
+
+            var throwables = root != null
+                ? root.GetComponentsInChildren<ThrowableInteractable>(true)
+                : FindObjectsByType<ThrowableInteractable>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (var throwable in throwables)
+            {
+                markups.Add(new NavMeshBuildMarkup { root = throwable.transform, ignoreFromBuild = true });
             }
         }
     }

@@ -66,6 +66,11 @@ namespace ProjectRetrace.EditorTools
             bank.ghostSpawn = Clip("Past self spawns");
             bank.spotted = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/ProjectRetrace/Audio/whistle.wav");
             bank.buttonClick = Clip("button click");
+            bank.pickUp = OptionalClip("pick up");
+            bank.throwWhoosh = OptionalClip("throw");
+            bank.projectileThud = OptionalClip("projectile thud");
+            bank.projectileHit = OptionalClip("projectile hit");
+            bank.ghostStunned = OptionalClip("ghost stunned");
             EditorUtility.SetDirty(bank);
         }
 
@@ -95,6 +100,13 @@ namespace ProjectRetrace.EditorTools
             }
 
             return OpenableSound.Cabinet;
+        }
+
+        /// <summary>Slots whose samples have not been recorded yet: silent, not a warning
+        /// on every setup run.</summary>
+        private static AudioClip OptionalClip(string name)
+        {
+            return AssetDatabase.LoadAssetAtPath<AudioClip>(Folder + name + ".wav");
         }
 
         private static AudioClip Clip(string name)

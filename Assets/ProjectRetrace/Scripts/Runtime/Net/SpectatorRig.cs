@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -22,6 +23,7 @@ namespace ProjectRetrace
         public FirstPersonController player;
 
         private readonly SnapshotBuffer _buffer = new SnapshotBuffer();
+        private readonly Dictionary<string, Projectile> _clones = new Dictionary<string, Projectile>();
         private GameObject _avatar;
         private Vector3 _flyPosition;
         private float _flyYaw;
@@ -50,12 +52,21 @@ namespace ProjectRetrace
             Active = false;
             if (player != null) player.SetPuppet(false);
             if (_avatar != null) _avatar.SetActive(false);
+            ForgetClones();
         }
 
         public void OnRoundStart(RoundStartMsg message)
         {
             _buffer.Clear();
+            ForgetClones();
             InteractableRegistry.ApplyOpenables(message.props);
+        }
+
+        /// <summary>The owner's attempt reset destroyed its copies; ours go the same way.</summary>
+        private void ForgetClones()
+        {
+            _clones.Clear();
+            Projectile.ClearClones();
         }
 
         public void OnSnapshot(SnapshotMsg snapshot)
@@ -107,6 +118,64 @@ namespace ProjectRetrace
             }
 
             ApplySentries(from, to, t);
+            ApplyHeld(to.player.held);
+            ApplyProjectiles(from, to, t);
+        }
+
+        /// <summary>The same rig, the same camera, the same hand anchor: in first person
+        /// the mug sits exactly where the owner sees it.</summary>
+        private void ApplyHeld(string id)
+        {
+            if (string.IsNullOrEmpty(id) || player == null) return;
+            var thrower = player.GetComponent<PlayerThrower>();
+            if (thrower == null || thrower.handAnchor == null) return;
+            var prop = InteractableRegistry.Find(id) as ThrowableInteractable;
+            if (prop == null || prop.transform.parent == thrower.handAnchor) return;
+            prop.AttachToHand(thrower.handAnchor, thrower);
+        }
+
+        /// <summary>Puppets never simulate: a real prop is moved by its id, a ghost's copy
+        /// is conjured from the source prop the first time it appears. An id that stops
+        /// arriving keeps its last pose until the next round start resets the house.</summary>
+        private void ApplyProjectiles(SnapshotMsg from, SnapshotMsg to, float t)
+        {
+            for (var i = 0; i < to.projectiles.Count; i++)
+            {
+                var b = to.projectiles[i];
+                var a = FindProjectile(from, b.id) ?? b;
+                var position = Vector3.Lerp(a.p, b.p, t);
+                var rotation = Quaternion.Slerp(Quaternion.Euler(a.r), Quaternion.Euler(b.r), t);
+
+                if (string.IsNullOrEmpty(b.src))
+                {
+                    var prop = InteractableRegistry.Find(b.id) as ThrowableInteractable;
+                    if (prop != null) prop.PuppetTo(position, rotation);
+                    continue;
+                }
+
+                var clone = ClonePuppet(b);
+                if (clone != null) clone.HoldAt(position, rotation);
+            }
+        }
+
+        private Projectile ClonePuppet(ProjectileSnap snap)
+        {
+            if (_clones.TryGetValue(snap.id, out var clone) && clone != null) return clone;
+            var source = InteractableRegistry.Find(snap.src) as ThrowableInteractable;
+            if (source == null) return null;
+            clone = Projectile.SpawnClone(source, snap.id);
+            _clones[snap.id] = clone;
+            return clone;
+        }
+
+        private static ProjectileSnap FindProjectile(SnapshotMsg snapshot, string id)
+        {
+            for (var i = 0; i < snapshot.projectiles.Count; i++)
+            {
+                if (snapshot.projectiles[i].id == id) return snapshot.projectiles[i];
+            }
+
+            return null;
         }
 
         private void ApplySentries(SnapshotMsg from, SnapshotMsg to, float t)
