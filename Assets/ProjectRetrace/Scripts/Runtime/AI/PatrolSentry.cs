@@ -487,7 +487,9 @@ namespace ProjectRetrace
 
             _pendingThrows = null;
             var bank = SoundBank.Instance;
-            if (bank != null) SoundBank.PlayAt(bank.ghostStunned, transform.position + Vector3.up * EyeHeight);
+            // Louder than the furniture one-shots: the hit is the payoff of the throw and
+            // should land even from the far end of a room.
+            if (bank != null) SoundBank.PlayAt(bank.ghostStunned, transform.position + Vector3.up * EyeHeight, 1f, 1.5f);
         }
 
         /// <summary>The stun ends where it began: the ghost materialises in place, grace
