@@ -116,6 +116,10 @@ namespace ProjectRetrace.EditorTools
 
         private static readonly string[] MeshCollisionPrefixes = { "Floor", "Wall", "Corner", "Stairs", "Door" };
 
+        /// <summary>Wall art gets no collision: nothing hides in a picture, no ray needs to
+        /// land on one, and the row hung over the stair flight was at head height.</summary>
+        private static readonly string[] NoCollisionPrefixes = { "Picture" };
+
         // Profile boxing: a static mesh is sliced into horizontal slabs this thick, slabs
         // whose footprints agree within the tolerance merge, and each run becomes a box.
         private const float ProfileSlabHeight = 0.1f;
@@ -699,6 +703,12 @@ namespace ProjectRetrace.EditorTools
                 if (filter.sharedMesh == null || filter.name == BackName) continue;
 
                 var existing = filter.GetComponent<Collider>();
+                if (SkipsCollision(house, filter.transform))
+                {
+                    StripCollision(filter.gameObject);
+                    continue;
+                }
+
                 if (KeepsMeshCollision(house, filter.transform))
                 {
                     if (UndoMistakenBoxes(filter.gameObject)) existing = null;
@@ -958,8 +968,7 @@ namespace ProjectRetrace.EditorTools
         /// prefab root names the FBX, not the interactive prefab; the outermost root does.</summary>
         private static bool KeepsMeshCollision(Transform house, Transform part)
         {
-            var top = part;
-            while (top.parent != null && top.parent != house) top = top.parent;
+            var top = TopLevelAncestor(house, part);
             foreach (var prefix in MeshCollisionPrefixes)
             {
                 if (top.name.StartsWith(prefix)) return true;
@@ -969,6 +978,31 @@ namespace ProjectRetrace.EditorTools
             if (IsInteractiveAsset(PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(part.gameObject))) return true;
             var outermost = PrefabUtility.GetOutermostPrefabInstanceRoot(part.gameObject);
             return outermost != null && IsInteractiveAsset(PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(outermost));
+        }
+
+        private static bool SkipsCollision(Transform house, Transform part)
+        {
+            var top = TopLevelAncestor(house, part);
+            foreach (var prefix in NoCollisionPrefixes)
+            {
+                if (top.name.StartsWith(prefix)) return true;
+            }
+
+            return false;
+        }
+
+        private static void StripCollision(GameObject part)
+        {
+            foreach (var collider in part.GetComponents<Collider>()) Undo.DestroyObjectImmediate(collider);
+            var receipt = part.GetComponent<CollisionFit>();
+            if (receipt != null) Undo.DestroyObjectImmediate(receipt);
+        }
+
+        private static Transform TopLevelAncestor(Transform house, Transform part)
+        {
+            var top = part;
+            while (top.parent != null && top.parent != house) top = top.parent;
+            return top;
         }
 
         private static bool IsInteractiveAsset(string assetPath)

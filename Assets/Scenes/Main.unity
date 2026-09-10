@@ -9863,62 +9863,13 @@ PrefabInstance:
     - {fileID: 64545297951224666, guid: baa58f2d8d22dc5409f628ea32370fd5, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5766202048840694244, guid: baa58f2d8d22dc5409f628ea32370fd5, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 185696995}
-    - targetCorrespondingSourceObject: {fileID: 5766202048840694244, guid: baa58f2d8d22dc5409f628ea32370fd5, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 185696994}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: baa58f2d8d22dc5409f628ea32370fd5, type: 3}
 --- !u!4 &185696992 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5766202048840263108, guid: baa58f2d8d22dc5409f628ea32370fd5, type: 3}
   m_PrefabInstance: {fileID: 185696991}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &185696993 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5766202048840694244, guid: baa58f2d8d22dc5409f628ea32370fd5, type: 3}
-  m_PrefabInstance: {fileID: 185696991}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &185696994
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 185696993}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 602deaeb8cf04a7cae259c208a6be816, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.CollisionFit
-  handTuned: 0
-  centers:
-  - {x: 0, y: 0, z: 0}
-  sizes:
-  - {x: 0.64040756, y: 0.49868047, z: 0.043061767}
---- !u!65 &185696995
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 185696993}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.64040756, y: 0.49868047, z: 0.043061767}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &190841727
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10037,62 +9988,13 @@ PrefabInstance:
     - {fileID: 64418339955006086, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5923670615401703804, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 191424891}
-    - targetCorrespondingSourceObject: {fileID: 5923670615401703804, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 191424890}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
 --- !u!4 &191424888 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5923670615402198364, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
   m_PrefabInstance: {fileID: 191424887}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &191424889 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5923670615401703804, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
-  m_PrefabInstance: {fileID: 191424887}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &191424890
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 191424889}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 602deaeb8cf04a7cae259c208a6be816, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.CollisionFit
-  handTuned: 0
-  centers:
-  - {x: -0.000000014901161, y: 0, z: -0.0012511704}
-  sizes:
-  - {x: 0.3842358, y: 0.49868047, z: 0.043061793}
---- !u!65 &191424891
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 191424889}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.3842358, y: 0.49868047, z: 0.043061793}
-  m_Center: {x: -0.000000014901161, y: 0, z: -0.0012511704}
 --- !u!1001 &191954774
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10424,62 +10326,13 @@ PrefabInstance:
     - {fileID: 64418339955006086, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5923670615401703804, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 196402927}
-    - targetCorrespondingSourceObject: {fileID: 5923670615401703804, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 196402926}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
 --- !u!4 &196402924 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5923670615402198364, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
   m_PrefabInstance: {fileID: 196402923}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &196402925 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5923670615401703804, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
-  m_PrefabInstance: {fileID: 196402923}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &196402926
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 196402925}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 602deaeb8cf04a7cae259c208a6be816, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.CollisionFit
-  handTuned: 0
-  centers:
-  - {x: -0.000000014901161, y: 0, z: -0.0012511704}
-  sizes:
-  - {x: 0.3842358, y: 0.49868047, z: 0.043061793}
---- !u!65 &196402927
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 196402925}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.3842358, y: 0.49868047, z: 0.043061793}
-  m_Center: {x: -0.000000014901161, y: 0, z: -0.0012511704}
 --- !u!1001 &196832271
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12236,62 +12089,13 @@ PrefabInstance:
     - {fileID: 64687456001618010, guid: afcc468a7ec87ca40bb7b3bdbc4b87ce, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 8208067712057033489, guid: afcc468a7ec87ca40bb7b3bdbc4b87ce, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 228810463}
-    - targetCorrespondingSourceObject: {fileID: 8208067712057033489, guid: afcc468a7ec87ca40bb7b3bdbc4b87ce, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 228810462}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: afcc468a7ec87ca40bb7b3bdbc4b87ce, type: 3}
 --- !u!4 &228810460 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8208067712057138993, guid: afcc468a7ec87ca40bb7b3bdbc4b87ce, type: 3}
   m_PrefabInstance: {fileID: 228810459}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &228810461 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8208067712057033489, guid: afcc468a7ec87ca40bb7b3bdbc4b87ce, type: 3}
-  m_PrefabInstance: {fileID: 228810459}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &228810462
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 228810461}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 602deaeb8cf04a7cae259c208a6be816, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.CollisionFit
-  handTuned: 0
-  centers:
-  - {x: -0.000000014901161, y: 0.000000029802322, z: -0.0015144702}
-  sizes:
-  - {x: 0.38423583, y: 0.32565105, z: 0.043061785}
---- !u!65 &228810463
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 228810461}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 0
-  serializedVersion: 3
-  m_Size: {x: 0.38423583, y: 0.32565105, z: 0.043061785}
-  m_Center: {x: -0.000000014901161, y: 0.000000029802322, z: -0.0015144702}
 --- !u!1001 &229323085
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12538,7 +12342,6 @@ GameObject:
   m_Component:
   - component: {fileID: 230443175}
   - component: {fileID: 230443178}
-  - component: {fileID: 230443177}
   - component: {fileID: 230443176}
   m_Layer: 0
   m_Name: Back
@@ -12611,27 +12414,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &230443177
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 230443174}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 0
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!33 &230443178
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -24415,62 +24197,13 @@ PrefabInstance:
     - {fileID: 64418339955006086, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5923670615401703804, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 501649989}
-    - targetCorrespondingSourceObject: {fileID: 5923670615401703804, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 501649988}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
 --- !u!4 &501649986 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5923670615402198364, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
   m_PrefabInstance: {fileID: 501649985}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &501649987 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5923670615401703804, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
-  m_PrefabInstance: {fileID: 501649985}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &501649988
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 501649987}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 602deaeb8cf04a7cae259c208a6be816, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.CollisionFit
-  handTuned: 0
-  centers:
-  - {x: -0.000000014901161, y: 0, z: -0.0012511704}
-  sizes:
-  - {x: 0.3842358, y: 0.49868047, z: 0.043061793}
---- !u!65 &501649989
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 501649987}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.3842358, y: 0.49868047, z: 0.043061793}
-  m_Center: {x: -0.000000014901161, y: 0, z: -0.0012511704}
 --- !u!1001 &505352713
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -32160,62 +31893,13 @@ PrefabInstance:
     - {fileID: 64545297951224666, guid: baa58f2d8d22dc5409f628ea32370fd5, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5766202048840694244, guid: baa58f2d8d22dc5409f628ea32370fd5, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 698654009}
-    - targetCorrespondingSourceObject: {fileID: 5766202048840694244, guid: baa58f2d8d22dc5409f628ea32370fd5, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 698654008}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: baa58f2d8d22dc5409f628ea32370fd5, type: 3}
 --- !u!4 &698654006 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5766202048840263108, guid: baa58f2d8d22dc5409f628ea32370fd5, type: 3}
   m_PrefabInstance: {fileID: 698654005}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &698654007 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5766202048840694244, guid: baa58f2d8d22dc5409f628ea32370fd5, type: 3}
-  m_PrefabInstance: {fileID: 698654005}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &698654008
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 698654007}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 602deaeb8cf04a7cae259c208a6be816, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.CollisionFit
-  handTuned: 0
-  centers:
-  - {x: 0, y: 0, z: 0}
-  sizes:
-  - {x: 0.64040756, y: 0.49868047, z: 0.043061767}
---- !u!65 &698654009
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 698654007}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.64040756, y: 0.49868047, z: 0.043061767}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &698701744
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -36935,62 +36619,13 @@ PrefabInstance:
     - {fileID: 64897507159611420, guid: 6fe267c76a28b094590f3f68d44458cc, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 2437593443064270038, guid: 6fe267c76a28b094590f3f68d44458cc, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 789831506}
-    - targetCorrespondingSourceObject: {fileID: 2437593443064270038, guid: 6fe267c76a28b094590f3f68d44458cc, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 789831505}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6fe267c76a28b094590f3f68d44458cc, type: 3}
 --- !u!4 &789831503 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2437593443064434934, guid: 6fe267c76a28b094590f3f68d44458cc, type: 3}
   m_PrefabInstance: {fileID: 789831502}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &789831504 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2437593443064270038, guid: 6fe267c76a28b094590f3f68d44458cc, type: 3}
-  m_PrefabInstance: {fileID: 789831502}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &789831505
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 789831504}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 602deaeb8cf04a7cae259c208a6be816, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.CollisionFit
-  handTuned: 0
-  centers:
-  - {x: 0, y: 0, z: -0.00017488375}
-  sizes:
-  - {x: 0.64040756, y: 0.8516226, z: 0.043061767}
---- !u!65 &789831506
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 789831504}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 0
-  serializedVersion: 3
-  m_Size: {x: 0.64040756, y: 0.8516226, z: 0.043061767}
-  m_Center: {x: 0, y: 0, z: -0.00017488375}
 --- !u!1 &791878626
 GameObject:
   m_ObjectHideFlags: 0
@@ -39817,62 +39452,13 @@ PrefabInstance:
     - {fileID: 64545297951224666, guid: baa58f2d8d22dc5409f628ea32370fd5, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5766202048840694244, guid: baa58f2d8d22dc5409f628ea32370fd5, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 846247466}
-    - targetCorrespondingSourceObject: {fileID: 5766202048840694244, guid: baa58f2d8d22dc5409f628ea32370fd5, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 846247465}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: baa58f2d8d22dc5409f628ea32370fd5, type: 3}
 --- !u!4 &846247463 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5766202048840263108, guid: baa58f2d8d22dc5409f628ea32370fd5, type: 3}
   m_PrefabInstance: {fileID: 846247462}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &846247464 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5766202048840694244, guid: baa58f2d8d22dc5409f628ea32370fd5, type: 3}
-  m_PrefabInstance: {fileID: 846247462}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &846247465
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 846247464}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 602deaeb8cf04a7cae259c208a6be816, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.CollisionFit
-  handTuned: 0
-  centers:
-  - {x: 0, y: 0, z: 0}
-  sizes:
-  - {x: 0.64040756, y: 0.49868047, z: 0.043061767}
---- !u!65 &846247466
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 846247464}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 0
-  serializedVersion: 3
-  m_Size: {x: 0.64040756, y: 0.49868047, z: 0.043061767}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &849812782
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -45126,62 +44712,13 @@ PrefabInstance:
     - {fileID: 64219169304278356, guid: 788ef17667cdad549a1b52c9f37b2c65, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 8053550952898919800, guid: 788ef17667cdad549a1b52c9f37b2c65, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 978655443}
-    - targetCorrespondingSourceObject: {fileID: 8053550952898919800, guid: 788ef17667cdad549a1b52c9f37b2c65, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 978655442}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 788ef17667cdad549a1b52c9f37b2c65, type: 3}
 --- !u!4 &978655440 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8053550952898879832, guid: 788ef17667cdad549a1b52c9f37b2c65, type: 3}
   m_PrefabInstance: {fileID: 978655439}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &978655441 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8053550952898919800, guid: 788ef17667cdad549a1b52c9f37b2c65, type: 3}
-  m_PrefabInstance: {fileID: 978655439}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &978655442
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 978655441}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 602deaeb8cf04a7cae259c208a6be816, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.CollisionFit
-  handTuned: 0
-  centers:
-  - {x: 0, y: -0.000000029802322, z: -0.00012485404}
-  sizes:
-  - {x: 0.4572059, y: 0.6079984, z: 0.030743068}
---- !u!65 &978655443
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 978655441}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.4572059, y: 0.6079984, z: 0.030743068}
-  m_Center: {x: 0, y: -0.000000029802322, z: -0.00012485404}
 --- !u!1 &980835781
 GameObject:
   m_ObjectHideFlags: 0
@@ -45748,62 +45285,13 @@ PrefabInstance:
     - {fileID: 64219169304278356, guid: 788ef17667cdad549a1b52c9f37b2c65, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 8053550952898919800, guid: 788ef17667cdad549a1b52c9f37b2c65, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 999900155}
-    - targetCorrespondingSourceObject: {fileID: 8053550952898919800, guid: 788ef17667cdad549a1b52c9f37b2c65, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 999900154}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 788ef17667cdad549a1b52c9f37b2c65, type: 3}
 --- !u!4 &999900152 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8053550952898879832, guid: 788ef17667cdad549a1b52c9f37b2c65, type: 3}
   m_PrefabInstance: {fileID: 999900151}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &999900153 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8053550952898919800, guid: 788ef17667cdad549a1b52c9f37b2c65, type: 3}
-  m_PrefabInstance: {fileID: 999900151}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &999900154
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 999900153}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 602deaeb8cf04a7cae259c208a6be816, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.CollisionFit
-  handTuned: 0
-  centers:
-  - {x: 0, y: -0.000000029802322, z: -0.00012485404}
-  sizes:
-  - {x: 0.4572059, y: 0.6079984, z: 0.030743068}
---- !u!65 &999900155
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 999900153}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 0
-  serializedVersion: 3
-  m_Size: {x: 0.4572059, y: 0.6079984, z: 0.030743068}
-  m_Center: {x: 0, y: -0.000000029802322, z: -0.00012485404}
 --- !u!1001 &1004420646
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -50840,62 +50328,13 @@ PrefabInstance:
     - {fileID: 64897507159611420, guid: 6fe267c76a28b094590f3f68d44458cc, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 2437593443064270038, guid: 6fe267c76a28b094590f3f68d44458cc, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1126230057}
-    - targetCorrespondingSourceObject: {fileID: 2437593443064270038, guid: 6fe267c76a28b094590f3f68d44458cc, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1126230056}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6fe267c76a28b094590f3f68d44458cc, type: 3}
 --- !u!4 &1126230054 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2437593443064434934, guid: 6fe267c76a28b094590f3f68d44458cc, type: 3}
   m_PrefabInstance: {fileID: 1126230053}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1126230055 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2437593443064270038, guid: 6fe267c76a28b094590f3f68d44458cc, type: 3}
-  m_PrefabInstance: {fileID: 1126230053}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1126230056
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1126230055}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 602deaeb8cf04a7cae259c208a6be816, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.CollisionFit
-  handTuned: 0
-  centers:
-  - {x: 0, y: 0, z: -0.00017488375}
-  sizes:
-  - {x: 0.64040756, y: 0.8516226, z: 0.043061767}
---- !u!65 &1126230057
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1126230055}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.64040756, y: 0.8516226, z: 0.043061767}
-  m_Center: {x: 0, y: 0, z: -0.00017488375}
 --- !u!1001 &1127698075
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -54271,6 +53710,7 @@ GameObject:
   - component: {fileID: 1205709851}
   - component: {fileID: 1205709850}
   - component: {fileID: 1205709849}
+  - component: {fileID: 1205709853}
   m_Layer: 0
   m_Name: Stair Landing
   m_TagString: Untagged
@@ -54383,6 +53823,23 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1205709847}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1205709853
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1205709847}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 602deaeb8cf04a7cae259c208a6be816, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.CollisionFit
+  handTuned: 0
+  centers:
+  - {x: 0, y: 0, z: 0}
+  sizes:
+  - {x: 1, y: 1, z: 1}
 --- !u!1 &1206617871
 GameObject:
   m_ObjectHideFlags: 0
@@ -58973,62 +58430,13 @@ PrefabInstance:
     - {fileID: 64867224478961134, guid: 03ccdf572fd0f5945813d0e0485bcf74, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 6912194149219088736, guid: 03ccdf572fd0f5945813d0e0485bcf74, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1349189270}
-    - targetCorrespondingSourceObject: {fileID: 6912194149219088736, guid: 03ccdf572fd0f5945813d0e0485bcf74, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1349189269}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 03ccdf572fd0f5945813d0e0485bcf74, type: 3}
 --- !u!4 &1349189267 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6912194149218985280, guid: 03ccdf572fd0f5945813d0e0485bcf74, type: 3}
   m_PrefabInstance: {fileID: 1349189266}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1349189268 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6912194149219088736, guid: 03ccdf572fd0f5945813d0e0485bcf74, type: 3}
-  m_PrefabInstance: {fileID: 1349189266}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1349189269
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1349189268}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 602deaeb8cf04a7cae259c208a6be816, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.CollisionFit
-  handTuned: 0
-  centers:
-  - {x: 0, y: 0, z: 0}
-  sizes:
-  - {x: 0.64040756, y: 0.49868047, z: 0.043061767}
---- !u!65 &1349189270
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1349189268}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 0
-  serializedVersion: 3
-  m_Size: {x: 0.64040756, y: 0.49868047, z: 0.043061767}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &1350012368
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -74629,62 +74037,13 @@ PrefabInstance:
     - {fileID: 64418339955006086, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5923670615401703804, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1707163135}
-    - targetCorrespondingSourceObject: {fileID: 5923670615401703804, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1707163134}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
 --- !u!4 &1707163132 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5923670615402198364, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
   m_PrefabInstance: {fileID: 1707163131}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1707163133 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5923670615401703804, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
-  m_PrefabInstance: {fileID: 1707163131}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1707163134
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1707163133}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 602deaeb8cf04a7cae259c208a6be816, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.CollisionFit
-  handTuned: 0
-  centers:
-  - {x: -0.000000014901161, y: 0, z: -0.0012511704}
-  sizes:
-  - {x: 0.3842358, y: 0.49868047, z: 0.043061793}
---- !u!65 &1707163135
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1707163133}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.3842358, y: 0.49868047, z: 0.043061793}
-  m_Center: {x: -0.000000014901161, y: 0, z: -0.0012511704}
 --- !u!1001 &1708029676
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -75218,6 +74577,7 @@ GameObject:
   - component: {fileID: 1721206394}
   - component: {fileID: 1721206393}
   - component: {fileID: 1721206396}
+  - component: {fileID: 1721206397}
   m_Layer: 0
   m_Name: InvisibleBarrier
   m_TagString: Untagged
@@ -75331,6 +74691,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.FloorGate
   floorHeight: 2.2
+--- !u!114 &1721206397
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1721206391}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 602deaeb8cf04a7cae259c208a6be816, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.CollisionFit
+  handTuned: 1
+  centers:
+  - {x: 0.43339443, y: 0, z: 0}
+  sizes:
+  - {x: 0.13321114, y: 1, z: 1}
 --- !u!1001 &1721934415
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -84099,62 +83476,13 @@ PrefabInstance:
     - {fileID: 64418339955006086, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5923670615401703804, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1908041263}
-    - targetCorrespondingSourceObject: {fileID: 5923670615401703804, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1908041262}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
 --- !u!4 &1908041260 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5923670615402198364, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
   m_PrefabInstance: {fileID: 1908041259}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1908041261 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5923670615401703804, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
-  m_PrefabInstance: {fileID: 1908041259}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1908041262
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1908041261}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 602deaeb8cf04a7cae259c208a6be816, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.CollisionFit
-  handTuned: 0
-  centers:
-  - {x: -0.000000014901161, y: 0, z: -0.0012511704}
-  sizes:
-  - {x: 0.3842358, y: 0.49868047, z: 0.043061793}
---- !u!65 &1908041263
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1908041261}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.3842358, y: 0.49868047, z: 0.043061793}
-  m_Center: {x: -0.000000014901161, y: 0, z: -0.0012511704}
 --- !u!1001 &1908316265
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -87812,62 +87140,13 @@ PrefabInstance:
     - {fileID: 64418339955006086, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5923670615401703804, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1991902653}
-    - targetCorrespondingSourceObject: {fileID: 5923670615401703804, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1991902652}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
 --- !u!4 &1991902650 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5923670615402198364, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
   m_PrefabInstance: {fileID: 1991902649}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1991902651 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5923670615401703804, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
-  m_PrefabInstance: {fileID: 1991902649}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1991902652
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1991902651}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 602deaeb8cf04a7cae259c208a6be816, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.CollisionFit
-  handTuned: 0
-  centers:
-  - {x: -0.000000014901161, y: 0, z: -0.0012511704}
-  sizes:
-  - {x: 0.3842358, y: 0.49868047, z: 0.043061793}
---- !u!65 &1991902653
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1991902651}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.3842358, y: 0.49868047, z: 0.043061793}
-  m_Center: {x: -0.000000014901161, y: 0, z: -0.0012511704}
 --- !u!1 &1998046202
 GameObject:
   m_ObjectHideFlags: 0
@@ -89639,62 +88918,13 @@ PrefabInstance:
     - {fileID: 64867224478961134, guid: 03ccdf572fd0f5945813d0e0485bcf74, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 6912194149219088736, guid: 03ccdf572fd0f5945813d0e0485bcf74, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2038843373}
-    - targetCorrespondingSourceObject: {fileID: 6912194149219088736, guid: 03ccdf572fd0f5945813d0e0485bcf74, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2038843372}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 03ccdf572fd0f5945813d0e0485bcf74, type: 3}
 --- !u!4 &2038843370 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6912194149218985280, guid: 03ccdf572fd0f5945813d0e0485bcf74, type: 3}
   m_PrefabInstance: {fileID: 2038843369}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &2038843371 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6912194149219088736, guid: 03ccdf572fd0f5945813d0e0485bcf74, type: 3}
-  m_PrefabInstance: {fileID: 2038843369}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &2038843372
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2038843371}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 602deaeb8cf04a7cae259c208a6be816, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.CollisionFit
-  handTuned: 0
-  centers:
-  - {x: 0, y: 0, z: 0}
-  sizes:
-  - {x: 0.64040756, y: 0.49868047, z: 0.043061767}
---- !u!65 &2038843373
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2038843371}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.64040756, y: 0.49868047, z: 0.043061767}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &2040597450
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -91359,62 +90589,13 @@ PrefabInstance:
     - {fileID: 64545297951224666, guid: baa58f2d8d22dc5409f628ea32370fd5, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5766202048840694244, guid: baa58f2d8d22dc5409f628ea32370fd5, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2068698076}
-    - targetCorrespondingSourceObject: {fileID: 5766202048840694244, guid: baa58f2d8d22dc5409f628ea32370fd5, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2068698075}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: baa58f2d8d22dc5409f628ea32370fd5, type: 3}
 --- !u!4 &2068698073 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5766202048840263108, guid: baa58f2d8d22dc5409f628ea32370fd5, type: 3}
   m_PrefabInstance: {fileID: 2068698072}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &2068698074 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5766202048840694244, guid: baa58f2d8d22dc5409f628ea32370fd5, type: 3}
-  m_PrefabInstance: {fileID: 2068698072}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &2068698075
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2068698074}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 602deaeb8cf04a7cae259c208a6be816, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.CollisionFit
-  handTuned: 0
-  centers:
-  - {x: 0, y: 0, z: 0}
-  sizes:
-  - {x: 0.64040756, y: 0.49868047, z: 0.043061767}
---- !u!65 &2068698076
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2068698074}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 0
-  serializedVersion: 3
-  m_Size: {x: 0.64040756, y: 0.49868047, z: 0.043061767}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &2069544727
 GameObject:
   m_ObjectHideFlags: 0
@@ -91595,62 +90776,13 @@ PrefabInstance:
     - {fileID: 64687456001618010, guid: afcc468a7ec87ca40bb7b3bdbc4b87ce, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 8208067712057033489, guid: afcc468a7ec87ca40bb7b3bdbc4b87ce, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2071618418}
-    - targetCorrespondingSourceObject: {fileID: 8208067712057033489, guid: afcc468a7ec87ca40bb7b3bdbc4b87ce, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2071618417}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: afcc468a7ec87ca40bb7b3bdbc4b87ce, type: 3}
 --- !u!4 &2071618415 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8208067712057138993, guid: afcc468a7ec87ca40bb7b3bdbc4b87ce, type: 3}
   m_PrefabInstance: {fileID: 2071618414}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &2071618416 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8208067712057033489, guid: afcc468a7ec87ca40bb7b3bdbc4b87ce, type: 3}
-  m_PrefabInstance: {fileID: 2071618414}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &2071618417
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2071618416}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 602deaeb8cf04a7cae259c208a6be816, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.CollisionFit
-  handTuned: 0
-  centers:
-  - {x: -0.000000014901161, y: 0.000000029802322, z: -0.0015144702}
-  sizes:
-  - {x: 0.38423583, y: 0.32565105, z: 0.043061785}
---- !u!65 &2071618418
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2071618416}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.38423583, y: 0.32565105, z: 0.043061785}
-  m_Center: {x: -0.000000014901161, y: 0.000000029802322, z: -0.0015144702}
 --- !u!1001 &2072372802
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -92431,62 +91563,13 @@ PrefabInstance:
     - {fileID: 64870245723477976, guid: a3a862a8a79e6b14a8a73e934ac13793, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 3331326080295948278, guid: a3a862a8a79e6b14a8a73e934ac13793, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2094283857}
-    - targetCorrespondingSourceObject: {fileID: 3331326080295948278, guid: a3a862a8a79e6b14a8a73e934ac13793, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2094283856}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a3a862a8a79e6b14a8a73e934ac13793, type: 3}
 --- !u!4 &2094283854 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3331326080296375254, guid: a3a862a8a79e6b14a8a73e934ac13793, type: 3}
   m_PrefabInstance: {fileID: 2094283853}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &2094283855 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3331326080295948278, guid: a3a862a8a79e6b14a8a73e934ac13793, type: 3}
-  m_PrefabInstance: {fileID: 2094283853}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &2094283856
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2094283855}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 602deaeb8cf04a7cae259c208a6be816, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.CollisionFit
-  handTuned: 0
-  centers:
-  - {x: 0, y: -0.000000029802322, z: -0.00012485404}
-  sizes:
-  - {x: 0.4572059, y: 0.6079984, z: 0.030743068}
---- !u!65 &2094283857
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2094283855}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 0
-  serializedVersion: 3
-  m_Size: {x: 0.4572059, y: 0.6079984, z: 0.030743068}
-  m_Center: {x: 0, y: -0.000000029802322, z: -0.00012485404}
 --- !u!1001 &2097108457
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -92543,62 +91626,13 @@ PrefabInstance:
     - {fileID: 64897507159611420, guid: 6fe267c76a28b094590f3f68d44458cc, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 2437593443064270038, guid: 6fe267c76a28b094590f3f68d44458cc, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2097108461}
-    - targetCorrespondingSourceObject: {fileID: 2437593443064270038, guid: 6fe267c76a28b094590f3f68d44458cc, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2097108460}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6fe267c76a28b094590f3f68d44458cc, type: 3}
 --- !u!4 &2097108458 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2437593443064434934, guid: 6fe267c76a28b094590f3f68d44458cc, type: 3}
   m_PrefabInstance: {fileID: 2097108457}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &2097108459 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2437593443064270038, guid: 6fe267c76a28b094590f3f68d44458cc, type: 3}
-  m_PrefabInstance: {fileID: 2097108457}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &2097108460
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2097108459}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 602deaeb8cf04a7cae259c208a6be816, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.CollisionFit
-  handTuned: 0
-  centers:
-  - {x: 0, y: 0, z: -0.00017488375}
-  sizes:
-  - {x: 0.64040756, y: 0.8516226, z: 0.043061767}
---- !u!65 &2097108461
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2097108459}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.64040756, y: 0.8516226, z: 0.043061767}
-  m_Center: {x: 0, y: 0, z: -0.00017488375}
 --- !u!1 &2109900540
 GameObject:
   m_ObjectHideFlags: 0
