@@ -78336,6 +78336,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: KitchenTabletop2_03
       objectReference: {fileID: 0}
+    - target: {fileID: 5818855576741987075, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7540854615601672395, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
       propertyPath: m_LocalPosition.x
       value: -18.129772

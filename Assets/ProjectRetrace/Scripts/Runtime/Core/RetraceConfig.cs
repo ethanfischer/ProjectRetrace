@@ -86,14 +86,15 @@ namespace ProjectRetrace
         // look-around sweep, which is tuned to near zero so a stop reads as a stare.
         public float interactTurnDegreesPerSecond = 240f;
 
-        // Ghosts re-open whatever the player used at each stop -- drawers, lids, doors.
-        // Off, a cupboard is only opened when someone is hiding in it.
-        public bool sentriesOpenFurniture = true;
+        // On, ghosts re-open whatever the player used at each stop -- drawers, lids, doors.
+        // Off by default: a cupboard is only opened when someone is hiding in it, which
+        // keeps the house quiet enough to read where a ghost has actually been.
+        public bool sentriesOpenFurniture = false;
 
         // A thrown prop stuns a ghost: it fades out, stays blind this long, then fades
         // back in where it stood with the usual grace period.
-        public float sentryStunSeconds = 5f;
-        public float sentryStunFadeSeconds = 0.8f;
+        public float sentryStunSeconds = 3f;
+        public float sentryStunFadeSeconds = 0.3f;
 
         // Vision
         public float visionRange = 7f;
