@@ -21,9 +21,9 @@ namespace ProjectRetrace
         public bool Held => _holder != null;
         public override string Prompt => "Pick up";
 
-        /// <summary>Once thrown it stays where it landed: a ghost's missed throw is not a
-        /// free weapon, and a hit one is spent.</summary>
-        public override bool CanInteract => base.CanInteract && !Held && !_projectile.Launched;
+        /// <summary>Anything at rest can be picked up again, a ghost's missed throw
+        /// included; only a prop still in the air is off limits.</summary>
+        public override bool CanInteract => base.CanInteract && !Held && (!_projectile.Launched || _projectile.Resting);
 
         /// <summary>A ghost may take it unless the player holds it or it is mid-air.</summary>
         public bool AvailableToGhost => !Held && (!_projectile.Launched || _projectile.Resting);
