@@ -20,8 +20,32 @@ namespace ProjectRetrace.EditorTools
     /// </summary>
     public static class LevelImportMenu
     {
-        private const string SourceScenePath = "Assets/Scenes/HomeInterior_FirstFloor.unity";
-        private const string ImportedRootName = "TestHouse (HomeInterior_FirstFloor)";
+        /// <summary>Each storey is its own art scene, authored at ground level so the artist
+        /// works in one place; the import lifts it to its elevation. The storey height is the
+        /// pack's wall height, which stacks a floor plate exactly on the walls below.</summary>
+        private sealed class Floor
+        {
+            public string ScenePath;
+            public string RootName;
+            public float Elevation;
+            public bool IsGround => Elevation == 0f;
+        }
+
+        private const float StoreyHeight = 2.5f;
+        private static readonly Floor GroundFloor = new Floor
+        {
+            ScenePath = "Assets/Scenes/HomeInterior_FirstFloor.unity",
+            RootName = "TestHouse (HomeInterior_FirstFloor)",
+            Elevation = 0f,
+        };
+        private static readonly Floor UpperFloor = new Floor
+        {
+            ScenePath = "Assets/Scenes/HomeInterior_SecondFloor.unity",
+            RootName = "TestHouse (HomeInterior_SecondFloor)",
+            Elevation = StoreyHeight,
+        };
+        private static readonly Floor[] Floors = { GroundFloor, UpperFloor };
+
         private const string AdditionsRootName = "TestHouse (Additions)";
         private const string GeneratedRootPrefix = "TestHouse (seed";
         private const string KeySpotName = "KeySpot";
@@ -42,6 +66,10 @@ namespace ProjectRetrace.EditorTools
             // 21 cm taller than the original; anything sitting on top needs lifting.
             { "Room/RoomFurniture_05", ("InteractiveFurniture/InteractiveFurniture_05", 0f) },
             { "Room/OfficeTable_02", ("InteractiveFurniture/InteractiveFurniture_07", 0f) },
+            // The upper floor's wardrobes, nightstands and bedside chests.
+            { "Room/RoomFurniture_08", ("InteractiveFurniture/InteractiveFurniture_06", 0f) },
+            { "Room/Bed_Table_01", ("InteractiveFurniture/InteractiveFurniture_02", 0f) },
+            { "Room/RoomFurniture_04", ("InteractiveFurniture/InteractiveFurniture_03", 0f) },
         };
         private const string InteractivePrefabFolder = "Assets/LowPolyInterior/Prefabs/InteractiveFurniture/";
 
@@ -54,10 +82,43 @@ namespace ProjectRetrace.EditorTools
             { "Kitchen/KitchenTabletop2_03", "Assets/ProjectRetrace/Art/Materials/KitchenCabinetBlue.mat" },
         };
         private const string PackMainMaterialName = "LowPolyInterior_MAIN";
-        private const string RoomDoorPrefabPath = "Assets/LowPolyInterior/Prefabs/Walls/Door_04.prefab";
+
+        /// <summary>The pack's room doors share one mesh and hinge layout under different
+        /// numbers; the art scenes use both.</summary>
+        private static readonly HashSet<string> RoomDoorPrefabPaths = new HashSet<string>
+        {
+            "Assets/LowPolyInterior/Prefabs/Walls/Door_04.prefab",
+            "Assets/LowPolyInterior/Prefabs/Walls/Door_05.prefab",
+        };
         private const string BackMaterialPath = "Assets/ProjectRetrace/Art/Materials/FurnitureBack.mat";
         private const string BackName = "Back";
+        private const string LandingName = "Stair Landing";
+
+        /// <summary>Art-scene roots the import switches off by name, each with its reason.
+        /// The list is the record of what was hand-deleted from the playable copy, so a
+        /// re-import cannot quietly bring it back.</summary>
+        private static readonly Dictionary<string, string> DroppedProps = new Dictionary<string, string>
+        {
+            // Ceiling fan on the upper floor: hangs 1.5 m over the plate, at head height.
+            { "Light_05", "hangs at head height" },
+        };
+
+        /// <summary>The upper floor's plate is tiled straight across the stair flight below
+        /// it. Any tile covering this much of the flight's footprint is cut out to make the
+        /// stairwell; the sliver a tile shares with the flight's edge rail is left alone.</summary>
+        private const float StairwellTileOverlap = 0.25f;
+
+        /// <summary>The plate sits only 2.4 m over the ground, so a player on the first few
+        /// treads still has a tile above them at head height; the cut runs this far past the
+        /// bottom of the flight (one tile row) to open that up.</summary>
+        private const float StairwellRunPastBottom = 1.2f;
+
+
         private static readonly string[] MeshCollisionPrefixes = { "Floor", "Wall", "Corner", "Stairs", "Door" };
+
+        /// <summary>Wall art gets no collision: nothing hides in a picture, no ray needs to
+        /// land on one, and the row hung over the stair flight was at head height.</summary>
+        private static readonly string[] NoCollisionPrefixes = { "Picture" };
 
         // Profile boxing: a static mesh is sliced into horizontal slabs this thick, slabs
         // whose footprints agree within the tolerance merge, and each run becomes a box.
@@ -94,62 +155,82 @@ namespace ProjectRetrace.EditorTools
 
         private struct Summary
         {
-            public int props, doors, drawers, keySpots, hidingSpots, roomDoors, backs, colliders, boxed, tuned, readableMeshes, swapped, stairs;
+            public int props, doors, drawers, keySpots, hidingSpots, roomDoors, backs, colliders, boxed, tuned, readableMeshes, swapped, stairs, batched;
             public override string ToString() =>
                 $"{swapped} static prop(s) swapped for interactive twins; {props} prop(s): {doors} door(s), {drawers} drawer(s), {keySpots} key spot(s), " +
                 $"{hidingSpots} hiding spot(s), {roomDoors} room door(s), {backs} back(s); {colliders} collider(s) added, {boxed} part(s) boxed, {tuned} hand-tuned part(s) kept, " +
-                $"{readableMeshes} mesh import(s) made readable, {stairs} stair flight(s) marked";
+                $"{readableMeshes} mesh import(s) made readable, {stairs} stair flight(s) marked, {batched} renderer(s) marked static for batching";
         }
 
         [MenuItem("ProjectRetrace/Level/Import HomeInterior_FirstFloor", false, 42)]
-        public static void ImportFirstFloor()
+        public static void ImportFirstFloor() => ImportFloor(GroundFloor);
+
+        [MenuItem("ProjectRetrace/Level/Import HomeInterior_SecondFloor", false, 43)]
+        public static void ImportSecondFloor() => ImportFloor(UpperFloor);
+
+        [MenuItem("ProjectRetrace/Level/Import Both Floors", false, 44)]
+        public static void ImportBothFloors()
+        {
+            foreach (var floor in Floors)
+            {
+                if (!ImportFloor(floor)) return;
+            }
+        }
+
+        private static bool ImportFloor(Floor floor)
         {
             var target = SceneManager.GetActiveScene();
-            if (target.path == SourceScenePath || SceneManager.GetSceneByPath(SourceScenePath).isLoaded)
+            if (target.path == floor.ScenePath || SceneManager.GetSceneByPath(floor.ScenePath).isLoaded)
             {
                 EditorUtility.DisplayDialog(
                     "ProjectRetrace",
-                    "Open the gameplay scene (Main) as the active scene, with HomeInterior_FirstFloor closed, then import.",
+                    $"Open the gameplay scene (Main) as the active scene, with {System.IO.Path.GetFileNameWithoutExtension(floor.ScenePath)} closed, then import.",
                     "OK");
-                return;
+                return false;
             }
 
             Undo.IncrementCurrentGroup();
-            Undo.SetCurrentGroupName("Import HomeInterior_FirstFloor");
+            Undo.SetCurrentGroupName("Import " + floor.RootName);
 
-            var source = EditorSceneManager.OpenScene(SourceScenePath, OpenSceneMode.Additive);
+            var source = EditorSceneManager.OpenScene(floor.ScenePath, OpenSceneMode.Additive);
             var sourcePaths = HierarchyPaths(source.GetRootGameObjects());
 
-            var tunedCollision = HarvestTunedCollision(target);
-            var firstImport = RemovePreviousHouse(target, sourcePaths, out var rescued);
+            var tunedCollision = HarvestTunedCollision(target, floor);
+            var firstImport = RemovePreviousHouse(target, floor, sourcePaths, out var rescued);
 
-            var root = new GameObject(ImportedRootName);
+            var root = new GameObject(floor.RootName);
             Undo.RegisterCreatedObjectUndo(root, "Import level");
+            root.transform.position = Vector3.up * floor.Elevation;
 
             foreach (var sceneObject in source.GetRootGameObjects())
             {
                 if (sceneObject.GetComponent<Camera>() != null || HasComponentNamed(sceneObject, "Volume")) continue;
+                if (!floor.IsGround && IsDirectionalLight(sceneObject)) continue;
                 Undo.MoveGameObjectToScene(sceneObject, target, "Import level");
-                Undo.SetTransformParent(sceneObject.transform, root.transform, "Import level");
+                Undo.SetTransformParent(sceneObject.transform, root.transform, false, "Import level");
             }
 
             EditorSceneManager.CloseScene(source, true);
 
             var summary = PrepareFurniture(root.transform);
             var restored = RestoreTunedCollision(root.transform, tunedCollision);
-            if (firstImport) PlaceSpawnPoint();
+            ShelveDroppedProps(root.transform);
+            var stairwells = JoinFloors(target);
+            if (firstImport && floor.IsGround) PlaceSpawnPoint();
 
             EditorSceneManager.MarkSceneDirty(target);
             Selection.activeGameObject = root;
-            Debug.Log($"[ProjectRetrace] Imported {SourceScenePath}: {summary}; {restored}/{tunedCollision.Count} hand-tuned collider set(s) carried over.");
+            Debug.Log($"[ProjectRetrace] Imported {floor.ScenePath}: {summary}; {restored}/{tunedCollision.Count} hand-tuned collider set(s) carried over; {stairwells}.");
             if (rescued.Count > 0)
             {
                 Debug.LogWarning($"[ProjectRetrace] Moved {rescued.Count} hand-placed object(s) out of the old import into " +
                                  $"'{AdditionsRootName}': {string.Join(", ", rescued)}. Keep additions under that root.");
             }
+
+            return true;
         }
 
-        [MenuItem("ProjectRetrace/Level/Prepare LowPoly Furniture", false, 43)]
+        [MenuItem("ProjectRetrace/Level/Prepare LowPoly Furniture", false, 45)]
         public static void PrepareAllHouses()
         {
             var summary = new Summary();
@@ -159,20 +240,239 @@ namespace ProjectRetrace.EditorTools
                 Accumulate(ref summary, PrepareFurniture(root.transform));
             }
 
+            var stairwells = JoinFloors(SceneManager.GetActiveScene());
             EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
-            Debug.Log($"[ProjectRetrace] Prepared LowPoly furniture: {summary}.");
+            Debug.Log($"[ProjectRetrace] Prepared LowPoly furniture: {summary}; {stairwells}.");
+        }
+
+        /// <summary>Each storey above the ground gets its stairwell cut. Runs after every
+        /// import, so whichever floor arrives second finds the other. Locking the stairs
+        /// is the hand-placed FloorGate's job, under the Additions root.</summary>
+        private static string JoinFloors(Scene scene)
+        {
+            var ground = FindRoot(scene, GroundFloor.RootName);
+            var upper = FindRoot(scene, UpperFloor.RootName);
+            if (ground == null || upper == null) return "no stairwell (one floor only)";
+
+            var cut = CutStairwell(upper, ground, UpperFloor.Elevation);
+            return $"{cut} floor tile(s) cut for the stairwell";
+        }
+
+        private static Transform FindRoot(Scene scene, string name)
+        {
+            foreach (var root in scene.GetRootGameObjects())
+            {
+                if (root.name == name) return root.transform;
+            }
+
+            return null;
+        }
+
+        /// <summary>The upper floor's plate was tiled straight across the flight, so the tiles
+        /// covering it come out, and where the hole runs past the top step a plain landing
+        /// slab bridges the gap. The rule re-applies on every import, so once the artist cuts
+        /// a proper stairwell herself nothing is left to remove and no landing is added.</summary>
+        private static int CutStairwell(Transform upper, Transform ground, float elevation)
+        {
+            var cut = 0;
+            foreach (var flight in StairFlights(ground))
+            {
+                var footprint = WorldBounds(flight);
+                var alongX = footprint.size.x >= footprint.size.z;
+                var topAtMax = TreadHeight(flight, footprint, alongX, true) > TreadHeight(flight, footprint, alongX, false);
+                var cutArea = ExtendPastBottom(footprint, alongX, topAtMax);
+                Bounds hole = default;
+                var holeFound = false;
+                foreach (var filter in upper.GetComponentsInChildren<MeshFilter>(true))
+                {
+                    if (!IsFloorTile(filter, elevation)) continue;
+                    var tile = filter.GetComponent<Renderer>().bounds;
+                    if (OverlapXZ(tile, cutArea) < StairwellTileOverlap * tile.size.x * tile.size.z) continue;
+
+                    if (holeFound) hole.Encapsulate(tile);
+                    else { hole = tile; holeFound = true; }
+                    Undo.DestroyObjectImmediate(filter.gameObject);
+                    cut++;
+                }
+
+                if (holeFound)
+                {
+                    ShelvePropsOverHole(upper, hole, elevation);
+                    AddLanding(upper, footprint, hole, alongX, topAtMax);
+                }
+            }
+
+            return cut;
+        }
+
+        /// <summary>MarkStairs tags the flight and its side rail alike; only the flight has
+        /// treads to walk, and it is the one whose footprint the stairwell follows.</summary>
+        private static List<Transform> StairFlights(Transform ground)
+        {
+            var flights = new List<Transform>();
+            foreach (var stairs in ground.GetComponentsInChildren<Stairs>(true))
+            {
+                if (stairs.name.StartsWith("StairsPart") || stairs.name == LandingName) continue;
+                flights.Add(stairs.transform);
+            }
+
+            return flights;
+        }
+
+        private static Bounds ExtendPastBottom(Bounds footprint, bool alongX, bool topAtMax)
+        {
+            var run = (alongX ? Vector3.right : Vector3.forward) * StairwellRunPastBottom;
+            var extended = footprint;
+            extended.Encapsulate(topAtMax ? footprint.min - run : footprint.max + run);
+            return extended;
+        }
+
+        private static bool IsFloorTile(MeshFilter filter, float elevation)
+        {
+            if (!filter.name.StartsWith("Floor") || filter.sharedMesh == null) return false;
+            var renderer = filter.GetComponent<Renderer>();
+            if (renderer == null) return false;
+            var bounds = renderer.bounds;
+            return bounds.size.y < 0.3f && Mathf.Abs(bounds.max.y - elevation) < 0.2f;
+        }
+
+        private static float OverlapXZ(Bounds a, Bounds b)
+        {
+            var x = Mathf.Min(a.max.x, b.max.x) - Mathf.Max(a.min.x, b.min.x);
+            var z = Mathf.Min(a.max.z, b.max.z) - Mathf.Max(a.min.z, b.min.z);
+            return x > 0f && z > 0f ? x * z : 0f;
+        }
+
+        /// <summary>The flight's top end is whichever end its treads are highest at; the
+        /// landing fills the hole from that end to the hole's edge, across the hole's
+        /// width, at the plate's own thickness. It counts as stairs so the controller's
+        /// stair step height covers the lip between the top tread and the slab.</summary>
+        private static void AddLanding(Transform upper, Bounds footprint, Bounds hole, bool alongX, bool topAtMax)
+        {
+            if (upper.Find(LandingName) != null) return;
+
+            var landing = new Bounds();
+            if (alongX)
+            {
+                var from = topAtMax ? footprint.max.x : hole.min.x;
+                var to = topAtMax ? hole.max.x : footprint.min.x;
+                landing.SetMinMax(new Vector3(from, hole.min.y, hole.min.z), new Vector3(to, hole.max.y, hole.max.z));
+            }
+            else
+            {
+                var from = topAtMax ? footprint.max.z : hole.min.z;
+                var to = topAtMax ? hole.max.z : footprint.min.z;
+                landing.SetMinMax(new Vector3(hole.min.x, hole.min.y, from), new Vector3(hole.max.x, hole.max.y, to));
+            }
+
+            if (landing.size.x < 0.05f || landing.size.z < 0.05f) return;
+
+            var slab = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            slab.name = LandingName;
+            Undo.RegisterCreatedObjectUndo(slab, "Add stair landing");
+            slab.transform.SetParent(upper, true);
+            slab.transform.position = landing.center;
+            slab.transform.localScale = landing.size;
+            slab.GetComponent<Renderer>().sharedMaterial = BackMaterial();
+            slab.AddComponent<Stairs>();
+        }
+
+        private static float TreadHeight(Transform flight, Bounds footprint, bool alongX, bool atMax)
+        {
+            Physics.SyncTransforms();
+            var inset = 0.3f;
+            var x = alongX ? (atMax ? footprint.max.x - inset : footprint.min.x + inset) : footprint.center.x;
+            var z = alongX ? footprint.center.z : (atMax ? footprint.max.z - inset : footprint.min.z + inset);
+            var origin = new Vector3(x, footprint.max.y + 0.5f, z);
+            var best = float.MinValue;
+            foreach (var hit in Physics.RaycastAll(origin, Vector3.down, footprint.size.y + 1f, ~0, QueryTriggerInteraction.Ignore))
+            {
+                if (hit.collider.transform.IsChildOf(flight)) best = Mathf.Max(best, hit.point.y);
+            }
+
+            return best;
+        }
+
+        /// <summary>The artist dressed the tiles that just came out, so whatever stood on
+        /// them now hangs in the air over the flight, and its colliders sit under the agent
+        /// height above the treads: they pinch the navmesh off the stairs entirely. Those
+        /// props are switched off rather than moved -- placing them is hers -- and named,
+        /// so moving them in the art scene brings them back on the next import.</summary>
+        private static void ShelvePropsOverHole(Transform upper, Bounds hole, float elevation)
+        {
+            var shelved = new List<Transform>();
+            foreach (Transform child in upper)
+            {
+                if (child.name.StartsWith("Wall") || child.name.StartsWith("Floor") || child.name == LandingName) continue;
+                if (child.GetComponentsInChildren<Renderer>(true).Length == 0) continue;
+                var bounds = WorldBounds(child);
+                var standsOnPlate = Mathf.Abs(bounds.min.y - elevation) < 0.1f;
+                if (standsOnPlate && OverlapXZ(bounds, hole) > 0f) shelved.Add(child);
+            }
+
+            ShelveWhatRestsOn(upper, shelved);
+            if (shelved.Count == 0) return;
+
+            var names = new List<string>();
+            foreach (var prop in shelved)
+            {
+                Undo.RecordObject(prop.gameObject, "Shelve prop over stairwell");
+                prop.gameObject.SetActive(false);
+                names.Add(prop.name);
+            }
+
+            Debug.LogWarning($"[ProjectRetrace] {names.Count} prop(s) stood over the stairwell cut from the upper floor and were switched off; move them in the art scene: {string.Join(", ", names)}.");
+        }
+
+        private static void ShelveDroppedProps(Transform house)
+        {
+            foreach (Transform child in house)
+            {
+                if (!DroppedProps.TryGetValue(child.name, out var reason)) continue;
+                Undo.RecordObject(child.gameObject, "Shelve dropped prop");
+                child.gameObject.SetActive(false);
+                Debug.Log($"[ProjectRetrace] Switched off '{child.name}' ({reason}).");
+            }
+        }
+
+        /// <summary>A lamp or photo on a shelved nightstand would be left floating where
+        /// the nightstand was, so whatever sits on a shelved prop's top goes with it. Only
+        /// the furniture is checked, not what it carried: a wall picture hung just above a
+        /// plant reads as resting on it and would be chained off with it.</summary>
+        private static void ShelveWhatRestsOn(Transform upper, List<Transform> shelved)
+        {
+            var furniture = shelved.Count;
+            for (var i = 0; i < furniture; i++)
+            {
+                var top = WorldBounds(shelved[i]);
+                foreach (Transform child in upper)
+                {
+                    if (shelved.Contains(child) || child.GetComponentsInChildren<Renderer>(true).Length == 0) continue;
+                    var bounds = WorldBounds(child);
+                    var restsOnTop = Mathf.Abs(bounds.min.y - top.max.y) < 0.06f;
+                    var withinFootprint = bounds.center.x > top.min.x && bounds.center.x < top.max.x && bounds.center.z > top.min.z && bounds.center.z < top.max.z;
+                    if (restsOnTop && withinFootprint) shelved.Add(child);
+                }
+            }
+        }
+
+        private static bool IsDirectionalLight(GameObject sceneObject)
+        {
+            var light = sceneObject.GetComponent<Light>();
+            return light != null && light.type == LightType.Directional;
         }
 
         /// <summary>The generated house, its dev grid and its point light were all stand-ins
         /// for a real level; the imported scene brings its own lighting. Returns true when
-        /// no earlier import existed, which is the only time the spawn point may be moved.</summary>
-        private static bool RemovePreviousHouse(Scene scene, HashSet<string> sourcePaths, out List<string> rescued)
+        /// no earlier import of this floor existed, which is the only time the spawn point
+        /// may be moved.</summary>
+        private static bool RemovePreviousHouse(Scene scene, Floor floor, HashSet<string> sourcePaths, out List<string> rescued)
         {
             rescued = new List<string>();
             var firstImport = true;
             foreach (var root in scene.GetRootGameObjects())
             {
-                var isImport = root.name == ImportedRootName;
+                var isImport = root.name == floor.RootName;
                 var isGenerated = root.name.StartsWith(GeneratedRootPrefix);
                 var isGrid = root.name == "DevGridFloor";
                 var isLight = root.name == "Directional Light" && root.GetComponent<Light>() != null;
@@ -189,13 +489,13 @@ namespace ProjectRetrace.EditorTools
         }
 
         /// <summary>Anything under the old import that the art scene never contained was put
-        /// there by hand. Prepare's own KeySpot and Back objects are the one exception.</summary>
+        /// there by hand. Prepare's own KeySpot, Back and landing objects are the exception.</summary>
         private static void RescueAdditions(Scene scene, Transform oldRoot, HashSet<string> sourcePaths, List<string> rescued)
         {
             Transform additions = null;
             foreach (var transform in oldRoot.GetComponentsInChildren<Transform>(true))
             {
-                if (transform == oldRoot || transform.name == KeySpotName || transform.name == BackName) continue;
+                if (transform == oldRoot || transform.name == KeySpotName || transform.name == BackName || transform.name == LandingName) continue;
                 if (PrefabUtility.IsPartOfPrefabInstance(transform) && !PrefabUtility.IsAnyPrefabInstanceRoot(transform.gameObject)) continue;
                 // A twin's doors and drawers are nested model instances, so they count as
                 // prefab roots of their own; what marks them as hers is the prop they sit in.
@@ -254,12 +554,13 @@ namespace ProjectRetrace.EditorTools
             (summary.colliders, summary.boxed, summary.tuned) = FitColliders(house);
             summary.readableMeshes = MakeCollisionMeshesReadable(house);
             summary.stairs = MarkStairs(house);
+            summary.batched = MarkStaticForBatching(house);
             foreach (var transform in house.GetComponentsInChildren<Transform>(true))
             {
                 if (!PrefabUtility.IsAnyPrefabInstanceRoot(transform.gameObject)) continue;
 
                 var assetPath = PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(transform.gameObject);
-                if (assetPath == RoomDoorPrefabPath)
+                if (RoomDoorPrefabPaths.Contains(assetPath))
                 {
                     summary.roomDoors += PrepareRoomDoor(transform.gameObject);
                 }
@@ -271,6 +572,25 @@ namespace ProjectRetrace.EditorTools
             }
 
             return summary;
+        }
+
+        /// <summary>Nearly a thousand small meshes, each drawn once per shadow cascade on
+        /// top of the main pass, is the whole frame cost of this house; static batching
+        /// folds everything that never moves into a few combined meshes. Only the parts
+        /// that swing or slide -- anything carrying an interactable -- are left out.</summary>
+        private static int MarkStaticForBatching(Transform house)
+        {
+            var marked = 0;
+            foreach (var renderer in house.GetComponentsInChildren<MeshRenderer>(true))
+            {
+                if (renderer.GetComponentInParent<InteractableBase>(true) != null) continue;
+                var flags = GameObjectUtility.GetStaticEditorFlags(renderer.gameObject);
+                if ((flags & StaticEditorFlags.BatchingStatic) != 0) continue;
+                GameObjectUtility.SetStaticEditorFlags(renderer.gameObject, flags | StaticEditorFlags.BatchingStatic);
+                marked++;
+            }
+
+            return marked;
         }
 
         /// <summary>The pack names its flights "Stairs_NN" and their side panels
@@ -403,6 +723,12 @@ namespace ProjectRetrace.EditorTools
                 if (filter.sharedMesh == null || filter.name == BackName) continue;
 
                 var existing = filter.GetComponent<Collider>();
+                if (SkipsCollision(house, filter.transform))
+                {
+                    StripCollision(filter.gameObject);
+                    continue;
+                }
+
                 if (KeepsMeshCollision(house, filter.transform))
                 {
                     if (UndoMistakenBoxes(filter.gameObject)) existing = null;
@@ -471,12 +797,12 @@ namespace ProjectRetrace.EditorTools
 
         /// <summary>Hand-tuned box sets under the current import, keyed by path, so the
         /// re-import can put them back on the same parts of the fresh copy.</summary>
-        private static Dictionary<string, CollisionFit> HarvestTunedCollision(Scene scene)
+        private static Dictionary<string, CollisionFit> HarvestTunedCollision(Scene scene, Floor floor)
         {
             var tuned = new Dictionary<string, CollisionFit>();
             foreach (var root in scene.GetRootGameObjects())
             {
-                if (root.name != ImportedRootName) continue;
+                if (root.name != floor.RootName) continue;
                 foreach (var fit in root.GetComponentsInChildren<CollisionFit>(true))
                 {
                     if (!fit.handTuned) continue;
@@ -662,8 +988,7 @@ namespace ProjectRetrace.EditorTools
         /// prefab root names the FBX, not the interactive prefab; the outermost root does.</summary>
         private static bool KeepsMeshCollision(Transform house, Transform part)
         {
-            var top = part;
-            while (top.parent != null && top.parent != house) top = top.parent;
+            var top = TopLevelAncestor(house, part);
             foreach (var prefix in MeshCollisionPrefixes)
             {
                 if (top.name.StartsWith(prefix)) return true;
@@ -675,9 +1000,34 @@ namespace ProjectRetrace.EditorTools
             return outermost != null && IsInteractiveAsset(PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(outermost));
         }
 
+        private static bool SkipsCollision(Transform house, Transform part)
+        {
+            var top = TopLevelAncestor(house, part);
+            foreach (var prefix in NoCollisionPrefixes)
+            {
+                if (top.name.StartsWith(prefix)) return true;
+            }
+
+            return false;
+        }
+
+        private static void StripCollision(GameObject part)
+        {
+            foreach (var collider in part.GetComponents<Collider>()) Undo.DestroyObjectImmediate(collider);
+            var receipt = part.GetComponent<CollisionFit>();
+            if (receipt != null) Undo.DestroyObjectImmediate(receipt);
+        }
+
+        private static Transform TopLevelAncestor(Transform house, Transform part)
+        {
+            var top = part;
+            while (top.parent != null && top.parent != house) top = top.parent;
+            return top;
+        }
+
         private static bool IsInteractiveAsset(string assetPath)
         {
-            return assetPath == RoomDoorPrefabPath || assetPath.StartsWith(InteractivePrefabFolder) || assetPath.Contains("/InteractiveFurniture/");
+            return RoomDoorPrefabPaths.Contains(assetPath) || assetPath.StartsWith(InteractivePrefabFolder) || assetPath.Contains("/InteractiveFurniture/");
         }
 
         /// <summary>The navmesh bakes from MeshColliders at runtime, which needs the mesh
@@ -955,6 +1305,7 @@ namespace ProjectRetrace.EditorTools
             total.tuned += part.tuned;
             total.swapped += part.swapped;
             total.stairs += part.stairs;
+            total.batched += part.batched;
 
         }
     }

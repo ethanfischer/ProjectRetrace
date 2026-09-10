@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ProjectRetrace
@@ -16,22 +17,25 @@ namespace ProjectRetrace
         {
             get
             {
-                var root = FindHouseRoot();
-                var house = root != null ? root.name : "no-house";
-                return house + "|" + Application.version;
+                var house = string.Join("+", HouseRootNames());
+                return (house.Length > 0 ? house : "no-house") + "|" + Application.version;
             }
         }
 
         public static int KeySpotCount => Object.FindObjectsByType<KeySpotMarker>(FindObjectsSortMode.None).Length;
 
-        private static GameObject FindHouseRoot()
+        /// <summary>Every house root counts, sorted: a peer missing the upper floor is a
+        /// different house, and hierarchy order must not decide the name.</summary>
+        private static List<string> HouseRootNames()
         {
+            var names = new List<string>();
             foreach (var root in UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects())
             {
-                if (root.name.StartsWith("TestHouse")) return root;
+                if (root.name.StartsWith("TestHouse")) names.Add(root.name);
             }
 
-            return null;
+            names.Sort(System.StringComparer.Ordinal);
+            return names;
         }
     }
 }

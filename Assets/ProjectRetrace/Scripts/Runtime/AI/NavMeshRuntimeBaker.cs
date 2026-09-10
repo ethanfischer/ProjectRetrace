@@ -66,7 +66,7 @@ namespace ProjectRetrace
                 bounds = foundHouse ? Union(bounds, ColliderBounds(root)) : ColliderBounds(root);
                 foundHouse = true;
                 IgnoreDoors(root.transform, markups);
-                NavMeshBuilder.CollectSources(root.transform, ~0, NavMeshCollectGeometry.PhysicsColliders, 0, markups, sources);
+                sources.AddRange(CollectUnder(root.transform, markups));
             }
 
             if (!foundHouse)
@@ -78,6 +78,16 @@ namespace ProjectRetrace
 
             bounds.Expand(4f);
             return sources;
+        }
+
+        /// <summary>CollectSources empties the list it is handed before filling it, so
+        /// collecting each house root straight into the shared list would keep only the
+        /// last root's colliders: the whole ground floor, when the upper floor comes after it.</summary>
+        private static List<NavMeshBuildSource> CollectUnder(Transform root, List<NavMeshBuildMarkup> markups)
+        {
+            var found = new List<NavMeshBuildSource>();
+            NavMeshBuilder.CollectSources(root, ~0, NavMeshCollectGeometry.PhysicsColliders, 0, markups, found);
+            return found;
         }
 
         private static Bounds ColliderBounds(GameObject root)
@@ -111,6 +121,16 @@ namespace ProjectRetrace
             foreach (var door in doors)
             {
                 markups.Add(new NavMeshBuildMarkup { root = door.transform, ignoreFromBuild = true });
+            }
+
+            // The stair barrier drops mid-run, after the one bake; baked in, it would wall
+            // the upstairs routes off from the ghosts that own them.
+            var gates = root != null
+                ? root.GetComponentsInChildren<FloorGate>(true)
+                : FindObjectsByType<FloorGate>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (var gate in gates)
+            {
+                markups.Add(new NavMeshBuildMarkup { root = gate.transform, ignoreFromBuild = true });
             }
         }
     }

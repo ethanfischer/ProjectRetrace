@@ -111,7 +111,7 @@ ProjectRetrace > Furniture > Add Hiding Spots To Cupboards retrofits an older sc
 `DoorInteractable` can be round-locked (`unlocksAtRound`, a displayed round number, read
 against `GameDirector.Instance.StealthRound`) and carries a `sealedArea`; `KeySpawner`
 skips any hiding spot inside a locked door's sealed volume. The generated house uses this
-to keep the upper floor shut until round 4.
+to keep the upper floor shut until round 4; the imported house uses `FloorGate` instead.
 
 Online (`Runtime/Net/`, design in [ONLINE.md](ONLINE.md)) is couch mode split across two
 machines. `OnlineSession` owns the socket and translates wire messages into director
@@ -123,11 +123,26 @@ simulates nothing. Routes cross the wire as `RouteData`, props are named by
 is `relay/server.js`, dumb by design. Test against the editor with `LoopbackTransport` or
 any scripted peer; `OnlineContractTests` covers the contracts.
 
-`LevelImportMenu` (ProjectRetrace > Level) is how the art team's scene becomes the playable
-house. `HomeInterior_FirstFloor.unity` stays pure art; Import deletes every `TestHouse*`
-root (plus the dev grid and the origin point light), moves her scene's roots under a new
-`TestHouse (HomeInterior_FirstFloor)` root, and runs Prepare on it, so re-importing after
-her next PR is one click. Prepare is idempotent: it gives every static prop a BoxCollider per mesh part (the pack's
+`LevelImportMenu` (ProjectRetrace > Level) is how the art team's scenes become the playable
+house. `HomeInterior_FirstFloor.unity` and `HomeInterior_SecondFloor.unity` stay pure art;
+each floor imports under its own root (`TestHouse (HomeInterior_FirstFloor)` at ground
+level, `TestHouse (HomeInterior_SecondFloor)` lifted by the pack's 2.5 m wall height, so her
+ground-level authoring stacks straight onto the walls below) and Import Both Floors does
+them in order. Import deletes that floor's previous root (plus any generated house, dev
+grid and origin light), moves her scene's roots under the new one, and runs Prepare on it,
+so re-importing after her next PR is one click. Whenever both floors are present the
+import also joins them: the upper plate's tiles over the stair flight are cut out (a
+plain landing slab bridges any gap past the top tread), props that stood on those tiles
+are switched off and named in the log for the artist to move (left in place, their
+colliders pinch the navmesh off the stairs). All of it is rule-based, so once she cuts a
+real stairwell nothing is left to remove. The stairs themselves are locked by `FloorGate`
+on the hand-placed `InvisibleBarrier` under the Additions root: it reads
+`upstairsUnlockRound` from the config, is solid until that displayed round and gone from
+it on, and `KeySpawner` asks it where keys may hide -- downstairs only while locked,
+upstairs only once open, so the round that opens the house is the round the player has
+to climb. The baker leaves it out of the bake like a door. Upstairs is "above
+`floorHeight`", a height rather than a volume, because that is all a floor is.
+Prepare is idempotent: it gives every static prop a BoxCollider per mesh part (the pack's
 mesh colliders are sloped enough to walk up; only the shell, stairs, room doors and the
 interactive furniture keep mesh collision, the last so drawers and cupboards stay open
 inside for keys and hiders; each fitted part carries a `CollisionFit` receipt, and a part
@@ -144,7 +159,9 @@ which re-imports never touch and the navmesh still bakes; anything found inside 
 imported copy that the art scene lacks is moved there rather than deleted, and the spawn
 point is only placed on the very first import.
 `NavMeshRuntimeBaker` sizes its bake volume from the house's own colliders, so the imported
-level (built 20 m west of the origin) is fully covered.
+level (built 20 m west of the origin) is fully covered, and collects each `TestHouse*` root
+into its own list before merging: `NavMeshBuilder.CollectSources` empties the list it is
+handed, so a shared list would keep only the last root's floor.
 
 `InteractableRegistry` is a static list that self-populates from `InteractableBase.OnEnable`, so
 the director resets the whole house without holding scene references to individual props. It

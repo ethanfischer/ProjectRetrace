@@ -81,6 +81,10 @@ namespace ProjectRetrace
         public float lookSweepDegrees = 0.1f;
         public float lookTurnDegreesPerSecond = 0.1f;
 
+        // How fast a ghost turns to face the prop it is about to use. Separate from the
+        // look-around sweep, which is tuned to near zero so a stop reads as a stare.
+        public float interactTurnDegreesPerSecond = 240f;
+
         // Ghosts re-open whatever the player used at each stop -- drawers, lids, doors.
         // Off, a cupboard is only opened when someone is hiding in it.
         public bool sentriesOpenFurniture = true;
@@ -96,6 +100,10 @@ namespace ProjectRetrace
         public float transitionPause = 1.25f;
         public bool randomiseKeySpots = true;
         public int keySpotSeed = 12345;
+
+        /// <summary>Displayed round from which the stairs open; until then the keys stay
+        /// downstairs, from then on they hide only upstairs.</summary>
+        public int upstairsUnlockRound = 4;
 
         /// <summary>Testing aid: part of a prop's name (say "InteractiveFurniture_06 (1)")
         /// restricts the hide to key spots inside matching props. Empty for normal play.</summary>
