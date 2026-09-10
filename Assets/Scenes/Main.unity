@@ -43347,6 +43347,7 @@ MonoBehaviour:
   director: {fileID: 791878632}
   interactor: {fileID: 1455007736}
   thrower: {fileID: 1455007739}
+  bombCarrier: {fileID: 1455007740}
   trail: {fileID: 791878627}
 --- !u!114 &791878630
 MonoBehaviour:
@@ -43361,6 +43362,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.KeySpawner
   key: {fileID: 1161764762}
+  bomb: {fileID: 1907998227}
 --- !u!114 &791878631
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -43392,6 +43394,7 @@ MonoBehaviour:
   player: {fileID: 1455007735}
   interactor: {fileID: 1455007736}
   thrower: {fileID: 1455007739}
+  bombCarrier: {fileID: 1455007740}
   trail: {fileID: 791878627}
   keySpawner: {fileID: 791878630}
   spawnPoint: {fileID: 39120961}
@@ -43512,6 +43515,7 @@ MonoBehaviour:
   projectileThud: {fileID: 8300000, guid: cc1dfefeb680548b6816384413734449, type: 3}
   projectileHit: {fileID: 0}
   ghostStunned: {fileID: 8300000, guid: f71d469f09b6244cf9d7023008d34fd3, type: 3}
+  bombExplode: {fileID: 0}
 --- !u!114 &791878640
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -76208,6 +76212,7 @@ GameObject:
   - component: {fileID: 1455007736}
   - component: {fileID: 1455007738}
   - component: {fileID: 1455007739}
+  - component: {fileID: 1455007740}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -76314,6 +76319,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.PlayerThrower
   handAnchor: {fileID: 1050171406}
   rayOrigin: {fileID: 1278305206}
+--- !u!114 &1455007740
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1455007733}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 767eaa71ea1445d4a36b92f8db1a8939, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.PlayerBombCarrier
+  interactor: {fileID: 1455007736}
 --- !u!1001 &1455993967
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -100718,6 +100736,121 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d664de47a0184aadbcef6015ea4bba4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.SearchableProp
+--- !u!1001 &1907998225
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1622402855680193227, guid: 9090b374fe83eb247bf3be3db46b1f12, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 1622402855680193227, guid: 9090b374fe83eb247bf3be3db46b1f12, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 1622402855680193227, guid: 9090b374fe83eb247bf3be3db46b1f12, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 1622402855680193227, guid: 9090b374fe83eb247bf3be3db46b1f12, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.0000000027939677
+      objectReference: {fileID: 0}
+    - target: {fileID: 1622402855680193227, guid: 9090b374fe83eb247bf3be3db46b1f12, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.1289192
+      objectReference: {fileID: 0}
+    - target: {fileID: 1622402855680193227, guid: 9090b374fe83eb247bf3be3db46b1f12, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 3.3710809
+      objectReference: {fileID: 0}
+    - target: {fileID: 1622402855680193227, guid: 9090b374fe83eb247bf3be3db46b1f12, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.50000006
+      objectReference: {fileID: 0}
+    - target: {fileID: 1622402855680193227, guid: 9090b374fe83eb247bf3be3db46b1f12, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.50000006
+      objectReference: {fileID: 0}
+    - target: {fileID: 1622402855680193227, guid: 9090b374fe83eb247bf3be3db46b1f12, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1622402855680193227, guid: 9090b374fe83eb247bf3be3db46b1f12, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.49999988
+      objectReference: {fileID: 0}
+    - target: {fileID: 1622402855680193227, guid: 9090b374fe83eb247bf3be3db46b1f12, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1622402855680193227, guid: 9090b374fe83eb247bf3be3db46b1f12, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 1622402855680193227, guid: 9090b374fe83eb247bf3be3db46b1f12, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 2146033811959703665, guid: 9090b374fe83eb247bf3be3db46b1f12, type: 3}
+      propertyPath: m_Name
+      value: Bomb
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2146033811959703665, guid: 9090b374fe83eb247bf3be3db46b1f12, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1907998228}
+    - targetCorrespondingSourceObject: {fileID: 2146033811959703665, guid: 9090b374fe83eb247bf3be3db46b1f12, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1907998227}
+  m_SourcePrefab: {fileID: 100100000, guid: 9090b374fe83eb247bf3be3db46b1f12, type: 3}
+--- !u!1 &1907998226 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2146033811959703665, guid: 9090b374fe83eb247bf3be3db46b1f12, type: 3}
+  m_PrefabInstance: {fileID: 1907998225}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1907998227
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1907998226}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42808ef720ef41b084f609674c2ec92e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.BombItem
+  prompt: Use
+  hideOnPickup: 1
+--- !u!135 &1907998228
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1907998226}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 1.2891918
+  m_Center: {x: -6.6459094e-15, y: 1.2891923, z: -0.067384824}
 --- !u!1001 &1908041259
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -113044,3 +113177,4 @@ SceneRoots:
   - {fileID: 1038202608}
   - {fileID: 697962953}
   - {fileID: 1477988545}
+  - {fileID: 1907998225}

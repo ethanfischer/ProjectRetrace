@@ -112,6 +112,22 @@ stun, since the spot already decided the attempt. Throwables are excluded from t
 bake like doors. Mark a prop with ProjectRetrace > Furniture > Mark Selection Throwable;
 the test house generator drops one mug per room.
 
+The bomb (`BombItem` on the `Bomb_PF` prefab, `PlayerBombCarrier` on the player) spawns once
+per run right after the phase-1 keys, from the same spot list with a seed derived from the run
+seed, never inside the keys' prop. It spawns unarmed, so finding it is safe. Taking it puts it in
+the pocket (hidden, HUD says so); the bomb key (`bombKey`, C) plants it in whatever open
+`IOpenable` the interactor has under the reticle, via `KeySpotMarker.OwnedBy`, which resolves
+the spot behind a drawer or door by geometry (a drawer's spot rides on the drawer; a door's
+sits on the carcass, so the nearest leaf on the prop claims it). Planting re-captures the bomb's
+restore pose, so it rides through every `RestoreAll` like the keys; `RestoreInitialState` keeps a
+carried bomb in the pocket and a spent one gone. Anyone opening the armed container sets it off:
+a ghost's `Rummage` at that prop marks its `RecordedRoute.Destroyed`, which `Haunts` excludes for
+the rest of the run, and `PlayerInteractor.Use` on a closed-to-open transition costs the player a
+life through `OnPlayerBombed`, but only in Stealth so the planter can still check their trap in
+the search. `KeySpawner` never hides the keys behind the armed bomb. Online matches call
+`RemoveBomb` instead of spawning one: the bomb is not on the wire yet, and two houses that
+disagree would be worse than no bomb. ProjectRetrace > Setup Bomb retrofits an older scene.
+
 `HidingSpot` sits on a cupboard's root beside its `DoorInteractable` and answers the hide
 key (`hideKey`, H), never Use: with the door open, H climbs in and shuts it; while hidden
 Use is dead and H is "Leave". Keeping the two on separate keys means E always operates

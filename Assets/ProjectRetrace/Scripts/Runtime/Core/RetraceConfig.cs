@@ -31,6 +31,7 @@ namespace ProjectRetrace
         public bool interactWithLeftClick = true;
         public string hideKey = "H";
         public string throwKey = "F";
+        public string bombKey = "C";
         public string restartKey = "R";
         public string manualFinishKey = "Enter";
         public string debugToggleKey = "Backquote";
@@ -159,6 +160,7 @@ namespace ProjectRetrace
         public Key InteractKey => ParseKey(interactKey, Key.E);
         public Key HideKey => ParseKey(hideKey, Key.H);
         public Key ThrowKey => ParseKey(throwKey, Key.F);
+        public Key BombKey => ParseKey(bombKey, Key.C);
         public Key RestartKey => ParseKey(restartKey, Key.R);
         public Key ManualFinishKey => ParseKey(manualFinishKey, Key.Enter);
         public Key DebugToggleKey => ParseKey(debugToggleKey, Key.Backquote);

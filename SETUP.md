@@ -49,6 +49,7 @@ there is nothing to wire.
 | E or left click | interact |
 | H | hide in an open cupboard, or climb back out |
 | F | throw the item in hand (E on a loose prop picks it up) |
+| C | plant the bomb in the open drawer or cupboard under the reticle (E on the bomb picks it up) |
 | **`** (backquote) | **toggle the debug trail view** |
 | **Tab** | open the settings editor (pauses the game) |
 | Enter | instantly survive the current stealth round (escape hatch while playtesting) |

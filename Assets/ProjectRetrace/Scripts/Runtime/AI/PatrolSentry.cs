@@ -543,8 +543,24 @@ namespace ProjectRetrace
                 openable.Open();
             }
 
+            if (BombItem.TryDetonateAt(prop))
+            {
+                Detonated();
+                return;
+            }
+
             var spot = prop.GetComponentInParent<HidingSpot>();
             if (spot != null) spot.OpenedBy(this);
+        }
+
+        /// <summary>Opened the drawer the bomb was in. Unlike a stun there is no coming
+        /// back: the director strikes the route, and StopPatrol takes the body off the
+        /// field for the rest of the round.</summary>
+        private void Detonated()
+        {
+            var director = GameDirector.Instance;
+            if (director != null) director.OnSentryDestroyed(this);
+            StopPatrol();
         }
 
         /// <summary>Detection by touch rather than sight: the ghost opened the door you
@@ -574,6 +590,7 @@ namespace ProjectRetrace
             {
                 Rummage(_pendingRummage);
                 _pendingRummage = null;
+                if (State == SentryState.Inactive) return;
             }
 
             if (_lookTimer < config.lookAroundSeconds) return;
