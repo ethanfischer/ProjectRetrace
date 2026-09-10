@@ -66,6 +66,7 @@ namespace ProjectRetrace.EditorTools
             bank.ghostSpawn = Clip("Past self spawns");
             bank.spotted = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/ProjectRetrace/Audio/whistle.wav");
             bank.buttonClick = Clip("button click");
+            bank.pickUp = OptionalClip("pick up");
             bank.throwWhoosh = OptionalClip("throw");
             bank.projectileThud = OptionalClip("projectile thud");
             bank.projectileHit = OptionalClip("projectile hit");

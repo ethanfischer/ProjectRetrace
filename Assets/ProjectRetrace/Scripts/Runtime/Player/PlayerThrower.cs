@@ -38,6 +38,8 @@ namespace ProjectRetrace
             if (Held != null || throwable == null || handAnchor == null) return false;
             Held = throwable;
             throwable.AttachToHand(handAnchor, this);
+            var bank = SoundBank.Instance;
+            if (bank != null) SoundBank.PlayAt(bank.pickUp, handAnchor.position);
             return true;
         }
 

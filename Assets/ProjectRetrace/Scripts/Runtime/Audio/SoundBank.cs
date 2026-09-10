@@ -25,6 +25,7 @@ namespace ProjectRetrace
         public AudioClip ghostSpawn;
         public AudioClip spotted;
         public AudioClip buttonClick;
+        public AudioClip pickUp;
         public AudioClip throwWhoosh;
         public AudioClip projectileThud;
         public AudioClip projectileHit;
