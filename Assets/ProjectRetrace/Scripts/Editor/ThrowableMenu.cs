@@ -32,6 +32,9 @@ namespace ProjectRetrace.EditorTools
 
         public static ThrowableInteractable MakeThrowable(GameObject go)
         {
+            // A statically batched mesh is drawn where it was baked no matter where its
+            // transform goes: the prop would seem to stay put while an invisible copy flew.
+            GameObjectUtility.SetStaticEditorFlags(go, 0);
             EnsureCollider(go);
 
             // Explicit null checks: in the editor a missing component comes back as a fake

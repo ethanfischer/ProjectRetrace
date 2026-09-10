@@ -206,18 +206,6 @@ namespace ProjectRetrace
                 }
             }
 
-            _throwsByCrumb.Clear();
-            _inHand = null;
-            if (throws != null)
-            {
-                foreach (var t in throws)
-                {
-                    var crumb = Mathf.Max(0, t.CrumbIndex);
-                    if (!_throwsByCrumb.TryGetValue(crumb, out var list)) _throwsByCrumb[crumb] = list = new List<ThrowPoint>();
-                    list.Add(t);
-                }
-            }
-
             // The route can begin off the mesh -- the spawn point may sit outside the baked
             // house -- so start at the first crumb past the head start that actually lands
             // on it. Warping to an off-mesh point would strand the agent entirely.
@@ -233,6 +221,7 @@ namespace ProjectRetrace
             transform.rotation = Quaternion.LookRotation(route[_targetIndex].Direction, Vector3.up);
             _lookedAtTarget = true;
             _threwAtTarget = true;
+            IndexThrows(throws, route.Count);
 
             _graceUntil = Time.time + config.graceSeconds;
             _alpha = 0f;
@@ -241,6 +230,25 @@ namespace ProjectRetrace
             State = SentryState.Materializing;
             _agent.isStopped = true;
             PlaySpawn();
+        }
+
+        /// <summary>A throw made inside the head start would sit behind the spawn crumb
+        /// and never replay -- and grabbing the mug by the door and lobbing it is the
+        /// most natural throw there is. Such throws are pulled forward to the ghost's
+        /// first step instead. The restart spawns at the same crumb, so the index holds.</summary>
+        private void IndexThrows(IReadOnlyList<ThrowPoint> throws, int crumbCount)
+        {
+            _throwsByCrumb.Clear();
+            _inHand = null;
+            if (throws == null) return;
+
+            var firstStep = Mathf.Min(_targetIndex + 1, crumbCount - 1);
+            foreach (var t in throws)
+            {
+                var crumb = Mathf.Clamp(t.CrumbIndex, firstStep, crumbCount - 1);
+                if (!_throwsByCrumb.TryGetValue(crumb, out var list)) _throwsByCrumb[crumb] = list = new List<ThrowPoint>();
+                list.Add(t);
+            }
         }
 
         private void PlaySpawn()

@@ -155,11 +155,11 @@ namespace ProjectRetrace.EditorTools
 
         private struct Summary
         {
-            public int props, doors, drawers, keySpots, hidingSpots, roomDoors, backs, colliders, boxed, tuned, readableMeshes, swapped, stairs, batched;
+            public int props, doors, drawers, keySpots, hidingSpots, roomDoors, backs, colliders, boxed, tuned, readableMeshes, swapped, stairs, batched, throwables;
             public override string ToString() =>
                 $"{swapped} static prop(s) swapped for interactive twins; {props} prop(s): {doors} door(s), {drawers} drawer(s), {keySpots} key spot(s), " +
                 $"{hidingSpots} hiding spot(s), {roomDoors} room door(s), {backs} back(s); {colliders} collider(s) added, {boxed} part(s) boxed, {tuned} hand-tuned part(s) kept, " +
-                $"{readableMeshes} mesh import(s) made readable, {stairs} stair flight(s) marked, {batched} renderer(s) marked static for batching";
+                $"{readableMeshes} mesh import(s) made readable, {stairs} stair flight(s) marked, {batched} renderer(s) marked static for batching, {throwables} throwable(s)";
         }
 
         [MenuItem("ProjectRetrace/Level/Import HomeInterior_FirstFloor", false, 42)]
@@ -237,12 +237,55 @@ namespace ProjectRetrace.EditorTools
             foreach (var root in SceneManager.GetActiveScene().GetRootGameObjects())
             {
                 if (!root.name.StartsWith("TestHouse")) continue;
+                // Throwables first: they carry an interactable, which is what keeps the
+                // batching pass from folding them into a mesh that can never move.
+                summary.throwables += MarkThrowables(root.transform);
                 Accumulate(ref summary, PrepareFurniture(root.transform));
             }
 
             var stairwells = JoinFloors(SceneManager.GetActiveScene());
             EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
             Debug.Log($"[ProjectRetrace] Prepared LowPoly furniture: {summary}; {stairwells}.");
+        }
+
+        /// <summary>The pack's loose props: hand-sized things a person would actually
+        /// pick up and hurl. Named by prefix because the art scene names them by prefab,
+        /// and capped by size so a floor-standing plant with the same prefix stays put.</summary>
+        private static readonly string[] ThrowablePrefixes =
+        {
+            "Cup", "Cupcake", "Cookie", "Donut", "Pizza", "Burger", "Steak", "Orange", "Pear", "Tomato", "Cola",
+            "Plate", "Book", "NoteBook", "PhotoFrame", "Flower", "Candle", "KubikRubik", "Boat", "TV_Remote",
+            "PC_Mouse", "SoapBottle", "ToiletPaper", "Toothbrush", "Kettle", "Pot", "Pan", "Knife", "Pillow", "Toaster",
+        };
+
+        private const float ThrowableMaxSize = 0.7f;
+
+        private static int MarkThrowables(Transform house)
+        {
+            var marked = 0;
+            foreach (Transform child in house)
+            {
+                if (!HasThrowablePrefix(child.name)) continue;
+                var renderer = child.GetComponentInChildren<Renderer>();
+                if (renderer == null) continue;
+                var size = renderer.bounds.size;
+                if (size.x > ThrowableMaxSize || size.y > ThrowableMaxSize || size.z > ThrowableMaxSize) continue;
+
+                ThrowableMenu.MakeThrowable(child.gameObject);
+                marked++;
+            }
+
+            return marked;
+        }
+
+        private static bool HasThrowablePrefix(string name)
+        {
+            foreach (var prefix in ThrowablePrefixes)
+            {
+                if (name.StartsWith(prefix)) return true;
+            }
+
+            return false;
         }
 
         /// <summary>Each storey above the ground gets its stairwell cut. Runs after every
@@ -1306,6 +1349,7 @@ namespace ProjectRetrace.EditorTools
             total.swapped += part.swapped;
             total.stairs += part.stairs;
             total.batched += part.batched;
+            total.throwables += part.throwables;
 
         }
     }
