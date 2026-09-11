@@ -21,7 +21,7 @@ namespace ProjectRetrace
         {
             Collected = true;
             var bank = SoundBank.Instance;
-            if (bank != null) SoundBank.PlayAt(bank.pickUp, transform.position, 1.15f);
+            if (bank != null) SoundBank.PlayAt(bank.cashTaken != null ? bank.cashTaken : bank.pickUp, transform.position);
             if (GameDirector.Instance != null) GameDirector.Instance.OnCashTaken(Amount);
         }
 
