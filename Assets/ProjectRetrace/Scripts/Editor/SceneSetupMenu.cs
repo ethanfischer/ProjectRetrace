@@ -366,14 +366,85 @@ namespace ProjectRetrace.EditorTools
             SfxSetupMenu.WireFootsteps(walker.AddComponent<FootstepEmitter>());
         }
 
+        private const string KeysModelPath = "Assets/ProjectRetrace/Art/Models/Keys.fbx";
+        private const string KeysModelName = "KeysModel";
+
         private static KeyItem BuildKeys()
         {
-            var keys = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            keys.name = "Keys";
-            keys.transform.localScale = Vector3.one * 0.2f;
+            var keys = CreateObject("Keys", null);
             keys.transform.position = new Vector3(0f, 1f, 3f);
-            Undo.RegisterCreatedObjectUndo(keys, "Create Keys");
-            return keys.AddComponent<KeyItem>();
+            keys.AddComponent<SphereCollider>();
+            var item = keys.AddComponent<KeyItem>();
+            AttachKeysModel(item);
+            return item;
+        }
+
+        [MenuItem("ProjectRetrace/Setup Keys Model", false, 4)]
+        public static void SetupKeysModel()
+        {
+            var item = Object.FindFirstObjectByType<KeyItem>(FindObjectsInactive.Include);
+            if (item == null)
+            {
+                Debug.LogError("[ProjectRetrace] No KeyItem in the scene -- run Setup Scene Systems first.");
+                return;
+            }
+
+            AttachKeysModel(item);
+            EditorSceneManager.MarkSceneDirty(item.gameObject.scene);
+            Debug.Log("[ProjectRetrace] Keys model attached in " + item.gameObject.scene.name);
+        }
+
+        /// <summary>The art FBX hangs under the Keys root as a child, so the root keeps the
+        /// collider the interaction ray needs, the KeyItem, and the plain transform
+        /// KeySpawner drives; the model is centred on that root so the spawner's spot is
+        /// the middle of the bunch. Any placeholder mesh on the root (the original sphere)
+        /// is removed. Idempotent: rerunning replaces the previous model.</summary>
+        private static void AttachKeysModel(KeyItem item)
+        {
+            var model = AssetDatabase.LoadAssetAtPath<GameObject>(KeysModelPath);
+            if (model == null)
+            {
+                Debug.LogError("[ProjectRetrace] Missing " + KeysModelPath + " -- keys keep their placeholder.");
+                return;
+            }
+
+            var root = item.transform;
+            var previous = root.Find(KeysModelName);
+            if (previous != null) Undo.DestroyObjectImmediate(previous.gameObject);
+            RemovePlaceholderMesh(item.gameObject);
+            root.localScale = Vector3.one;
+
+            var instance = (GameObject)PrefabUtility.InstantiatePrefab(model, item.gameObject.scene);
+            instance.name = KeysModelName;
+            Undo.RegisterCreatedObjectUndo(instance, "Attach Keys Model");
+            instance.transform.SetParent(root, false);
+            instance.transform.localRotation = Quaternion.identity;
+            instance.transform.localPosition = Vector3.zero;
+
+            var bounds = RendererBounds(instance);
+            instance.transform.localPosition = root.position - bounds.center;
+
+            var collider = item.GetComponent<SphereCollider>();
+            if (collider == null) collider = Undo.AddComponent<SphereCollider>(item.gameObject);
+            collider.center = Vector3.zero;
+            collider.radius = bounds.extents.magnitude;
+            EditorUtility.SetDirty(item);
+        }
+
+        private static void RemovePlaceholderMesh(GameObject keys)
+        {
+            var renderer = keys.GetComponent<MeshRenderer>();
+            if (renderer != null) Undo.DestroyObjectImmediate(renderer);
+            var filter = keys.GetComponent<MeshFilter>();
+            if (filter != null) Undo.DestroyObjectImmediate(filter);
+        }
+
+        private static Bounds RendererBounds(GameObject go)
+        {
+            var renderers = go.GetComponentsInChildren<Renderer>(true);
+            var bounds = renderers[0].bounds;
+            for (var i = 1; i < renderers.Length; i++) bounds.Encapsulate(renderers[i].bounds);
+            return bounds;
         }
 
         private static GameObject CreateObject(string name, Transform parent)
