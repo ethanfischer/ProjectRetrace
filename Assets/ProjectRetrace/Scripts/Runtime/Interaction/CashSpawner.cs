@@ -33,15 +33,28 @@ namespace ProjectRetrace
             Shuffle(spots, random);
 
             var count = spots.Count == 0 ? 0 : Mathf.Clamp(Mathf.RoundToInt(spots.Count * config.cashDrawerFraction), 1, spots.Count);
-            var low = Mathf.Min(config.cashMin, config.cashMax);
-            var high = Mathf.Max(config.cashMin, config.cashMax);
+            var values = ParseValues(config.cashValues);
 
             EnsurePool(count);
             for (var i = 0; i < _pool.Count; i++)
             {
-                if (i < count) _pool[i].Spawn(random.Next(low, high + 1), spots[i]);
+                if (i < count) _pool[i].Spawn(values[random.Next(values.Count)], spots[i]);
                 else _pool[i].Retire();
             }
+        }
+
+        private static readonly List<int> DefaultValues = new List<int> { 1, 1, 1, 1, 1, 1, 5, 5, 5, 10 };
+
+        /// <summary>A hand-edited config with a typo in the bag should still pay something.</summary>
+        private static List<int> ParseValues(string text)
+        {
+            var values = new List<int>();
+            foreach (var part in (text ?? string.Empty).Split(','))
+            {
+                if (int.TryParse(part.Trim(), out var value) && value > 0) values.Add(value);
+            }
+
+            return values.Count > 0 ? values : DefaultValues;
         }
 
         /// <summary>Online matches and disabled runs: every stack out of play.</summary>

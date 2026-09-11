@@ -140,7 +140,8 @@ disagree would be worse than no bomb. ProjectRetrace > Setup Bomb retrofits an o
 Cash (`CashItem`, `CashSpawner` beside the director) is score only. Each round the spawner
 hides a fresh batch in `cashDrawerFraction` of the valid key spots, seeded from the run seed
 like the keys, never in the keys' prop or behind the armed bomb, from a pool of clones of the
-inactive `Cash Template`. Taking a stack credits `GameDirector.CashOf(CurrentPlayer)`; a
+inactive `Cash Template`; each stack's worth is drawn from the `cashValues` bag, so repeats
+set the odds. Taking a stack credits `GameDirector.CashOf(CurrentPlayer)`; a
 collected stack stays gone through the round's retries (restore keeps it hidden) so dying
 never pays. The HUD shows the total bottom-left, both players' in couch mode, and the results
 screen repeats it. Online matches clear the cash like the bomb: it is not on the wire.

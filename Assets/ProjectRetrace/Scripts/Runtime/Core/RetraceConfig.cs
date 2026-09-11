@@ -139,11 +139,12 @@ namespace ProjectRetrace
         public bool bombEnabled = false;
 
         /// <summary>Cash in drawers, re-hidden each round: score only. cashDrawerFraction is
-        /// the share of key spots that hold a stack, each worth cashMin to cashMax.</summary>
+        /// the share of key spots that hold a stack. cashValues is the draw bag: each stack's
+        /// worth is one entry picked at random, so repeats set the odds -- the default is a
+        /// 60/30/10 split of 1, 5 and 10.</summary>
         public bool cashEnabled = true;
         public float cashDrawerFraction = 0.25f;
-        public int cashMin = 5;
-        public int cashMax = 20;
+        public string cashValues = "1,1,1,1,1,1,5,5,5,10";
 
         /// <summary>Testing aid: part of a prop's name (say "InteractiveFurniture_06 (1)")
         /// restricts the hide to key spots inside matching props. Empty for normal play.</summary>
