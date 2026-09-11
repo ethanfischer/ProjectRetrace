@@ -181,7 +181,7 @@ namespace ProjectRetrace
 
         /// <summary>Same idea for the spotted whistle: at full SFX level it was the loudest
         /// thing in the game.</summary>
-        public float spottedVolume = 0.25f;
+        public float spottedVolume = 0.15f;
 
         /// <summary>Horizontal speed above which a stride uses the running sample. Sits
         /// between a walk and a sprint, and between a patrol and a chase, so both the
