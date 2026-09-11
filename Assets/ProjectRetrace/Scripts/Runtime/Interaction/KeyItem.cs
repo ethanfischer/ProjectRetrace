@@ -29,6 +29,7 @@ namespace ProjectRetrace
         public void MakeAvailableAt(Vector3 position, Quaternion rotation)
         {
             transform.SetPositionAndRotation(position, rotation);
+            SurfaceRest.Settle(transform);
             CaptureInitialState();
             RestoreInitialState();
         }

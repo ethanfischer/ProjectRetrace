@@ -475,7 +475,9 @@ namespace ProjectRetrace.EditorTools
             instance.name = KeysModelName;
             Undo.RegisterCreatedObjectUndo(instance, "Attach Keys Model");
             instance.transform.SetParent(root, false);
-            instance.transform.localRotation = Quaternion.identity;
+            // Lying flat: hung upright the bunch is 15 cm tall and clips the shelf above
+            // in the narrower cabinets; flat it is 6 cm and rests like a dropped keyring.
+            instance.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
             instance.transform.localPosition = Vector3.zero;
 
             var bounds = RendererBounds(instance);

@@ -147,6 +147,11 @@ never pays. The HUD shows the total bottom-left, both players' in couch mode, an
 screen repeats it. Online matches clear the cash like the bomb: it is not on the wire.
 ProjectRetrace > Setup Cash retrofits an older scene.
 
+Keys, bomb and cash all pass through `SurfaceRest.Settle` at placement, before their pose is
+captured: a `KeySpotMarker` marks the inside of a part, not its floor, so an item left at the
+marker floats mid-shelf or sits inside the board below. Settle casts down from the item's
+own bounds and rests it on the first surface it finds.
+
 `HidingSpot` sits on a cupboard's root beside its `DoorInteractable` and answers the hide
 key (`hideKey`, H), never Use: with the door open, H climbs in and shuts it; while hidden
 Use is dead and H is "Leave". Keeping the two on separate keys means E always operates

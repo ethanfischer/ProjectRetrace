@@ -32,6 +32,7 @@ namespace ProjectRetrace
             Collected = false;
             transform.SetParent(spot, false);
             transform.SetPositionAndRotation(spot.position, spot.rotation);
+            SurfaceRest.Settle(transform);
             CaptureInitialState();
             RestoreInitialState();
         }
