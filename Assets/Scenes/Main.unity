@@ -43299,6 +43299,7 @@ GameObject:
   - component: {fileID: 791878636}
   - component: {fileID: 791878639}
   - component: {fileID: 791878640}
+  - component: {fileID: 791878641}
   m_Layer: 0
   m_Name: ProjectRetrace Systems
   m_TagString: Untagged
@@ -43529,6 +43530,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.MusicPlayer
   clip: {fileID: 8300000, guid: 70a8acaa2adcd4bf9a6b4ea80479a8d3, type: 3}
+--- !u!114 &791878641
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 791878626}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed2080c4ba38410da5a781a9ff8e09d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.FootprintTrail
+  materialTemplate: {fileID: 2100000, guid: b5bae331f517043a29ea70da0dc8e1fb, type: 2}
+  ownColor: {r: 0.55, g: 0.85, b: 1, a: 0.6}
+  ghostColor: {r: 1, g: 0.3, b: 0.15, a: 1}
+  heightOffset: 0.04
 --- !u!1001 &793604944
 PrefabInstance:
   m_ObjectHideFlags: 0

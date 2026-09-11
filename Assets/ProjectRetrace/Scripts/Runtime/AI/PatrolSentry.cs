@@ -136,7 +136,7 @@ namespace ProjectRetrace
             ApplyAlpha();
         }
 
-        private static void MakeTransparent(Material material)
+        internal static void MakeTransparent(Material material)
         {
             material.SetFloat("_Surface", 1f);
             material.SetOverrideTag("RenderType", "Transparent");
@@ -716,7 +716,7 @@ namespace ProjectRetrace
             SetConeAlarmed(true);
 
             var bank = SoundBank.Instance;
-            if (bank != null) SoundBank.PlayAt(bank.spotted, transform.position + Vector3.up * EyeHeight);
+            if (bank != null) SoundBank.PlayAt(bank.spotted, transform.position + Vector3.up * EyeHeight, volumeScale: config.spottedVolume);
 
             if (GameDirector.Instance != null) GameDirector.Instance.OnPlayerSpotted();
         }

@@ -56,6 +56,14 @@ namespace ProjectRetrace
         public float dotSpacing = 0.1f;
         public float dwellRadius = 0.9f;
 
+        // Footprints: the player's own prints during the search, then a ghost's under it for
+        // the first footprintRounds stealth rounds, fading behind it. Enough rounds to teach
+        // that ghosts retrace you; more would hand out a map of every threat.
+        public bool footprintsEnabled = true;
+        public int footprintRounds = 1;
+        public float footprintStride = 0.65f;
+        public float footprintFadeSeconds = 1.5f;
+
         // Hiding. Peeking through the door crack: how far you can turn, and how tall the
         // crack is as a fraction of the screen.
         public float peekYawDegrees = 20f;
@@ -158,6 +166,10 @@ namespace ProjectRetrace
         /// looping source rather than through SoundBank, so they would slip past the SFX
         /// slider otherwise.</summary>
         public float footstepVolume = 0.5f;
+
+        /// <summary>Same idea for the spotted whistle: at full SFX level it was the loudest
+        /// thing in the game.</summary>
+        public float spottedVolume = 0.25f;
 
         /// <summary>Horizontal speed above which a stride uses the running sample. Sits
         /// between a walk and a sprint, and between a patrol and a chase, so both the

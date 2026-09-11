@@ -120,6 +120,9 @@ namespace ProjectRetrace
         /// Grows as rounds accumulate and is never trimmed -- StopPatrol just deactivates.</summary>
         public IReadOnlyList<PatrolSentry> Sentries => _sentries;
 
+        /// <summary>The route each sentry in Sentries is walking this round, same index.</summary>
+        public IReadOnlyList<RecordedRoute> PatrolledRoutes => _patrolledRoutes;
+
         private void Awake()
         {
             Instance = this;

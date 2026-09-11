@@ -31,6 +31,7 @@ namespace ProjectRetrace.EditorTools
             var director = systems.AddComponent<GameDirector>();
             var trail = systems.AddComponent<BreadcrumbTrail>();
             systems.AddComponent<TrailVisualizer>();
+            WireFootprints(systems.AddComponent<FootprintTrail>());
             var keySpawner = systems.AddComponent<KeySpawner>();
             var hud = systems.AddComponent<DebugHud>();
             var results = systems.AddComponent<ResultsScreen>();
@@ -160,6 +161,30 @@ namespace ProjectRetrace.EditorTools
 
         /// <summary>Retrofits the bomb onto a scene that already has the rig: the prop,
         /// the player's pocket, and the spawner and HUD references. Idempotent.</summary>
+        [MenuItem("ProjectRetrace/Setup Footprints", false, 3)]
+        public static void SetupFootprints()
+        {
+            var trail = Object.FindFirstObjectByType<BreadcrumbTrail>();
+            if (trail == null)
+            {
+                Debug.LogError("[ProjectRetrace] No BreadcrumbTrail in the scene -- run Setup Scene Systems first.");
+                return;
+            }
+
+            var footprints = trail.GetComponent<FootprintTrail>();
+            if (footprints == null) footprints = trail.gameObject.AddComponent<FootprintTrail>();
+            WireFootprints(footprints);
+            EditorUtility.SetDirty(footprints);
+            EditorSceneManager.MarkSceneDirty(trail.gameObject.scene);
+            Debug.Log("[ProjectRetrace] Footprints wired into " + trail.gameObject.scene.name);
+        }
+
+        private static void WireFootprints(FootprintTrail footprints)
+        {
+            footprints.materialTemplate = AssetDatabase.LoadAssetAtPath<Material>(
+                "Assets/ProjectRetrace/Art/GhostConeTransparent.mat");
+        }
+
         [MenuItem("ProjectRetrace/Setup Bomb", false, 2)]
         public static void SetupBomb()
         {

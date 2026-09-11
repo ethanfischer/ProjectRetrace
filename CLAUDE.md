@@ -85,6 +85,14 @@ records a `DwellPoint` (position + facing yaw) wherever the player *uses* someth
 `PlayerInteractor.Interacted`; standing still records nothing, and repeat uses within
 `dwellRadius` collapse into one stop, which is deliberate anti-exploit design (see below).
 
+`FootprintTrail` (beside `BreadcrumbTrail`) is the teaching aid: the player's own prints
+appear behind them during the search, and in the first `footprintRounds` stealth rounds
+(default 1) the same route shows in a bright colour under its ghost and fades print by print
+as the ghost passes, relighting when it loops. Later rounds show nothing, because every
+ghost's route on the floor would be a minimap of the threats. It reads `GameDirector.
+PatrolledRoutes`, which pairs with `Sentries` by index. ProjectRetrace > Setup Footprints
+retrofits an older scene.
+
 `PatrolSentry` (`Runtime/AI/`) is the whole NPC on one component: NavMeshAgent patrol over a
 recorded route in the player's direction (at the end it fades out, teleports back to the
 start, and fades in — frozen and blind during both fades), a fixed-length look-around at each
