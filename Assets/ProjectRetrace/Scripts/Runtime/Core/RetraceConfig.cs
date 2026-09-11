@@ -145,18 +145,25 @@ namespace ProjectRetrace
         /// as a slider.</summary>
         [Range(0f, 1f)]
         public float masterVolume = 1f;
+
+        /// <summary>Music and SFX get their own sliders under master so two people can
+        /// settle the balance by ear on their own machines: the track never stops, so a
+        /// cabinet creak has to read over it, and where that line sits is taste.</summary>
+        [Range(0f, 1f)]
+        public float sfxVolume = 0.7f;
+        [Range(0f, 1f)]
+        public float musicVolume = 0.6f;
+
+        /// <summary>A scale under sfxVolume, not a level of its own: footsteps run on a
+        /// looping source rather than through SoundBank, so they would slip past the SFX
+        /// slider otherwise.</summary>
         public float footstepVolume = 0.5f;
 
         /// <summary>Horizontal speed above which a stride uses the running sample. Sits
         /// between a walk and a sprint, and between a patrol and a chase, so both the
         /// player and the ghosts switch samples with their gait.</summary>
         public float runFootstepSpeed = 4.5f;
-        public float sfxVolume = 0.7f;
         public float furniturePitchJitter = 0.1f;
-
-        /// <summary>The track peaks at full scale and never stops, so it sits under
-        /// the one-shots by default: a cabinet creak has to read over it.</summary>
-        public float musicVolume = 0.6f;
 
         /// <summary>Off by default: the track is a placeholder, and a setting beats a
         /// disabled component that only one scene remembers.</summary>

@@ -92,7 +92,7 @@ namespace ProjectRetrace
                 return;
             }
 
-            _source.volume = config.footstepVolume;
+            _source.volume = Mathf.Clamp01(config.sfxVolume * config.footstepVolume);
             if (_source.isPlaying && _source.clip == wanted) return;
 
             _source.clip = wanted;
