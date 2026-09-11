@@ -134,9 +134,9 @@ namespace ProjectRetrace
         public bool lockUpstairs = true;
 
         /// <summary>Off, no bomb spawns and the run plays as before. The bomb removes a
-        /// ghost for the rest of the run, which flattens the difficulty curve the game is
-        /// built on, so it is opt-in.</summary>
-        public bool bombEnabled = false;
+        /// ghost for the rest of the run, which flattens the difficulty curve; on by
+        /// default anyway because setting the trap turned out to be the fun part.</summary>
+        public bool bombEnabled = true;
 
         /// <summary>Cash in drawers, re-hidden each round: score only. cashDrawerFraction is
         /// the share of key spots that hold a stack. cashValues is the draw bag: each stack's
@@ -185,9 +185,9 @@ namespace ProjectRetrace
         public float runFootstepSpeed = 4.5f;
         public float furniturePitchJitter = 0.1f;
 
-        /// <summary>Off by default: the track is a placeholder, and a setting beats a
-        /// disabled component that only one scene remembers.</summary>
-        public bool musicEnabled = false;
+        /// <summary>A setting rather than a disabled component, so no single scene has to
+        /// remember whether the music is on.</summary>
+        public bool musicEnabled = true;
 
         // Online. The relay is the tiny Node process in relay/, deployed on Render; the
         // default is the public one so a shipped build works untouched. Empty means "the

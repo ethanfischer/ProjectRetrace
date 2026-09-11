@@ -118,9 +118,8 @@ stun, since the spot already decided the attempt. Throwables are excluded from t
 bake like doors. Mark a prop with ProjectRetrace > Furniture > Mark Selection Throwable;
 the test house generator drops one mug per room.
 
-The bomb (`BombItem` on the `Bomb_PF` prefab, `PlayerBombCarrier` on the player) is opt-in
-(`bombEnabled`, off by default: striking a ghost for the rest of the run flattens the curve the
-game is built on). On, it spawns once per run right after the phase-1 keys, from the same spot
+The bomb (`BombItem` on the `Bomb_PF` prefab, `PlayerBombCarrier` on the player) is on by
+default (`bombEnabled`; off, the run plays without it). It spawns once per run right after the phase-1 keys, from the same spot
 list with a seed derived from the run seed, never inside the keys' prop. It spawns unarmed, so
 finding it is safe. Taking it puts it in the pocket (hidden; the HUD shows a procedural
 `BombIcon` bottom-right); the bomb key (`bombKey`, C) plants it in whatever open
