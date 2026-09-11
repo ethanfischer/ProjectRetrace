@@ -143,7 +143,9 @@ like the keys, never in the keys' prop or behind the armed bomb, from a pool of 
 inactive `Cash Template`; each stack's worth is drawn from the `cashValues` bag, so repeats
 set the odds. Taking a stack credits `GameDirector.CashOf(CurrentPlayer)`; a
 collected stack stays gone through the round's retries (restore keeps it hidden) so dying
-never pays. The HUD shows the total bottom-left, both players' in couch mode, and the results
+never pays. When the last life goes, an offline player who can afford `extraLifePrice`
+is offered one more life for that much cash (`OfferingExtraLife`, a held Transition with
+the cursor freed; buy re-runs the attempt, give up ends the run). The HUD shows the total bottom-left, both players' in couch mode, and the results
 screen repeats it. Online matches clear the cash like the bomb: it is not on the wire.
 ProjectRetrace > Setup Cash retrofits an older scene.
 

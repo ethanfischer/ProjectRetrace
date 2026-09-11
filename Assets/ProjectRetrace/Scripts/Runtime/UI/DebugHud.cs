@@ -25,6 +25,7 @@ namespace ProjectRetrace
         private GUIStyle _centered;
         private GUIStyle _handover;
         private GUIStyle _cash;
+        private GUIStyle _button;
 
         private void Reset()
         {
@@ -173,6 +174,7 @@ namespace ProjectRetrace
             _centered = new GUIStyle(_label) { alignment = TextAnchor.MiddleCenter, fontSize = 20 };
             _handover = new GUIStyle(_label) { alignment = TextAnchor.MiddleCenter };
             _cash = new GUIStyle(_label) { fontSize = 24, fontStyle = FontStyle.Bold };
+            _button = new GUIStyle(GUI.skin.button) { fontSize = 16 };
         }
 
         private void DrawReticle()
@@ -222,6 +224,12 @@ namespace ProjectRetrace
             if (director.AwaitingHandover)
             {
                 DrawHandover();
+                return;
+            }
+
+            if (director.OfferingExtraLife)
+            {
+                DrawExtraLifeOffer();
                 return;
             }
 
@@ -313,6 +321,18 @@ namespace ProjectRetrace
             else if (online.RematchRequested && online.IsHost) line = "Opponent wants a rematch -- [R]";
             else line = $"Online -- room {online.Room} -- {online.RttMs:0} ms";
             GUI.Label(new Rect(0f, 52f, HudScale.Width, 24f), line, _handover);
+        }
+
+        private void DrawExtraLifeOffer()
+        {
+            var price = RetraceConfig.Current.extraLifePrice;
+            var box = new Rect(HudScale.Width * 0.5f - 220f, HudScale.Height * 0.5f - 70f, 440f, 150f);
+            GUI.Box(box, GUIContent.none);
+            GUI.Label(new Rect(box.x, box.y + 14f, box.width, 30f), "Out of tries", _centered);
+            GUI.Label(new Rect(box.x, box.y + 46f, box.width, 24f),
+                $"Buy another for ${price}? You have ${director.CashOf(director.CurrentPlayer)}", _handover);
+            if (HudText.OutlinedButton(new Rect(box.x + 30f, box.y + 88f, 180f, 42f), $"Buy (${price})", _button)) director.BuyExtraLife();
+            if (HudText.OutlinedButton(new Rect(box.x + 230f, box.y + 88f, 180f, 42f), "Give up", _button)) director.DeclineExtraLife();
         }
 
         private void DrawWaitingForOpponent()

@@ -99,6 +99,11 @@ namespace ProjectRetrace
         /// <summary>Online: holding for the opponent's client to start their round.</summary>
         public bool AwaitingOpponent { get; private set; }
 
+        /// <summary>The last life just went and the player can afford another: the run is
+        /// on hold until they buy or give up. Read by the HUD.</summary>
+        public bool OfferingExtraLife { get; private set; }
+        private int _winnerIfDeclined;
+
         /// <summary>1-based stealth round (1 = game round 2, and so on); 0 during Search.
         /// In single player also the number of sentries on patrol that round.</summary>
         public int StealthRound { get; private set; }
@@ -230,6 +235,7 @@ namespace ProjectRetrace
             Winner = 0;
             AwaitingHandover = false;
             AwaitingOpponent = false;
+            OfferingExtraLife = false;
             _pendingRoundStart = null;
             if (Online) playerCount = 2;
 
@@ -607,7 +613,50 @@ namespace ProjectRetrace
                 return;
             }
 
+            if (CanOfferExtraLife())
+            {
+                OfferExtraLife(winner);
+                return;
+            }
+
             Winner = winner;
+            FinishRun();
+        }
+
+        /// <summary>Only offline: the offer changes the lives count, which an online
+        /// opponent has already been told is zero.</summary>
+        private bool CanOfferExtraLife()
+        {
+            var config = RetraceConfig.Current;
+            return !Online && config.cashEnabled && config.extraLifePrice > 0 && CashOf(CurrentPlayer) >= config.extraLifePrice;
+        }
+
+        /// <summary>Same freeze as a transition, but with the cursor freed for the two
+        /// buttons; the world holds until the player answers.</summary>
+        private void OfferExtraLife(int winnerIfDeclined)
+        {
+            _winnerIfDeclined = winnerIfDeclined;
+            OfferingExtraLife = true;
+            SetPhase(GamePhase.Transition);
+            SetPlayerInputEnabled(false);
+            StopSentries();
+            FirstPersonController.LockCursor(false);
+        }
+
+        public void BuyExtraLife()
+        {
+            if (!OfferingExtraLife) return;
+            OfferingExtraLife = false;
+            _cash[CurrentPlayer] -= RetraceConfig.Current.extraLifePrice;
+            LivesRemaining = 1;
+            StartCoroutine(RetryStealth());
+        }
+
+        public void DeclineExtraLife()
+        {
+            if (!OfferingExtraLife) return;
+            OfferingExtraLife = false;
+            Winner = _winnerIfDeclined;
             FinishRun();
         }
 
@@ -682,6 +731,7 @@ namespace ProjectRetrace
             StopAllCoroutines();
             AwaitingHandover = false;
             AwaitingOpponent = false;
+            OfferingExtraLife = false;
             if (trail != null) trail.Stop();
             StopSentries();
             if (spectator != null) spectator.End();

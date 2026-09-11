@@ -146,6 +146,9 @@ namespace ProjectRetrace
         public float cashDrawerFraction = 0.25f;
         public string cashValues = "1,1,1,1,1,1,5,5,5,10";
 
+        /// <summary>What a spare life costs when the last one goes. 0 disables the offer.</summary>
+        public int extraLifePrice = 100;
+
         /// <summary>Testing aid: part of a prop's name (say "InteractiveFurniture_06 (1)")
         /// restricts the hide to key spots inside matching props. Empty for normal play.</summary>
         public string forceKeySpot = "";
