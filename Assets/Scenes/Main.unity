@@ -61067,7 +61067,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.095550634
+  m_Radius: 0.28665188
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &1161764766
 Transform:
