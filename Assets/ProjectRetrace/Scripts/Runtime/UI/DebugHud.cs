@@ -24,6 +24,7 @@ namespace ProjectRetrace
         private GUIStyle _label;
         private GUIStyle _centered;
         private GUIStyle _handover;
+        private GUIStyle _cash;
 
         private void Reset()
         {
@@ -58,6 +59,8 @@ namespace ProjectRetrace
                 DrawPrompt();
                 DrawBombIcon();
             }
+
+            if (director != null && director.Phase != GamePhase.Results) DrawCashTotal();
 
             DrawPhaseBanner();
 
@@ -132,6 +135,18 @@ namespace ProjectRetrace
             GUI.DrawTexture(rect, icon, ScaleMode.ScaleToFit, true);
         }
 
+        /// <summary>Bottom-left, opposite the bomb: a running total is a standing state
+        /// like the pocket, not a prompt. Couch mode shows both players so the score is a
+        /// contest at a glance.</summary>
+        private void DrawCashTotal()
+        {
+            if (!RetraceConfig.Current.cashEnabled) return;
+            var text = director.Multiplayer
+                ? $"P1 ${director.CashOf(1)}    P2 ${director.CashOf(2)}"
+                : $"${director.CashOf(1)}";
+            HudText.OutlinedLabel(new Rect(24f, HudScale.Height - 56f, 400f, 32f), text, _cash);
+        }
+
         private static string BombStatusLine()
         {
             var bomb = BombItem.Current;
@@ -157,6 +172,7 @@ namespace ProjectRetrace
 
             _centered = new GUIStyle(_label) { alignment = TextAnchor.MiddleCenter, fontSize = 20 };
             _handover = new GUIStyle(_label) { alignment = TextAnchor.MiddleCenter };
+            _cash = new GUIStyle(_label) { fontSize = 24, fontStyle = FontStyle.Bold };
         }
 
         private void DrawReticle()
@@ -240,7 +256,7 @@ namespace ProjectRetrace
             switch (phase)
             {
                 case GamePhase.Search:
-                    return who + "Find your keys";
+                    return who + "Find the keys";
                 case GamePhase.Stealth:
                     // A retry only needs the stakes; the goal was spelled out on the first attempt.
                     if (director.LivesRemaining < maxLives)

@@ -43,6 +43,7 @@ namespace ProjectRetrace
         [Tooltip("Inactive mold for the ghost pool -- never patrols itself. Every sentry on the field is a runtime clone of this, so the pool scales to any round count.")]
         [UnityEngine.Serialization.FormerlySerializedAs("sentry")]
         public PatrolSentry sentryTemplate;
+        public CashSpawner cashSpawner;
         [Tooltip("Online play. Optional: without it the game is single player and couch only.")]
         public OnlineSession online;
         public SpectatorRig spectator;
@@ -84,6 +85,12 @@ namespace ProjectRetrace
         /// <summary>Multiplayer: whoever was still standing when the other ran out of
         /// tries. 0 in single player or while the match is live.</summary>
         public int Winner { get; private set; }
+
+        // Indexed by player number; slot 0 is unused so the code reads as it speaks.
+        private readonly int[] _cash = new int[3];
+
+        /// <summary>Cash the given player has collected this run. Score only.</summary>
+        public int CashOf(int player) => player >= 1 && player < _cash.Length ? _cash[player] : 0;
 
         /// <summary>Couch mode: the transition is holding for the incoming player to take
         /// the keyboard and press Space.</summary>
@@ -249,6 +256,9 @@ namespace ProjectRetrace
                 else keySpawner.PlaceBomb(RoundSeed(_seed, -1));
             }
 
+            System.Array.Clear(_cash, 0, _cash.Length);
+            PlaceCash(0);
+
             _excludedSpot = null;
             if (trail != null) trail.SetRoutes(System.Array.Empty<RecordedRoute>());
         }
@@ -337,6 +347,9 @@ namespace ProjectRetrace
         private void BeginStealthAttempt(bool retry)
         {
             RebuildHouseForRound();
+            // A retry keeps the round's remaining cash where it was: a fresh batch would
+            // pay the player for getting caught.
+            if (!retry) PlaceCash(StealthRound);
 
             if (trail != null)
             {
@@ -616,6 +629,28 @@ namespace ProjectRetrace
             var index = _sentries.IndexOf(sentry);
             if (index < 0 || index >= _patrolledRoutes.Count) return;
             _patrolledRoutes[index].Destroyed = true;
+        }
+
+        /// <summary>Cash is not on the wire, so an online match plays without it rather
+        /// than with two houses that disagree. The seed is offset far past any round the
+        /// keys will see so the two draws never share a sequence.</summary>
+        private void PlaceCash(int round)
+        {
+            if (cashSpawner == null) return;
+            if (Online || !RetraceConfig.Current.cashEnabled)
+            {
+                cashSpawner.Clear();
+                return;
+            }
+
+            cashSpawner.Place(RoundSeed(_seed, 100000 + round), keySpawner != null ? keySpawner.LastSpot : null);
+        }
+
+        /// <summary>Called by CashItem. Credits whoever holds the keyboard this round.</summary>
+        public void OnCashTaken(int amount)
+        {
+            if (Phase != GamePhase.Search && Phase != GamePhase.Stealth) return;
+            _cash[CurrentPlayer] += amount;
         }
 
         /// <summary>Called by PlayerInteractor when the player opens the armed bomb.

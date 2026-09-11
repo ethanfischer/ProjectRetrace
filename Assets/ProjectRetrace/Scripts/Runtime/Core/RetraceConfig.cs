@@ -138,6 +138,13 @@ namespace ProjectRetrace
         /// built on, so it is opt-in.</summary>
         public bool bombEnabled = false;
 
+        /// <summary>Cash in drawers, re-hidden each round: score only. cashDrawerFraction is
+        /// the share of key spots that hold a stack, each worth cashMin to cashMax.</summary>
+        public bool cashEnabled = true;
+        public float cashDrawerFraction = 0.25f;
+        public int cashMin = 5;
+        public int cashMax = 20;
+
         /// <summary>Testing aid: part of a prop's name (say "InteractiveFurniture_06 (1)")
         /// restricts the hide to key spots inside matching props. Empty for normal play.</summary>
         public string forceKeySpot = "";

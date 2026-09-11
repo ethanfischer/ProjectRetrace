@@ -137,6 +137,15 @@ the search. `KeySpawner` never hides the keys behind the armed bomb. Online matc
 `RemoveBomb` instead of spawning one: the bomb is not on the wire yet, and two houses that
 disagree would be worse than no bomb. ProjectRetrace > Setup Bomb retrofits an older scene.
 
+Cash (`CashItem`, `CashSpawner` beside the director) is score only. Each round the spawner
+hides a fresh batch in `cashDrawerFraction` of the valid key spots, seeded from the run seed
+like the keys, never in the keys' prop or behind the armed bomb, from a pool of clones of the
+inactive `Cash Template`. Taking a stack credits `GameDirector.CashOf(CurrentPlayer)`; a
+collected stack stays gone through the round's retries (restore keeps it hidden) so dying
+never pays. The HUD shows the total bottom-left, both players' in couch mode, and the results
+screen repeats it. Online matches clear the cash like the bomb: it is not on the wire.
+ProjectRetrace > Setup Cash retrofits an older scene.
+
 `HidingSpot` sits on a cupboard's root beside its `DoorInteractable` and answers the hide
 key (`hideKey`, H), never Use: with the door open, H climbs in and shuts it; while hidden
 Use is dead and H is "Leave". Keeping the two on separate keys means E always operates

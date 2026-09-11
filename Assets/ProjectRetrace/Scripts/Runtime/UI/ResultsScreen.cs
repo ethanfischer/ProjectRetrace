@@ -38,6 +38,8 @@ namespace ProjectRetrace
             HudText.OutlinedLabel(new Rect(panel.x, panel.y + 20f, panel.width, 40f), Headline(), _title);
             var detail = Detail();
             if (detail.Length > 0) HudText.OutlinedLabel(new Rect(panel.x + 20f, panel.y + 62f, panel.width - 40f, 24f), detail, _line);
+            var cash = CashLine();
+            if (cash.Length > 0) HudText.OutlinedLabel(new Rect(panel.x + 20f, panel.y + 86f, panel.width - 40f, 24f), cash, _line);
 
             if (MenuButton(panel, 0, NewRunLabel())) director.StartRun();
             if (MenuButton(panel, 1, "Menu")) director.LeaveToMenu();
@@ -56,6 +58,14 @@ namespace ProjectRetrace
             return $"Player {director.Winner} was last standing after round {director.StealthRound + 1}";
         }
 
+        private string CashLine()
+        {
+            if (!RetraceConfig.Current.cashEnabled) return string.Empty;
+            return director.Multiplayer
+                ? $"Cash: P1 ${director.CashOf(1)}, P2 ${director.CashOf(2)}"
+                : $"Cash collected: ${director.CashOf(1)}";
+        }
+
         private string NewRunLabel()
         {
             if (director.Online && !director.online.IsHost) return "Ask for a rematch";
@@ -64,7 +74,7 @@ namespace ProjectRetrace
 
         private bool MenuButton(Rect panel, int row, string label)
         {
-            return HudText.OutlinedButton(new Rect(panel.x + 70f, panel.y + 100f + row * 52f, 300f, 42f), label, _button);
+            return HudText.OutlinedButton(new Rect(panel.x + 70f, panel.y + 118f + row * 52f, 300f, 42f), label, _button);
         }
 
         private void EnsureStyles()

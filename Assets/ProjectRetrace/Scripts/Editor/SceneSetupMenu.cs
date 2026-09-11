@@ -52,6 +52,8 @@ namespace ProjectRetrace.EditorTools
 
             var keys = BuildKeys();
             var bomb = BuildBomb();
+            var cashSpawner = systems.AddComponent<CashSpawner>();
+            cashSpawner.template = BuildCashTemplate();
             var sentryTemplate = BuildSentry("Sentry Template", Color.white);
             CreateObject("NavMesh Baker", null).AddComponent<NavMeshRuntimeBaker>();
 
@@ -64,6 +66,7 @@ namespace ProjectRetrace.EditorTools
             director.keySpawner = keySpawner;
             director.spawnPoint = spawnPoint;
             director.sentryTemplate = sentryTemplate;
+            director.cashSpawner = cashSpawner;
             director.online = online;
             director.spectator = spectator;
 
@@ -183,6 +186,60 @@ namespace ProjectRetrace.EditorTools
         {
             footprints.materialTemplate = AssetDatabase.LoadAssetAtPath<Material>(
                 "Assets/ProjectRetrace/Art/GhostConeTransparent.mat");
+        }
+
+        [MenuItem("ProjectRetrace/Setup Cash", false, 5)]
+        public static void SetupCash()
+        {
+            var director = Object.FindFirstObjectByType<GameDirector>();
+            if (director == null)
+            {
+                Debug.LogError("[ProjectRetrace] No GameDirector in the scene -- run Setup Scene Systems first.");
+                return;
+            }
+
+            var spawner = director.GetComponent<CashSpawner>();
+            if (spawner == null) spawner = Undo.AddComponent<CashSpawner>(director.gameObject);
+            if (spawner.template == null)
+            {
+                var existing = GameObject.Find(CashTemplateName);
+                spawner.template = existing != null ? existing.GetComponent<CashItem>() : BuildCashTemplate();
+            }
+
+            director.cashSpawner = spawner;
+            EditorUtility.SetDirty(director);
+            EditorUtility.SetDirty(spawner);
+            EditorSceneManager.MarkSceneDirty(director.gameObject.scene);
+            Debug.Log("[ProjectRetrace] Cash wired into " + director.gameObject.scene.name);
+        }
+
+        private const string CashTemplateName = "Cash Template";
+        private const string CashMaterialPath = "Assets/ProjectRetrace/Art/Materials/Cash.mat";
+
+        /// <summary>A flat green slab the size of a folded stack. Inactive: the spawner
+        /// clones it, and an active template would register as a takeable stack of $0.</summary>
+        private static CashItem BuildCashTemplate()
+        {
+            var cash = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            cash.name = CashTemplateName;
+            cash.transform.localScale = new Vector3(0.15f, 0.012f, 0.065f);
+            cash.GetComponent<MeshRenderer>().sharedMaterial = CashMaterial();
+            Undo.RegisterCreatedObjectUndo(cash, "Create Cash Template");
+            cash.SetActive(false);
+            return cash.AddComponent<CashItem>();
+        }
+
+        private static Material CashMaterial()
+        {
+            var material = AssetDatabase.LoadAssetAtPath<Material>(CashMaterialPath);
+            if (material != null) return material;
+
+            var shader = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
+            material = new Material(shader) { name = "Cash" };
+            material.SetColor("_BaseColor", new Color(0.24f, 0.58f, 0.3f));
+            material.SetFloat("_Smoothness", 0.2f);
+            AssetDatabase.CreateAsset(material, CashMaterialPath);
+            return material;
         }
 
         [MenuItem("ProjectRetrace/Setup Bomb", false, 2)]
