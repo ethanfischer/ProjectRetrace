@@ -154,9 +154,9 @@ namespace ProjectRetrace
         public float sfxVolume = 0.7f;
         public float furniturePitchJitter = 0.1f;
 
-        /// <summary>The track peaks at full scale and never stops, so it sits well under
+        /// <summary>The track peaks at full scale and never stops, so it sits under
         /// the one-shots by default: a cabinet creak has to read over it.</summary>
-        public float musicVolume = 0.3f;
+        public float musicVolume = 0.6f;
 
         /// <summary>Off by default: the track is a placeholder, and a setting beats a
         /// disabled component that only one scene remembers.</summary>
