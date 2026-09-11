@@ -43702,9 +43702,9 @@ MonoBehaviour:
   ghostSpawn: {fileID: 8300000, guid: 0a2f3726f106a41b49f473d5a63f71c5, type: 3}
   spotted: {fileID: 8300000, guid: d9b6291dde35142d591fdb379ec83803, type: 3}
   buttonClick: {fileID: 8300000, guid: 5d2e8066dcb9145829d5676f52a81dcc, type: 3}
-  pickUp: {fileID: 0}
-  throwWhoosh: {fileID: 0}
-  projectileThud: {fileID: 0}
+  pickUp: {fileID: 8300000, guid: 9ff6edfcf645943ae9c842ab34d2d1d7, type: 3}
+  throwWhoosh: {fileID: 8300000, guid: 76711dfe0237248c69b66b7e10bf4989, type: 3}
+  projectileThud: {fileID: 8300000, guid: cc1dfefeb680548b6816384413734449, type: 3}
   projectileHit: {fileID: 0}
   ghostStunned: {fileID: 8300000, guid: f71d469f09b6244cf9d7023008d34fd3, type: 3}
   bombExplode: {fileID: 0}
