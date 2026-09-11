@@ -31,6 +31,7 @@ namespace ProjectRetrace
         public AudioClip projectileHit;
         public AudioClip ghostStunned;
         public AudioClip bombExplode;
+        public AudioClip cashTaken;
 
         private static SoundBank _instance;
         private AudioSource _uiSource;

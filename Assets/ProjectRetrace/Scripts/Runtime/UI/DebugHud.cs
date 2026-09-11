@@ -24,6 +24,8 @@ namespace ProjectRetrace
         private GUIStyle _label;
         private GUIStyle _centered;
         private GUIStyle _handover;
+        private GUIStyle _cash;
+        private GUIStyle _button;
 
         private void Reset()
         {
@@ -58,6 +60,8 @@ namespace ProjectRetrace
                 DrawPrompt();
                 DrawBombIcon();
             }
+
+            if (director != null && director.Phase != GamePhase.Results) DrawCashTotal();
 
             DrawPhaseBanner();
 
@@ -132,6 +136,18 @@ namespace ProjectRetrace
             GUI.DrawTexture(rect, icon, ScaleMode.ScaleToFit, true);
         }
 
+        /// <summary>Bottom-left, opposite the bomb: a running total is a standing state
+        /// like the pocket, not a prompt. Couch mode shows both players so the score is a
+        /// contest at a glance.</summary>
+        private void DrawCashTotal()
+        {
+            if (!RetraceConfig.Current.cashEnabled) return;
+            var text = director.Multiplayer
+                ? $"P1 ${director.CashOf(1)}    P2 ${director.CashOf(2)}"
+                : $"${director.CashOf(1)}";
+            HudText.OutlinedLabel(new Rect(24f, HudScale.Height - 56f, 400f, 32f), text, _cash);
+        }
+
         private static string BombStatusLine()
         {
             var bomb = BombItem.Current;
@@ -157,6 +173,8 @@ namespace ProjectRetrace
 
             _centered = new GUIStyle(_label) { alignment = TextAnchor.MiddleCenter, fontSize = 20 };
             _handover = new GUIStyle(_label) { alignment = TextAnchor.MiddleCenter };
+            _cash = new GUIStyle(_label) { fontSize = 24, fontStyle = FontStyle.Bold };
+            _button = new GUIStyle(GUI.skin.button) { fontSize = 16 };
         }
 
         private void DrawReticle()
@@ -209,6 +227,12 @@ namespace ProjectRetrace
                 return;
             }
 
+            if (director.OfferingExtraLife)
+            {
+                DrawExtraLifeOffer();
+                return;
+            }
+
             if (director.AwaitingOpponent)
             {
                 DrawWaitingForOpponent();
@@ -240,7 +264,7 @@ namespace ProjectRetrace
             switch (phase)
             {
                 case GamePhase.Search:
-                    return who + "Find your keys";
+                    return who + "Find the keys";
                 case GamePhase.Stealth:
                     // A retry only needs the stakes; the goal was spelled out on the first attempt.
                     if (director.LivesRemaining < maxLives)
@@ -297,6 +321,18 @@ namespace ProjectRetrace
             else if (online.RematchRequested && online.IsHost) line = "Opponent wants a rematch -- [R]";
             else line = $"Online -- room {online.Room} -- {online.RttMs:0} ms";
             GUI.Label(new Rect(0f, 52f, HudScale.Width, 24f), line, _handover);
+        }
+
+        private void DrawExtraLifeOffer()
+        {
+            var price = RetraceConfig.Current.extraLifePrice;
+            var box = new Rect(HudScale.Width * 0.5f - 220f, HudScale.Height * 0.5f - 70f, 440f, 150f);
+            GUI.Box(box, GUIContent.none);
+            GUI.Label(new Rect(box.x, box.y + 14f, box.width, 30f), "Out of tries", _centered);
+            GUI.Label(new Rect(box.x, box.y + 46f, box.width, 24f),
+                $"Buy another for ${price}? You have ${director.CashOf(director.CurrentPlayer)}", _handover);
+            if (HudText.OutlinedButton(new Rect(box.x + 30f, box.y + 88f, 180f, 42f), $"Buy (${price})", _button)) director.BuyExtraLife();
+            if (HudText.OutlinedButton(new Rect(box.x + 230f, box.y + 88f, 180f, 42f), "Give up", _button)) director.DeclineExtraLife();
         }
 
         private void DrawWaitingForOpponent()

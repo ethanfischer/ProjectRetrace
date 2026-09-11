@@ -43,6 +43,7 @@ namespace ProjectRetrace
         [Tooltip("Inactive mold for the ghost pool -- never patrols itself. Every sentry on the field is a runtime clone of this, so the pool scales to any round count.")]
         [UnityEngine.Serialization.FormerlySerializedAs("sentry")]
         public PatrolSentry sentryTemplate;
+        public CashSpawner cashSpawner;
         [Tooltip("Online play. Optional: without it the game is single player and couch only.")]
         public OnlineSession online;
         public SpectatorRig spectator;
@@ -85,12 +86,23 @@ namespace ProjectRetrace
         /// tries. 0 in single player or while the match is live.</summary>
         public int Winner { get; private set; }
 
+        // Indexed by player number; slot 0 is unused so the code reads as it speaks.
+        private readonly int[] _cash = new int[3];
+
+        /// <summary>Cash the given player has collected this run. Score only.</summary>
+        public int CashOf(int player) => player >= 1 && player < _cash.Length ? _cash[player] : 0;
+
         /// <summary>Couch mode: the transition is holding for the incoming player to take
         /// the keyboard and press Space.</summary>
         public bool AwaitingHandover { get; private set; }
 
         /// <summary>Online: holding for the opponent's client to start their round.</summary>
         public bool AwaitingOpponent { get; private set; }
+
+        /// <summary>The last life just went and the player can afford another: the run is
+        /// on hold until they buy or give up. Read by the HUD.</summary>
+        public bool OfferingExtraLife { get; private set; }
+        private int _winnerIfDeclined;
 
         /// <summary>1-based stealth round (1 = game round 2, and so on); 0 during Search.
         /// In single player also the number of sentries on patrol that round.</summary>
@@ -119,6 +131,9 @@ namespace ProjectRetrace
         /// <summary>The ghost pool: runtime clones of the template, one per patrolled route.
         /// Grows as rounds accumulate and is never trimmed -- StopPatrol just deactivates.</summary>
         public IReadOnlyList<PatrolSentry> Sentries => _sentries;
+
+        /// <summary>The route each sentry in Sentries is walking this round, same index.</summary>
+        public IReadOnlyList<RecordedRoute> PatrolledRoutes => _patrolledRoutes;
 
         private void Awake()
         {
@@ -220,6 +235,7 @@ namespace ProjectRetrace
             Winner = 0;
             AwaitingHandover = false;
             AwaitingOpponent = false;
+            OfferingExtraLife = false;
             _pendingRoundStart = null;
             if (Online) playerCount = 2;
 
@@ -245,6 +261,9 @@ namespace ProjectRetrace
                 if (Online || !config.bombEnabled) keySpawner.RemoveBomb();
                 else keySpawner.PlaceBomb(RoundSeed(_seed, -1));
             }
+
+            System.Array.Clear(_cash, 0, _cash.Length);
+            PlaceCash(0);
 
             _excludedSpot = null;
             if (trail != null) trail.SetRoutes(System.Array.Empty<RecordedRoute>());
@@ -334,6 +353,9 @@ namespace ProjectRetrace
         private void BeginStealthAttempt(bool retry)
         {
             RebuildHouseForRound();
+            // A retry keeps the round's remaining cash where it was: a fresh batch would
+            // pay the player for getting caught.
+            if (!retry) PlaceCash(StealthRound);
 
             if (trail != null)
             {
@@ -591,7 +613,50 @@ namespace ProjectRetrace
                 return;
             }
 
+            if (CanOfferExtraLife())
+            {
+                OfferExtraLife(winner);
+                return;
+            }
+
             Winner = winner;
+            FinishRun();
+        }
+
+        /// <summary>Only offline: the offer changes the lives count, which an online
+        /// opponent has already been told is zero.</summary>
+        private bool CanOfferExtraLife()
+        {
+            var config = RetraceConfig.Current;
+            return !Online && config.cashEnabled && config.extraLifePrice > 0 && CashOf(CurrentPlayer) >= config.extraLifePrice;
+        }
+
+        /// <summary>Same freeze as a transition, but with the cursor freed for the two
+        /// buttons; the world holds until the player answers.</summary>
+        private void OfferExtraLife(int winnerIfDeclined)
+        {
+            _winnerIfDeclined = winnerIfDeclined;
+            OfferingExtraLife = true;
+            SetPhase(GamePhase.Transition);
+            SetPlayerInputEnabled(false);
+            StopSentries();
+            FirstPersonController.LockCursor(false);
+        }
+
+        public void BuyExtraLife()
+        {
+            if (!OfferingExtraLife) return;
+            OfferingExtraLife = false;
+            _cash[CurrentPlayer] -= RetraceConfig.Current.extraLifePrice;
+            LivesRemaining = 1;
+            StartCoroutine(RetryStealth());
+        }
+
+        public void DeclineExtraLife()
+        {
+            if (!OfferingExtraLife) return;
+            OfferingExtraLife = false;
+            Winner = _winnerIfDeclined;
             FinishRun();
         }
 
@@ -613,6 +678,28 @@ namespace ProjectRetrace
             var index = _sentries.IndexOf(sentry);
             if (index < 0 || index >= _patrolledRoutes.Count) return;
             _patrolledRoutes[index].Destroyed = true;
+        }
+
+        /// <summary>Cash is not on the wire, so an online match plays without it rather
+        /// than with two houses that disagree. The seed is offset far past any round the
+        /// keys will see so the two draws never share a sequence.</summary>
+        private void PlaceCash(int round)
+        {
+            if (cashSpawner == null) return;
+            if (Online || !RetraceConfig.Current.cashEnabled)
+            {
+                cashSpawner.Clear();
+                return;
+            }
+
+            cashSpawner.Place(RoundSeed(_seed, 100000 + round), keySpawner != null ? keySpawner.LastSpot : null);
+        }
+
+        /// <summary>Called by CashItem. Credits whoever holds the keyboard this round.</summary>
+        public void OnCashTaken(int amount)
+        {
+            if (Phase != GamePhase.Search && Phase != GamePhase.Stealth) return;
+            _cash[CurrentPlayer] += amount;
         }
 
         /// <summary>Called by PlayerInteractor when the player opens the armed bomb.
@@ -644,6 +731,7 @@ namespace ProjectRetrace
             StopAllCoroutines();
             AwaitingHandover = false;
             AwaitingOpponent = false;
+            OfferingExtraLife = false;
             if (trail != null) trail.Stop();
             StopSentries();
             if (spectator != null) spectator.End();

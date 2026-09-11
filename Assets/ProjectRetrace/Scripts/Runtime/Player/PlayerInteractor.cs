@@ -13,6 +13,11 @@ namespace ProjectRetrace
 
         [SerializeField] private Color highlightTint = new Color(1f, 0.85f, 0.45f);
 
+        // Pickups pulse between the tint and white: a drawer front is a big flat surface
+        // that reads with a steady tint, but a bunch of keys is small and busy enough that
+        // a flat colour swap gets lost against it.
+        private const float PickupPulseHz = 2f;
+
         /// <summary>Raised after the player uses something. The trail listens so a sentry
         /// later pauses exactly where the player rummaged.</summary>
         public event Action<IInteractable> Interacted;
@@ -61,8 +66,7 @@ namespace ProjectRetrace
             }
 
             _highlightBlock = new MaterialPropertyBlock();
-            _highlightBlock.SetColor(BaseColorId, highlightTint);
-            _highlightBlock.SetColor(ColorId, highlightTint);
+            SetHighlightColor(highlightTint);
         }
 
         private void Update()
@@ -196,11 +200,24 @@ namespace ProjectRetrace
             ClearHighlight();
             if (target == null) return;
 
+            SetHighlightColor(target is PickupInteractable ? PulsedTint() : highlightTint);
             target.GetComponentsInChildren(_highlighted);
             for (var i = 0; i < _highlighted.Count; i++)
             {
                 _highlighted[i].SetPropertyBlock(_highlightBlock);
             }
+        }
+
+        private Color PulsedTint()
+        {
+            var wave = 0.5f + 0.5f * Mathf.Sin(Time.time * PickupPulseHz * Mathf.PI * 2f);
+            return Color.Lerp(highlightTint, Color.white, wave);
+        }
+
+        private void SetHighlightColor(Color color)
+        {
+            _highlightBlock.SetColor(BaseColorId, color);
+            _highlightBlock.SetColor(ColorId, color);
         }
 
         private void ClearHighlight()

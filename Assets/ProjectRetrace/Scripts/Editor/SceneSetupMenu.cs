@@ -31,6 +31,7 @@ namespace ProjectRetrace.EditorTools
             var director = systems.AddComponent<GameDirector>();
             var trail = systems.AddComponent<BreadcrumbTrail>();
             systems.AddComponent<TrailVisualizer>();
+            WireFootprints(systems.AddComponent<FootprintTrail>());
             var keySpawner = systems.AddComponent<KeySpawner>();
             var hud = systems.AddComponent<DebugHud>();
             var results = systems.AddComponent<ResultsScreen>();
@@ -51,6 +52,8 @@ namespace ProjectRetrace.EditorTools
 
             var keys = BuildKeys();
             var bomb = BuildBomb();
+            var cashSpawner = systems.AddComponent<CashSpawner>();
+            cashSpawner.template = BuildCashTemplate();
             var sentryTemplate = BuildSentry("Sentry Template", Color.white);
             CreateObject("NavMesh Baker", null).AddComponent<NavMeshRuntimeBaker>();
 
@@ -63,6 +66,7 @@ namespace ProjectRetrace.EditorTools
             director.keySpawner = keySpawner;
             director.spawnPoint = spawnPoint;
             director.sentryTemplate = sentryTemplate;
+            director.cashSpawner = cashSpawner;
             director.online = online;
             director.spectator = spectator;
 
@@ -160,6 +164,84 @@ namespace ProjectRetrace.EditorTools
 
         /// <summary>Retrofits the bomb onto a scene that already has the rig: the prop,
         /// the player's pocket, and the spawner and HUD references. Idempotent.</summary>
+        [MenuItem("ProjectRetrace/Setup Footprints", false, 3)]
+        public static void SetupFootprints()
+        {
+            var trail = Object.FindFirstObjectByType<BreadcrumbTrail>();
+            if (trail == null)
+            {
+                Debug.LogError("[ProjectRetrace] No BreadcrumbTrail in the scene -- run Setup Scene Systems first.");
+                return;
+            }
+
+            var footprints = trail.GetComponent<FootprintTrail>();
+            if (footprints == null) footprints = trail.gameObject.AddComponent<FootprintTrail>();
+            WireFootprints(footprints);
+            EditorUtility.SetDirty(footprints);
+            EditorSceneManager.MarkSceneDirty(trail.gameObject.scene);
+            Debug.Log("[ProjectRetrace] Footprints wired into " + trail.gameObject.scene.name);
+        }
+
+        private static void WireFootprints(FootprintTrail footprints)
+        {
+            footprints.materialTemplate = AssetDatabase.LoadAssetAtPath<Material>(
+                "Assets/ProjectRetrace/Art/GhostConeTransparent.mat");
+        }
+
+        [MenuItem("ProjectRetrace/Setup Cash", false, 5)]
+        public static void SetupCash()
+        {
+            var director = Object.FindFirstObjectByType<GameDirector>();
+            if (director == null)
+            {
+                Debug.LogError("[ProjectRetrace] No GameDirector in the scene -- run Setup Scene Systems first.");
+                return;
+            }
+
+            var spawner = director.GetComponent<CashSpawner>();
+            if (spawner == null) spawner = Undo.AddComponent<CashSpawner>(director.gameObject);
+            if (spawner.template == null)
+            {
+                var existing = GameObject.Find(CashTemplateName);
+                spawner.template = existing != null ? existing.GetComponent<CashItem>() : BuildCashTemplate();
+            }
+
+            director.cashSpawner = spawner;
+            EditorUtility.SetDirty(director);
+            EditorUtility.SetDirty(spawner);
+            EditorSceneManager.MarkSceneDirty(director.gameObject.scene);
+            Debug.Log("[ProjectRetrace] Cash wired into " + director.gameObject.scene.name);
+        }
+
+        private const string CashTemplateName = "Cash Template";
+        private const string CashMaterialPath = "Assets/ProjectRetrace/Art/Materials/Cash.mat";
+
+        /// <summary>A flat green slab the size of a folded stack. Inactive: the spawner
+        /// clones it, and an active template would register as a takeable stack of $0.</summary>
+        private static CashItem BuildCashTemplate()
+        {
+            var cash = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            cash.name = CashTemplateName;
+            cash.transform.localScale = new Vector3(0.15f, 0.012f, 0.065f);
+            cash.GetComponent<MeshRenderer>().sharedMaterial = CashMaterial();
+            Undo.RegisterCreatedObjectUndo(cash, "Create Cash Template");
+            cash.SetActive(false);
+            return cash.AddComponent<CashItem>();
+        }
+
+        private static Material CashMaterial()
+        {
+            var material = AssetDatabase.LoadAssetAtPath<Material>(CashMaterialPath);
+            if (material != null) return material;
+
+            var shader = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
+            material = new Material(shader) { name = "Cash" };
+            material.SetColor("_BaseColor", new Color(0.24f, 0.58f, 0.3f));
+            material.SetFloat("_Smoothness", 0.2f);
+            AssetDatabase.CreateAsset(material, CashMaterialPath);
+            return material;
+        }
+
         [MenuItem("ProjectRetrace/Setup Bomb", false, 2)]
         public static void SetupBomb()
         {
@@ -341,14 +423,87 @@ namespace ProjectRetrace.EditorTools
             SfxSetupMenu.WireFootsteps(walker.AddComponent<FootstepEmitter>());
         }
 
+        private const string KeysModelPath = "Assets/ProjectRetrace/Art/Models/Keys.fbx";
+        private const string KeysModelName = "KeysModel";
+
         private static KeyItem BuildKeys()
         {
-            var keys = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            keys.name = "Keys";
-            keys.transform.localScale = Vector3.one * 0.2f;
+            var keys = CreateObject("Keys", null);
             keys.transform.position = new Vector3(0f, 1f, 3f);
-            Undo.RegisterCreatedObjectUndo(keys, "Create Keys");
-            return keys.AddComponent<KeyItem>();
+            keys.AddComponent<SphereCollider>();
+            var item = keys.AddComponent<KeyItem>();
+            AttachKeysModel(item);
+            return item;
+        }
+
+        [MenuItem("ProjectRetrace/Setup Keys Model", false, 4)]
+        public static void SetupKeysModel()
+        {
+            var item = Object.FindFirstObjectByType<KeyItem>(FindObjectsInactive.Include);
+            if (item == null)
+            {
+                Debug.LogError("[ProjectRetrace] No KeyItem in the scene -- run Setup Scene Systems first.");
+                return;
+            }
+
+            AttachKeysModel(item);
+            EditorSceneManager.MarkSceneDirty(item.gameObject.scene);
+            Debug.Log("[ProjectRetrace] Keys model attached in " + item.gameObject.scene.name);
+        }
+
+        /// <summary>The art FBX hangs under the Keys root as a child, so the root keeps the
+        /// collider the interaction ray needs, the KeyItem, and the plain transform
+        /// KeySpawner drives; the model is centred on that root so the spawner's spot is
+        /// the middle of the bunch. Any placeholder mesh on the root (the original sphere)
+        /// is removed. Idempotent: rerunning replaces the previous model.</summary>
+        private static void AttachKeysModel(KeyItem item)
+        {
+            var model = AssetDatabase.LoadAssetAtPath<GameObject>(KeysModelPath);
+            if (model == null)
+            {
+                Debug.LogError("[ProjectRetrace] Missing " + KeysModelPath + " -- keys keep their placeholder.");
+                return;
+            }
+
+            var root = item.transform;
+            var previous = root.Find(KeysModelName);
+            if (previous != null) Undo.DestroyObjectImmediate(previous.gameObject);
+            RemovePlaceholderMesh(item.gameObject);
+            root.localScale = Vector3.one;
+
+            var instance = (GameObject)PrefabUtility.InstantiatePrefab(model, item.gameObject.scene);
+            instance.name = KeysModelName;
+            Undo.RegisterCreatedObjectUndo(instance, "Attach Keys Model");
+            instance.transform.SetParent(root, false);
+            // Lying flat: hung upright the bunch is 15 cm tall and clips the shelf above
+            // in the narrower cabinets; flat it is 6 cm and rests like a dropped keyring.
+            instance.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+            instance.transform.localPosition = Vector3.zero;
+
+            var bounds = RendererBounds(instance);
+            instance.transform.localPosition = root.position - bounds.center;
+
+            var collider = item.GetComponent<SphereCollider>();
+            if (collider == null) collider = Undo.AddComponent<SphereCollider>(item.gameObject);
+            collider.center = Vector3.zero;
+            collider.radius = bounds.extents.magnitude;
+            EditorUtility.SetDirty(item);
+        }
+
+        private static void RemovePlaceholderMesh(GameObject keys)
+        {
+            var renderer = keys.GetComponent<MeshRenderer>();
+            if (renderer != null) Undo.DestroyObjectImmediate(renderer);
+            var filter = keys.GetComponent<MeshFilter>();
+            if (filter != null) Undo.DestroyObjectImmediate(filter);
+        }
+
+        private static Bounds RendererBounds(GameObject go)
+        {
+            var renderers = go.GetComponentsInChildren<Renderer>(true);
+            var bounds = renderers[0].bounds;
+            for (var i = 1; i < renderers.Length; i++) bounds.Encapsulate(renderers[i].bounds);
+            return bounds;
         }
 
         private static GameObject CreateObject(string name, Transform parent)

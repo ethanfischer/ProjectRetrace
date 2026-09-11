@@ -132,7 +132,7 @@ namespace ProjectRetrace
             return false;
         }
 
-        private static List<Transform> ValidSpots()
+        internal static List<Transform> ValidSpots()
         {
             // Sorted by hierarchy path rather than instance id: instance ids differ from one
             // process to the next, and an online opponent must draw the same spot from the

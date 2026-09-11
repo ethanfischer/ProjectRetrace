@@ -56,6 +56,11 @@ namespace ProjectRetrace
         public float dotSpacing = 0.1f;
         public float dwellRadius = 0.9f;
 
+        // Footprints: the player's own prints as they walk, and each ghost's route under it
+        // in the stealth rounds. footprintStride is metres between prints.
+        public bool footprintsEnabled = true;
+        public float footprintStride = 0.65f;
+
         // Hiding. Peeking through the door crack: how far you can turn, and how tall the
         // crack is as a fraction of the screen.
         public float peekYawDegrees = 20f;
@@ -129,9 +134,20 @@ namespace ProjectRetrace
         public bool lockUpstairs = true;
 
         /// <summary>Off, no bomb spawns and the run plays as before. The bomb removes a
-        /// ghost for the rest of the run, which flattens the difficulty curve the game is
-        /// built on, so it is opt-in.</summary>
-        public bool bombEnabled = false;
+        /// ghost for the rest of the run, which flattens the difficulty curve; on by
+        /// default anyway because setting the trap turned out to be the fun part.</summary>
+        public bool bombEnabled = true;
+
+        /// <summary>Cash in drawers, re-hidden each round: score only. cashDrawerFraction is
+        /// the share of key spots that hold a stack. cashValues is the draw bag: each stack's
+        /// worth is one entry picked at random, so repeats set the odds -- the default is a
+        /// 60/30/10 split of 1, 5 and 10.</summary>
+        public bool cashEnabled = true;
+        public float cashDrawerFraction = 0.25f;
+        public string cashValues = "1,1,1,1,1,1,5,5,5,10";
+
+        /// <summary>What a spare life costs when the last one goes. 0 disables the offer.</summary>
+        public int extraLifePrice = 100;
 
         /// <summary>Testing aid: part of a prop's name (say "InteractiveFurniture_06 (1)")
         /// restricts the hide to key spots inside matching props. Empty for normal play.</summary>
@@ -159,15 +175,19 @@ namespace ProjectRetrace
         /// slider otherwise.</summary>
         public float footstepVolume = 0.5f;
 
+        /// <summary>Same idea for the spotted whistle: at full SFX level it was the loudest
+        /// thing in the game.</summary>
+        public float spottedVolume = 0.25f;
+
         /// <summary>Horizontal speed above which a stride uses the running sample. Sits
         /// between a walk and a sprint, and between a patrol and a chase, so both the
         /// player and the ghosts switch samples with their gait.</summary>
         public float runFootstepSpeed = 4.5f;
         public float furniturePitchJitter = 0.1f;
 
-        /// <summary>Off by default: the track is a placeholder, and a setting beats a
-        /// disabled component that only one scene remembers.</summary>
-        public bool musicEnabled = false;
+        /// <summary>A setting rather than a disabled component, so no single scene has to
+        /// remember whether the music is on.</summary>
+        public bool musicEnabled = true;
 
         // Online. The relay is the tiny Node process in relay/, deployed on Render; the
         // default is the public one so a shipped build works untouched. Empty means "the

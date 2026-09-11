@@ -85,6 +85,12 @@ records a `DwellPoint` (position + facing yaw) wherever the player *uses* someth
 `PlayerInteractor.Interacted`; standing still records nothing, and repeat uses within
 `dwellRadius` collapse into one stop, which is deliberate anti-exploit design (see below).
 
+`FootprintTrail` (beside `BreadcrumbTrail`) is the teaching aid: the player's own prints
+appear behind them as they walk, and in the stealth rounds every ghost's route lies on the
+floor in that ghost's tint for the whole round, all at half opacity. Showing the routes
+turned out to cost nothing, so nothing fades. It reads `GameDirector.PatrolledRoutes`, which
+pairs with `Sentries` by index. ProjectRetrace > Setup Footprints retrofits an older scene.
+
 `PatrolSentry` (`Runtime/AI/`) is the whole NPC on one component: NavMeshAgent patrol over a
 recorded route in the player's direction (at the end it fades out, teleports back to the
 start, and fades in — frozen and blind during both fades), a fixed-length look-around at each
@@ -112,9 +118,8 @@ stun, since the spot already decided the attempt. Throwables are excluded from t
 bake like doors. Mark a prop with ProjectRetrace > Furniture > Mark Selection Throwable;
 the test house generator drops one mug per room.
 
-The bomb (`BombItem` on the `Bomb_PF` prefab, `PlayerBombCarrier` on the player) is opt-in
-(`bombEnabled`, off by default: striking a ghost for the rest of the run flattens the curve the
-game is built on). On, it spawns once per run right after the phase-1 keys, from the same spot
+The bomb (`BombItem` on the `Bomb_PF` prefab, `PlayerBombCarrier` on the player) is on by
+default (`bombEnabled`; off, the run plays without it). It spawns once per run right after the phase-1 keys, from the same spot
 list with a seed derived from the run seed, never inside the keys' prop. It spawns unarmed, so
 finding it is safe. Taking it puts it in the pocket (hidden; the HUD shows a procedural
 `BombIcon` bottom-right); the bomb key (`bombKey`, C) plants it in whatever open
@@ -130,6 +135,23 @@ life through `OnPlayerBombed`, but only in Stealth so the planter can still chec
 the search. `KeySpawner` never hides the keys behind the armed bomb. Online matches call
 `RemoveBomb` instead of spawning one: the bomb is not on the wire yet, and two houses that
 disagree would be worse than no bomb. ProjectRetrace > Setup Bomb retrofits an older scene.
+
+Cash (`CashItem`, `CashSpawner` beside the director) is score only. Each round the spawner
+hides a fresh batch in `cashDrawerFraction` of the valid key spots, seeded from the run seed
+like the keys, never in the keys' prop or behind the armed bomb, from a pool of clones of the
+inactive `Cash Template`; each stack's worth is drawn from the `cashValues` bag, so repeats
+set the odds. Taking a stack credits `GameDirector.CashOf(CurrentPlayer)`; a
+collected stack stays gone through the round's retries (restore keeps it hidden) so dying
+never pays. When the last life goes, an offline player who can afford `extraLifePrice`
+is offered one more life for that much cash (`OfferingExtraLife`, a held Transition with
+the cursor freed; buy re-runs the attempt, give up ends the run). The HUD shows the total bottom-left, both players' in couch mode, and the results
+screen repeats it. Online matches clear the cash like the bomb: it is not on the wire.
+ProjectRetrace > Setup Cash retrofits an older scene.
+
+Keys, bomb and cash all pass through `SurfaceRest.Settle` at placement, before their pose is
+captured: a `KeySpotMarker` marks the inside of a part, not its floor, so an item left at the
+marker floats mid-shelf or sits inside the board below. Settle casts down from the item's
+own bounds and rests it on the first surface it finds.
 
 `HidingSpot` sits on a cupboard's root beside its `DoorInteractable` and answers the hide
 key (`hideKey`, H), never Use: with the door open, H climbs in and shuts it; while hidden
