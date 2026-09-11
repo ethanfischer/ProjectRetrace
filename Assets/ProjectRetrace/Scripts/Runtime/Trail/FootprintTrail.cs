@@ -4,16 +4,13 @@ using UnityEngine;
 namespace ProjectRetrace
 {
     /// <summary>
-    /// The teaching aid: footprints on the floor that show a player the game is recording
-    /// their route. During the search the player's own prints appear behind them as they
-    /// walk. In the stealth rounds that follow, the same prints reappear in a bright colour
-    /// under the ghost that retraces them, hold for a few seconds, then fade out together, so the
-    /// link between "the route I walked" and "the route the ghost walks" is on screen rather
-    /// than explained. Playtesters who were told nothing did not make that link on their own.
-    ///
-    /// Ghost prints are limited to the first few stealth rounds (footprintRounds) on purpose:
-    /// shown every round, every ghost's whole route would be a minimap of the threats, and the
-    /// difficulty curve is built on the player having to remember where they went.
+    /// Footprints on the floor that show a player the game is recording their route. The
+    /// player's own prints appear behind them as they walk, every round. In the stealth
+    /// rounds each ghost's route lies on the floor in that ghost's tint and stays there for
+    /// the whole round, so the link between "the route I walked" and "the route the ghost
+    /// walks" is on screen rather than explained. Playtesters who were told nothing did not
+    /// make that link on their own, and a floor full of old routes turned out to cost the
+    /// game nothing: knowing where a ghost goes is not the same as staying out of its cone.
     ///
     /// Prints are a sparse sample of the crumbs (one per stride, alternating feet) purely for
     /// looks; the sentry still walks every crumb. Rendered with real renderers rather than
@@ -27,9 +24,9 @@ namespace ProjectRetrace
         [Tooltip("A transparent unlit material asset, cloned so the per-print alpha fade survives build-time shader stripping. Assigned by ProjectRetrace > Setup Scene Systems or Setup Footprints.")]
         public Material materialTemplate;
 
-        // Not serialized: the scene keeps no copy, so a colour change here is the change.
-        private static readonly Color OwnColor = new Color(0f, 0f, 0f, 0.7f);
-        private static readonly Color GhostColor = Color.white;
+        // Not serialized: the scene keeps no copy, so a change here is the change.
+        private const float Opacity = 0.5f;
+        private static readonly Color OwnColor = Color.black;
         private const float HeightOffset = 0.04f;
 
         private BreadcrumbTrail _trail;
@@ -53,8 +50,6 @@ namespace ProjectRetrace
             public Color Color;
             public readonly List<Print> Prints = new List<Print>();
             public int PrintedCrumbs;
-            public float Alpha = 1f;
-            public float ShownAt;
         }
 
         private void Awake()
@@ -87,9 +82,9 @@ namespace ProjectRetrace
                 ClearGhostTracks();
                 UpdateOwnTrack();
             }
-            else if (director.Phase == GamePhase.Stealth && director.StealthRound <= config.footprintRounds)
+            else if (director.Phase == GamePhase.Stealth)
             {
-                ClearOwnTrack();
+                UpdateOwnTrack();
                 UpdateGhostTracks(director);
             }
             else
@@ -135,16 +130,11 @@ namespace ProjectRetrace
                 ClearGhostTracks();
                 for (var i = 0; i < count; i++)
                 {
-                    var color = director.Multiplayer ? Opaque(sentries[i].bodyTint) : GhostColor;
-                    _tracks.Add(CreateTrack(routes[i], sentries[i], color, "Ghost " + (i + 1)));
+                    _tracks.Add(CreateTrack(routes[i], sentries[i], sentries[i].bodyTint, "Ghost " + (i + 1)));
                 }
             }
 
-            for (var i = 0; i < _tracks.Count; i++)
-            {
-                GrowTrack(_tracks[i]);
-                FadeAfterHold(_tracks[i]);
-            }
+            for (var i = 0; i < _tracks.Count; i++) GrowTrack(_tracks[i]);
         }
 
         private bool TracksMatch(IReadOnlyList<PatrolSentry> sentries, IReadOnlyList<RecordedRoute> routes, int count)
@@ -156,25 +146,6 @@ namespace ProjectRetrace
             }
 
             return true;
-        }
-
-        /// <summary>A glimpse, not a map: the whole trail holds for footprintHoldSeconds
-        /// from the start of the attempt, then fades together and stays gone. Long enough
-        /// to see the ghost step onto your own route, short enough that the round is still
-        /// played from memory.</summary>
-        private void FadeAfterHold(Track track)
-        {
-            var config = RetraceConfig.Current;
-            var elapsed = Time.time - track.ShownAt - config.footprintHoldSeconds;
-            var alpha = elapsed <= 0f ? 1f : 1f - Mathf.Clamp01(elapsed / Mathf.Max(0.01f, config.footprintFadeSeconds));
-            if (Mathf.Approximately(alpha, track.Alpha)) return;
-
-            track.Alpha = alpha;
-            foreach (var print in track.Prints)
-            {
-                print.Renderer.enabled = alpha > 0f;
-                if (alpha > 0f) SetAlpha(print.Renderer, track.Color, track.Color.a * alpha);
-            }
         }
 
         private void GrowTrack(Track track)
@@ -202,7 +173,7 @@ namespace ProjectRetrace
         {
             var root = new GameObject("Footprints " + label).transform;
             root.SetParent(transform, false);
-            return new Track { Route = route, Sentry = sentry, Root = root, Color = color, ShownAt = Time.time };
+            return new Track { Route = route, Sentry = sentry, Root = root, Color = color };
         }
 
         private Print CreatePrint(Track track, Breadcrumb crumb, bool leftFoot)
@@ -219,8 +190,7 @@ namespace ProjectRetrace
             renderer.sharedMaterial = _material;
             renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             renderer.receiveShadows = false;
-            SetAlpha(renderer, track.Color, track.Color.a * track.Alpha);
-            renderer.enabled = track.Alpha > 0f;
+            SetAlpha(renderer, track.Color, Opacity);
 
             return new Print { Renderer = renderer };
         }
@@ -232,12 +202,6 @@ namespace ProjectRetrace
             _block.SetColor("_BaseColor", color);
             _block.SetColor("_Color", color);
             renderer.SetPropertyBlock(_block);
-        }
-
-        private static Color Opaque(Color color)
-        {
-            color.a = 1f;
-            return color;
         }
 
         private void ClearAll()
