@@ -57,12 +57,13 @@ namespace ProjectRetrace
         public float dwellRadius = 0.9f;
 
         // Footprints: the player's own prints during the search, then a ghost's under it for
-        // the first footprintRounds stealth rounds, fading behind it. Enough rounds to teach
+        // the first footprintRounds stealth rounds, held a few seconds and then faded out. Enough rounds to teach
         // that ghosts retrace you; more would hand out a map of every threat.
         public bool footprintsEnabled = true;
         public int footprintRounds = 1;
         public float footprintStride = 0.65f;
-        public float footprintFadeSeconds = 1.5f;
+        public float footprintHoldSeconds = 5f;
+        public float footprintFadeSeconds = 2f;
 
         // Hiding. Peeking through the door crack: how far you can turn, and how tall the
         // crack is as a fraction of the screen.

@@ -87,8 +87,8 @@ records a `DwellPoint` (position + facing yaw) wherever the player *uses* someth
 
 `FootprintTrail` (beside `BreadcrumbTrail`) is the teaching aid: the player's own prints
 appear behind them during the search, and in the first `footprintRounds` stealth rounds
-(default 1) the same route shows in a bright colour under its ghost and fades print by print
-as the ghost passes, relighting when it loops. Later rounds show nothing, because every
+(default 1) the same route shows in white under its ghost for `footprintHoldSeconds`, then the whole
+trail fades out and stays gone for the attempt. Later rounds show nothing, because every
 ghost's route on the floor would be a minimap of the threats. It reads `GameDirector.
 PatrolledRoutes`, which pairs with `Sentries` by index. ProjectRetrace > Setup Footprints
 retrofits an older scene.

@@ -7,7 +7,7 @@ namespace ProjectRetrace
     /// The teaching aid: footprints on the floor that show a player the game is recording
     /// their route. During the search the player's own prints appear behind them as they
     /// walk. In the stealth rounds that follow, the same prints reappear in a bright colour
-    /// under the ghost that retraces them and fade out as the ghost passes each one, so the
+    /// under the ghost that retraces them, hold for a few seconds, then fade out together, so the
     /// link between "the route I walked" and "the route the ghost walks" is on screen rather
     /// than explained. Playtesters who were told nothing did not make that link on their own.
     ///
@@ -27,9 +27,10 @@ namespace ProjectRetrace
         [Tooltip("A transparent unlit material asset, cloned so the per-print alpha fade survives build-time shader stripping. Assigned by ProjectRetrace > Setup Scene Systems or Setup Footprints.")]
         public Material materialTemplate;
 
-        [SerializeField] private Color ownColor = new Color(0.55f, 0.85f, 1f, 0.6f);
-        [SerializeField] private Color ghostColor = new Color(1f, 0.3f, 0.15f, 1f);
-        [SerializeField] private float heightOffset = 0.04f;
+        // Not serialized: the scene keeps no copy, so a colour change here is the change.
+        private static readonly Color OwnColor = new Color(0f, 0f, 0f, 0.7f);
+        private static readonly Color GhostColor = Color.white;
+        private const float HeightOffset = 0.04f;
 
         private BreadcrumbTrail _trail;
         private Material _material;
@@ -42,8 +43,6 @@ namespace ProjectRetrace
         private class Print
         {
             public Renderer Renderer;
-            public int CrumbIndex;
-            public float PassedAt = -1f;
         }
 
         private class Track
@@ -54,7 +53,8 @@ namespace ProjectRetrace
             public Color Color;
             public readonly List<Print> Prints = new List<Print>();
             public int PrintedCrumbs;
-            public int LastTargetIndex = -1;
+            public float Alpha = 1f;
+            public float ShownAt;
         }
 
         private void Awake()
@@ -117,7 +117,7 @@ namespace ProjectRetrace
 
             if (_ownTrack == null)
             {
-                _ownTrack = CreateTrack(route, null, ownColor, "Own");
+                _ownTrack = CreateTrack(route, null, OwnColor, "Own");
                 _ownRouteIndex = index;
             }
 
@@ -135,7 +135,7 @@ namespace ProjectRetrace
                 ClearGhostTracks();
                 for (var i = 0; i < count; i++)
                 {
-                    var color = director.Multiplayer ? Opaque(sentries[i].bodyTint) : ghostColor;
+                    var color = director.Multiplayer ? Opaque(sentries[i].bodyTint) : GhostColor;
                     _tracks.Add(CreateTrack(routes[i], sentries[i], color, "Ghost " + (i + 1)));
                 }
             }
@@ -143,7 +143,7 @@ namespace ProjectRetrace
             for (var i = 0; i < _tracks.Count; i++)
             {
                 GrowTrack(_tracks[i]);
-                FadeBehindSentry(_tracks[i]);
+                FadeAfterHold(_tracks[i]);
             }
         }
 
@@ -158,44 +158,23 @@ namespace ProjectRetrace
             return true;
         }
 
-        /// <summary>Prints ahead of the ghost stay lit; each one it walks past starts its
-        /// own fade. A ghost that loops back to the start relights the whole route, so the
-        /// prints always show where that ghost is going next.</summary>
-        private void FadeBehindSentry(Track track)
+        /// <summary>A glimpse, not a map: the whole trail holds for footprintHoldSeconds
+        /// from the start of the attempt, then fades together and stays gone. Long enough
+        /// to see the ghost step onto your own route, short enough that the round is still
+        /// played from memory.</summary>
+        private void FadeAfterHold(Track track)
         {
-            var target = track.Sentry.TargetIndex;
-            if (target < track.LastTargetIndex)
-            {
-                foreach (var print in track.Prints) Relight(print, track.Color);
-            }
+            var config = RetraceConfig.Current;
+            var elapsed = Time.time - track.ShownAt - config.footprintHoldSeconds;
+            var alpha = elapsed <= 0f ? 1f : 1f - Mathf.Clamp01(elapsed / Mathf.Max(0.01f, config.footprintFadeSeconds));
+            if (Mathf.Approximately(alpha, track.Alpha)) return;
 
-            track.LastTargetIndex = target;
-
-            var fade = Mathf.Max(0.01f, RetraceConfig.Current.footprintFadeSeconds);
+            track.Alpha = alpha;
             foreach (var print in track.Prints)
             {
-                if (print.PassedAt < 0f)
-                {
-                    if (print.CrumbIndex >= target) continue;
-                    print.PassedAt = Time.time;
-                }
-
-                var alpha = 1f - (Time.time - print.PassedAt) / fade;
-                if (alpha <= 0f)
-                {
-                    print.Renderer.enabled = false;
-                    continue;
-                }
-
-                SetAlpha(print.Renderer, track.Color, track.Color.a * alpha);
+                print.Renderer.enabled = alpha > 0f;
+                if (alpha > 0f) SetAlpha(print.Renderer, track.Color, track.Color.a * alpha);
             }
-        }
-
-        private void Relight(Print print, Color color)
-        {
-            print.PassedAt = -1f;
-            print.Renderer.enabled = true;
-            SetAlpha(print.Renderer, color, color.a);
         }
 
         private void GrowTrack(Track track)
@@ -206,11 +185,7 @@ namespace ProjectRetrace
             {
                 if (i % stride == 0)
                 {
-                    var print = CreatePrint(track, crumbs[i], i, (i / stride) % 2 == 0);
-                    track.Prints.Add(print);
-                    // A print born behind a ghost that has already walked past it fades
-                    // like the rest, rather than lighting up in the ghost's wake.
-                    if (track.Sentry != null && i < track.Sentry.TargetIndex) print.PassedAt = Time.time;
+                    track.Prints.Add(CreatePrint(track, crumbs[i], (i / stride) % 2 == 0));
                 }
             }
 
@@ -227,16 +202,16 @@ namespace ProjectRetrace
         {
             var root = new GameObject("Footprints " + label).transform;
             root.SetParent(transform, false);
-            return new Track { Route = route, Sentry = sentry, Root = root, Color = color };
+            return new Track { Route = route, Sentry = sentry, Root = root, Color = color, ShownAt = Time.time };
         }
 
-        private Print CreatePrint(Track track, Breadcrumb crumb, int crumbIndex, bool leftFoot)
+        private Print CreatePrint(Track track, Breadcrumb crumb, bool leftFoot)
         {
             var side = Vector3.Cross(Vector3.up, crumb.Direction) * (leftFoot ? -FootSpread : FootSpread);
             var print = new GameObject("Print");
             print.transform.SetParent(track.Root, false);
             print.transform.SetPositionAndRotation(
-                crumb.Position + side + Vector3.up * heightOffset,
+                crumb.Position + side + Vector3.up * HeightOffset,
                 Quaternion.LookRotation(crumb.Direction, Vector3.up));
 
             print.AddComponent<MeshFilter>().sharedMesh = _mesh;
@@ -244,9 +219,10 @@ namespace ProjectRetrace
             renderer.sharedMaterial = _material;
             renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             renderer.receiveShadows = false;
-            SetAlpha(renderer, track.Color, track.Color.a);
+            SetAlpha(renderer, track.Color, track.Color.a * track.Alpha);
+            renderer.enabled = track.Alpha > 0f;
 
-            return new Print { Renderer = renderer, CrumbIndex = crumbIndex };
+            return new Print { Renderer = renderer };
         }
 
         private void SetAlpha(Renderer renderer, Color color, float alpha)
