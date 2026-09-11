@@ -61,6 +61,10 @@ namespace ProjectRetrace
         public bool footprintsEnabled = true;
         public float footprintStride = 0.65f;
 
+        // Night: the whole house in one flat blue wash, applied at runtime over the scene's
+        // authored daylight so the scene file never has to change hands with the setting.
+        public bool nightMode = false;
+
         // Hiding. Peeking through the door crack: how far you can turn, and how tall the
         // crack is as a fraction of the screen.
         public float peekYawDegrees = 20f;
