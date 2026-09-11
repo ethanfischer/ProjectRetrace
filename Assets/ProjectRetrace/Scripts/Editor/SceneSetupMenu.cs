@@ -56,6 +56,7 @@ namespace ProjectRetrace.EditorTools
             cashSpawner.template = BuildCashTemplate();
             var sentryTemplate = BuildSentry("Sentry Template", Color.white);
             CreateObject("NavMesh Baker", null).AddComponent<NavMeshRuntimeBaker>();
+            ApplyNightLighting();
 
             // Wiring.
             director.player = controller;
@@ -101,6 +102,52 @@ namespace ProjectRetrace.EditorTools
 
             Debug.Log("[ProjectRetrace] Scene systems created. Add a floor, press Play, " +
                       "and use F3 for the debug trail view.");
+        }
+
+        /// <summary>The house at night, in one flat blue wash. There are no practicals on
+        /// purpose: lamps and a flashlight were tried and read as a lit house with the sun
+        /// off, and every local light also made the ghosts pop, which is a balance the
+        /// game has not chosen. The ceiling blocks the sun indoors, so the ambient term
+        /// carries the rooms and the sun only tints what the windows reach. Idempotent, so
+        /// it retrofits an older scene from the menu.</summary>
+        [MenuItem("ProjectRetrace/Setup Night Lighting", false, 6)]
+        public static void SetupNightLighting()
+        {
+            ApplyNightLighting();
+            EditorSceneManager.MarkSceneDirty(UnityEngine.SceneManagement.SceneManager.GetActiveScene());
+        }
+
+        private static readonly Color NightSun = new Color(0.55f, 0.7f, 1f);
+        private static readonly Color NightAmbient = new Color(0.42f, 0.55f, 1f);
+        private static readonly Color NightSky = new Color(0.05f, 0.07f, 0.16f);
+
+        private static void ApplyNightLighting()
+        {
+            Light sun = null;
+            foreach (var light in Object.FindObjectsByType<Light>(FindObjectsSortMode.None))
+            {
+                if (light.type == LightType.Directional) { sun = light; break; }
+            }
+            if (sun == null)
+            {
+                sun = CreateObject("Directional Light", null).AddComponent<Light>();
+                sun.type = LightType.Directional;
+                sun.transform.rotation = Quaternion.Euler(50f, 330f, 0f);
+            }
+            sun.color = NightSun;
+            sun.intensity = 1.2f;
+            sun.shadows = LightShadows.Soft;
+
+            RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
+            RenderSettings.ambientLight = NightAmbient;
+            RenderSettings.fog = false;
+
+            // The windows show the camera background, so it has to be night too.
+            foreach (var camera in Object.FindObjectsByType<Camera>(FindObjectsSortMode.None))
+            {
+                camera.clearFlags = CameraClearFlags.SolidColor;
+                camera.backgroundColor = NightSky;
+            }
         }
 
         /// <summary>Retrofits online play onto a scene that already has the rig: adds the
