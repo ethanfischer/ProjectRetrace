@@ -16,9 +16,6 @@ namespace ProjectRetrace
         [Tooltip("Local axis to swing around. Up for doors, Right for a chest lid.")]
         [SerializeField] private Vector3 hingeAxis = Vector3.up;
 
-        [Tooltip("Local point the leaf swings about. Zero swings about the pivot; the importer sets the far edge when a mesh is hinged on the wrong side.")]
-        [SerializeField] private Vector3 hingeOffset;
-
         [Tooltip("Noun shown in the prompt: 'Open door', 'Open chest', ...")]
         [SerializeField] private string label = "door";
 
@@ -32,7 +29,6 @@ namespace ProjectRetrace
         [SerializeField] private Bounds sealedArea;
 
         private Quaternion _closedLocalRotation;
-        private Vector3 _closedLocalPosition;
         private bool _isOpen;
         private float _openAmount;
 
@@ -92,29 +88,19 @@ namespace ProjectRetrace
             if (Mathf.Approximately(_openAmount, target)) return;
 
             _openAmount = Mathf.MoveTowards(_openAmount, target, openSpeed * Time.deltaTime);
-            Swing(Quaternion.AngleAxis(openAngle * _openAmount, hingeAxis));
-        }
-
-        /// <summary>Rotates about hingeOffset rather than the pivot: a leaf that is part of
-        /// a prefab instance cannot be reparented under a hinge object, so the hinge moves
-        /// into the maths instead.</summary>
-        private void Swing(Quaternion swing)
-        {
-            transform.localRotation = _closedLocalRotation * swing;
-            transform.localPosition = _closedLocalPosition + _closedLocalRotation * (hingeOffset - swing * hingeOffset);
+            transform.localRotation = _closedLocalRotation * Quaternion.AngleAxis(openAngle * _openAmount, hingeAxis);
         }
 
         public override void CaptureInitialState()
         {
             _closedLocalRotation = transform.localRotation;
-            _closedLocalPosition = transform.localPosition;
         }
 
         public override void RestoreInitialState()
         {
             _isOpen = false;
             _openAmount = 0f;
-            Swing(Quaternion.identity);
+            transform.localRotation = _closedLocalRotation;
         }
     }
 }

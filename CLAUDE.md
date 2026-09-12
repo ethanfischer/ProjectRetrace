@@ -210,14 +210,6 @@ a build), swaps the static cabinets the art scene uses for their interactive twi
 wires every `InteractiveFurniture_*` prefab by geometry alone: a part whose
 pivot sits on its edge is a door (hinge Up, swing sign from which side), one pivoted in
 the middle is a drawer, tall deep props get a `HidingSpot`, and each part gets a `KeySpot`.
-Two corrections ride on top of that wiring. `FixedFronts` in `LevelImportMenu` names
-parts (prop name/part name) that a blind corner makes unusable: the part is switched
-off and a plain panel in the `FurnitureBack` material stands in for it, with no
-interactable and no key spot, so nothing hides behind a front that cannot open. And
-any two leaves that share a hinge line (the pack's mirrored wall-cabinet halves placed
-the wrong way round, so they open like a book through each other) are re-hinged by
-setting `DoorInteractable.hingeOffset` to the far edge and negating the swing; the leaf
-stays where the prefab put it because a prefab-instance child cannot be reparented.
 Hand-placed additions (a ceiling, extra props) go under the `TestHouse (Additions)` root,
 which re-imports never touch and the navmesh still bakes; anything found inside the
 imported copy that the art scene lacks is moved there rather than deleted, and the spawn
