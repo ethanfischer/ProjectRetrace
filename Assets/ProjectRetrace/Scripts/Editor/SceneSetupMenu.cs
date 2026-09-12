@@ -56,6 +56,7 @@ namespace ProjectRetrace.EditorTools
             cashSpawner.template = BuildCashTemplate();
             var sentryTemplate = BuildSentry("Sentry Template", Color.white);
             CreateObject("NavMesh Baker", null).AddComponent<NavMeshRuntimeBaker>();
+            systems.AddComponent<NightLighting>();
 
             // Wiring.
             director.player = controller;
@@ -101,6 +102,27 @@ namespace ProjectRetrace.EditorTools
 
             Debug.Log("[ProjectRetrace] Scene systems created. Add a floor, press Play, " +
                       "and use F3 for the debug trail view.");
+        }
+
+        /// <summary>Retrofits the night-mode switch onto a scene that already has the rig.
+        /// The scene keeps its daylight; NightLighting overlays night at runtime when the
+        /// config asks for it. Idempotent.</summary>
+        [MenuItem("ProjectRetrace/Setup Night Lighting", false, 6)]
+        public static void SetupNightLighting()
+        {
+            if (Object.FindFirstObjectByType<NightLighting>() != null)
+            {
+                Debug.Log("[ProjectRetrace] NightLighting already present.");
+                return;
+            }
+            var director = Object.FindFirstObjectByType<GameDirector>();
+            if (director == null)
+            {
+                EditorUtility.DisplayDialog("ProjectRetrace", "Run Setup Scene Systems first.", "OK");
+                return;
+            }
+            director.gameObject.AddComponent<NightLighting>();
+            EditorSceneManager.MarkSceneDirty(UnityEngine.SceneManagement.SceneManager.GetActiveScene());
         }
 
         /// <summary>Retrofits online play onto a scene that already has the rig: adds the

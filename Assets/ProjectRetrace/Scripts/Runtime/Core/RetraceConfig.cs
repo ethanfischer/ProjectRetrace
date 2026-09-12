@@ -61,6 +61,10 @@ namespace ProjectRetrace
         public bool footprintsEnabled = true;
         public float footprintStride = 0.65f;
 
+        // Night: the whole house in one flat blue wash, applied at runtime over the scene's
+        // authored daylight so the scene file never has to change hands with the setting.
+        public bool nightMode = false;
+
         // Hiding. Peeking through the door crack: how far you can turn, and how tall the
         // crack is as a fraction of the screen.
         public float peekYawDegrees = 20f;
@@ -177,7 +181,7 @@ namespace ProjectRetrace
 
         /// <summary>Same idea for the spotted whistle: at full SFX level it was the loudest
         /// thing in the game.</summary>
-        public float spottedVolume = 0.25f;
+        public float spottedVolume = 0.15f;
 
         /// <summary>Horizontal speed above which a stride uses the running sample. Sits
         /// between a walk and a sprint, and between a patrol and a chase, so both the

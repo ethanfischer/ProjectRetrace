@@ -1120,7 +1120,9 @@ namespace ProjectRetrace.EditorTools
                 var size = bounds.size;
                 if (Mathf.Abs(center.x) >= HingeEdgeFraction * size.x)
                 {
-                    FurnitureBuilderMenu.AddHinged(part.gameObject, Vector3.up, center.x > 0f ? -110f : 110f, DoorLabel(prop));
+                    // Short of 90: the pack's cabinets sit flush in runs, and a leaf that
+                    // swings square (or wider) pushes through the one next door.
+                    FurnitureBuilderMenu.AddHinged(part.gameObject, Vector3.up, center.x > 0f ? -75f : 75f, DoorLabel(prop));
                     summary.doors++;
                     summary.keySpots += AddKeySpotBehindDoor(prop.transform, part, center);
                 }
