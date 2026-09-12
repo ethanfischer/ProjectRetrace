@@ -6,7 +6,9 @@ namespace ProjectRetrace
     /// <summary>
     /// The start menu: Singleplayer, Multiplayer (couch, two players), or Online. IMGUI
     /// like the rest of the UI, drawn over the live scene -- the empty house makes its own
-    /// title screen. Buttons for the mouse, 1/2/3 for the keyboard.
+    /// title screen. Buttons for the mouse, 1/2/3 for the keyboard. Credits live here
+    /// too, as a sub-page: the menu is the one screen every player sees, and a separate
+    /// component would need scene wiring for four lines of text.
     /// </summary>
     public class StartMenu : MonoBehaviour
     {
@@ -17,7 +19,25 @@ namespace ProjectRetrace
         private GUIStyle _subtitle;
         private GUIStyle _button;
 
-        private bool _multiplayerExpanded;
+        private enum Page { Main, Multiplayer, Credits }
+
+        private Page _page;
+
+        private static readonly string[] CreditLines =
+        {
+            "Programming by Ethan Fischer",
+            "Level design by Tanya Jones",
+            "Music by Ethan Berg",
+            "Sound effects by Joe Lou and Ethan Fischer",
+            "Keys model by Joe Lou and Tanya Jones",
+            "Bomb model by Tanya Jones",
+            "House interiors by JustCreate",
+            "(Low Poly Cartoon House Interiors, Unity Asset Store)",
+        };
+
+        // The credit list outgrew the menu panel, so that page alone gets a taller one.
+        private const float PanelHeight = 336f;
+        private const float CreditsPanelHeight = 420f;
 
         private void Reset()
         {
@@ -48,27 +68,42 @@ namespace ProjectRetrace
             HudScale.Apply();
             EnsureStyles();
 
-            var panel = new Rect(HudScale.Width * 0.5f - 220f, HudScale.Height * 0.5f - 168f, 440f, 336f);
+            var height = _page == Page.Credits ? CreditsPanelHeight : PanelHeight;
+            var panel = new Rect(HudScale.Width * 0.5f - 220f, HudScale.Height * 0.5f - height * 0.5f, 440f, height);
             GUI.Box(panel, GUIContent.none);
 
             HudText.OutlinedLabel(new Rect(panel.x, panel.y + 20f, panel.width, 40f), "PROJECT RETRACE", _title);
 
-            if (_multiplayerExpanded) DrawMultiplayerMenu(panel);
-            else DrawMainMenu(panel);
+            switch (_page)
+            {
+                case Page.Multiplayer: DrawMultiplayerMenu(panel); break;
+                case Page.Credits: DrawCredits(panel); break;
+                default: DrawMainMenu(panel); break;
+            }
         }
 
         private void DrawMainMenu(Rect panel)
         {
             if (MenuButton(panel, 0, "Singleplayer")) director.StartGame(1);
-            if (MenuButton(panel, 1, "Multiplayer")) _multiplayerExpanded = true;
+            if (MenuButton(panel, 1, "Multiplayer")) _page = Page.Multiplayer;
             if (MenuButton(panel, 2, "Settings")) ConfigMenu.Toggle();
+            if (MenuButton(panel, 3, "Credits")) _page = Page.Credits;
         }
 
         private void DrawMultiplayerMenu(Rect panel)
         {
             if (MenuButton(panel, 0, "Local")) director.StartGame(2);
             if (online != null && MenuButton(panel, 1, "Online")) online.OpenLobby();
-            if (MenuButton(panel, 2, "← Back")) _multiplayerExpanded = false;
+            if (MenuButton(panel, 2, "← Back")) _page = Page.Main;
+        }
+
+        private void DrawCredits(Rect panel)
+        {
+            for (var i = 0; i < CreditLines.Length; i++)
+            {
+                HudText.OutlinedLabel(new Rect(panel.x + 20f, panel.y + 76f + i * 30f, panel.width - 40f, 24f), CreditLines[i], _subtitle);
+            }
+            if (HudText.OutlinedButton(new Rect(panel.x + 70f, panel.yMax - 62f, 300f, 42f), "← Back", _button)) _page = Page.Main;
         }
 
         private bool MenuButton(Rect panel, int row, string label)
