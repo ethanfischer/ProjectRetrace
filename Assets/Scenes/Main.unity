@@ -5690,7 +5690,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: -110
+  openAngle: -75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -12828,7 +12828,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: 110
+  openAngle: 75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cupboard
@@ -12850,7 +12850,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: -110
+  openAngle: -75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cupboard
@@ -14330,7 +14330,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: 110
+  openAngle: 75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -16046,7 +16046,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: 110
+  openAngle: 75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -16068,7 +16068,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: -110
+  openAngle: -75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -20074,7 +20074,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: 110
+  openAngle: 75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -20096,7 +20096,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: -110
+  openAngle: -75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -20576,7 +20576,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: 110
+  openAngle: 75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -23661,7 +23661,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: 110
+  openAngle: 75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cupboard
@@ -23683,7 +23683,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: 110
+  openAngle: 75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cupboard
@@ -24811,7 +24811,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: 110
+  openAngle: 75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -24833,7 +24833,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: -110
+  openAngle: -75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -27338,7 +27338,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: 110
+  openAngle: 75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -30699,7 +30699,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: 110
+  openAngle: 75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -30721,7 +30721,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: -110
+  openAngle: -75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -33101,7 +33101,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: 110
+  openAngle: 75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -33123,7 +33123,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: -110
+  openAngle: -75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -33818,7 +33818,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: 110
+  openAngle: 75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -36895,7 +36895,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: 110
+  openAngle: 75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cupboard
@@ -36917,7 +36917,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: -110
+  openAngle: -75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cupboard
@@ -40035,7 +40035,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: -110
+  openAngle: -75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -46194,7 +46194,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: 110
+  openAngle: 75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -47083,7 +47083,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: 110
+  openAngle: 75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cupboard
@@ -47105,7 +47105,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: -110
+  openAngle: -75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cupboard
@@ -47987,7 +47987,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: -110
+  openAngle: -75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -49459,7 +49459,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: -110
+  openAngle: -75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -52969,7 +52969,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: -110
+  openAngle: -75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -53657,7 +53657,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: 110
+  openAngle: 75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -53679,7 +53679,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: -110
+  openAngle: -75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -53965,7 +53965,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: 110
+  openAngle: 75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cupboard
@@ -53987,7 +53987,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: -110
+  openAngle: -75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cupboard
@@ -54600,7 +54600,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: 110
+  openAngle: 75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cupboard
@@ -54622,7 +54622,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: -110
+  openAngle: -75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cupboard
@@ -69876,7 +69876,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: 110
+  openAngle: 75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -73095,7 +73095,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: -110
+  openAngle: -75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -79263,7 +79263,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: 110
+  openAngle: 75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -79285,7 +79285,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: -110
+  openAngle: -75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -80511,7 +80511,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: 110
+  openAngle: 75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cupboard
@@ -80533,7 +80533,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: -110
+  openAngle: -75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cupboard
@@ -84668,7 +84668,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: 110
+  openAngle: 75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -85320,7 +85320,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: 110
+  openAngle: 75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -85342,7 +85342,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: -110
+  openAngle: -75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -86591,7 +86591,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: 110
+  openAngle: 75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -87070,7 +87070,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: 110
+  openAngle: 75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -87092,7 +87092,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: -110
+  openAngle: -75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -88613,7 +88613,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: 110
+  openAngle: 75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -88635,7 +88635,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: -110
+  openAngle: -75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -89522,7 +89522,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: 110
+  openAngle: 75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cupboard
@@ -89544,7 +89544,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: -110
+  openAngle: -75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cupboard
@@ -101943,7 +101943,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: 110
+  openAngle: 75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cupboard
@@ -101965,7 +101965,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: -110
+  openAngle: -75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cupboard
@@ -103581,7 +103581,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: 110
+  openAngle: 75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cupboard
@@ -103603,7 +103603,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: -110
+  openAngle: -75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cupboard
@@ -107863,7 +107863,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: 110
+  openAngle: 75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -111987,7 +111987,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: -110
+  openAngle: -75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cabinet
@@ -113232,7 +113232,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: 110
+  openAngle: 75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cupboard
@@ -113254,7 +113254,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: -110
+  openAngle: -75
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
   label: cupboard
