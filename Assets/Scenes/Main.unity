@@ -3427,50 +3427,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6800581386900437496, guid: 286c96f290fd2954dbcc666ebf01e255, type: 3}
   m_PrefabInstance: {fileID: 55426827}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &57427486
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 57427487}
-  - component: {fileID: 57427488}
-  m_Layer: 0
-  m_Name: KeySpot
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &57427487
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 57427486}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.000000059604645, y: -0.0028106607, z: -0.2706212}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1498030707}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &57427488
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 57427486}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9b6003057d8cc495198414a52ac020c4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.KeySpotMarker
 --- !u!1001 &58701807
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3804,6 +3760,7 @@ MonoBehaviour:
   openAngle: -100
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: door
   sound: 1
   unlocksAtRound: 0
@@ -3900,6 +3857,7 @@ MonoBehaviour:
   openAngle: -100
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: door
   sound: 1
   unlocksAtRound: 0
@@ -4745,6 +4703,118 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d664de47a0184aadbcef6015ea4bba4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.SearchableProp
+--- !u!1 &77596394
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 77596395}
+  - component: {fileID: 77596398}
+  - component: {fileID: 77596397}
+  - component: {fileID: 77596396}
+  m_Layer: 0
+  m_Name: InteractiveFurniture13_03 Panel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 4
+  m_IsActive: 1
+--- !u!4 &77596395
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 77596394}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.27568147, y: 0.31599998, z: 0.3420048}
+  m_LocalScale: {x: 0.5542674, y: 0.6269593, z: 0.02}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1004420647}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!23 &77596396
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 77596394}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 949c979a0ea8743e99cfc254c8e40aa7, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 1
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &77596397
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 77596394}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!33 &77596398
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 77596394}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!114 &78306448
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5660,7 +5730,7 @@ PrefabInstance:
       addedObject: {fileID: 91856073}
     - targetCorrespondingSourceObject: {fileID: 2172788472976664777, guid: ef53681550b8c9e42b226492bc6ae7eb, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 91856072}
+      addedObject: {fileID: 91856078}
   m_SourcePrefab: {fileID: 100100000, guid: ef53681550b8c9e42b226492bc6ae7eb, type: 3}
 --- !u!4 &91856069 stripped
 Transform:
@@ -5677,28 +5747,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 2936006109238118503, guid: ef53681550b8c9e42b226492bc6ae7eb, type: 3}
   m_PrefabInstance: {fileID: 91856068}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &91856072
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 91856070}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d9553d41a5a64391bb8ce08f540ce7b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
-  prompt: Use
-  openAngle: -110
-  openSpeed: 3
-  hingeAxis: {x: 0, y: 1, z: 0}
-  label: cabinet
-  sound: 0
-  unlocksAtRound: 0
-  sealedArea:
-    m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 0, y: 0, z: 0}
 --- !u!114 &91856073
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5711,6 +5759,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d664de47a0184aadbcef6015ea4bba4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.SearchableProp
+--- !u!114 &91856078
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 91856070}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d9553d41a5a64391bb8ce08f540ce7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
+  prompt: Use
+  openAngle: 110
+  openSpeed: 3
+  hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0.39283317, y: 0, z: 0}
+  label: cabinet
+  sound: 0
+  unlocksAtRound: 0
+  sealedArea:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0, y: 0, z: 0}
 --- !u!1001 &94918151
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12831,6 +12902,7 @@ MonoBehaviour:
   openAngle: 110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cupboard
   sound: 0
   unlocksAtRound: 0
@@ -12853,6 +12925,7 @@ MonoBehaviour:
   openAngle: -110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cupboard
   sound: 0
   unlocksAtRound: 0
@@ -14300,7 +14373,7 @@ PrefabInstance:
       addedObject: {fileID: 230594852}
     - targetCorrespondingSourceObject: {fileID: 1649812252802333281, guid: 010d43eb21696d84692cb87cc2d62d14, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 230594851}
+      addedObject: {fileID: 230594857}
   m_SourcePrefab: {fileID: 100100000, guid: 010d43eb21696d84692cb87cc2d62d14, type: 3}
 --- !u!4 &230594848 stripped
 Transform:
@@ -14317,28 +14390,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 168631635104827613, guid: 010d43eb21696d84692cb87cc2d62d14, type: 3}
   m_PrefabInstance: {fileID: 230594847}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &230594851
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 230594849}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d9553d41a5a64391bb8ce08f540ce7b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
-  prompt: Use
-  openAngle: 110
-  openSpeed: 3
-  hingeAxis: {x: 0, y: 1, z: 0}
-  label: cabinet
-  sound: 0
-  unlocksAtRound: 0
-  sealedArea:
-    m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 0, y: 0, z: 0}
 --- !u!114 &230594852
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14351,6 +14402,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d664de47a0184aadbcef6015ea4bba4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.SearchableProp
+--- !u!114 &230594857
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 230594849}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d9553d41a5a64391bb8ce08f540ce7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
+  prompt: Use
+  openAngle: -110
+  openSpeed: 3
+  hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: -0.39688855, y: 0, z: 0}
+  label: cabinet
+  sound: 0
+  unlocksAtRound: 0
+  sealedArea:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0, y: 0, z: 0}
 --- !u!1 &231600306
 GameObject:
   m_ObjectHideFlags: 0
@@ -16049,6 +16123,7 @@ MonoBehaviour:
   openAngle: 110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cabinet
   sound: 0
   unlocksAtRound: 0
@@ -16068,9 +16143,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
   prompt: Use
-  openAngle: -110
+  openAngle: 110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0.55263686, y: 0, z: 0}
   label: cabinet
   sound: 0
   unlocksAtRound: 0
@@ -20077,6 +20153,7 @@ MonoBehaviour:
   openAngle: 110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cabinet
   sound: 0
   unlocksAtRound: 0
@@ -20099,6 +20176,7 @@ MonoBehaviour:
   openAngle: -110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cabinet
   sound: 0
   unlocksAtRound: 0
@@ -20579,6 +20657,7 @@ MonoBehaviour:
   openAngle: 110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cabinet
   sound: 0
   unlocksAtRound: 0
@@ -23664,6 +23743,7 @@ MonoBehaviour:
   openAngle: 110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cupboard
   sound: 0
   unlocksAtRound: 0
@@ -23686,6 +23766,7 @@ MonoBehaviour:
   openAngle: 110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cupboard
   sound: 0
   unlocksAtRound: 0
@@ -24814,6 +24895,7 @@ MonoBehaviour:
   openAngle: 110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cabinet
   sound: 0
   unlocksAtRound: 0
@@ -24836,6 +24918,7 @@ MonoBehaviour:
   openAngle: -110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cabinet
   sound: 0
   unlocksAtRound: 0
@@ -27308,7 +27391,7 @@ PrefabInstance:
       addedObject: {fileID: 471323261}
     - targetCorrespondingSourceObject: {fileID: 1649812252802333281, guid: 010d43eb21696d84692cb87cc2d62d14, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 471323260}
+      addedObject: {fileID: 471323266}
   m_SourcePrefab: {fileID: 100100000, guid: 010d43eb21696d84692cb87cc2d62d14, type: 3}
 --- !u!4 &471323257 stripped
 Transform:
@@ -27325,28 +27408,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 168631635104827613, guid: 010d43eb21696d84692cb87cc2d62d14, type: 3}
   m_PrefabInstance: {fileID: 471323256}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &471323260
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 471323258}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d9553d41a5a64391bb8ce08f540ce7b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
-  prompt: Use
-  openAngle: 110
-  openSpeed: 3
-  hingeAxis: {x: 0, y: 1, z: 0}
-  label: cabinet
-  sound: 0
-  unlocksAtRound: 0
-  sealedArea:
-    m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 0, y: 0, z: 0}
 --- !u!114 &471323261
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27359,6 +27420,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d664de47a0184aadbcef6015ea4bba4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.SearchableProp
+--- !u!114 &471323266
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 471323258}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d9553d41a5a64391bb8ce08f540ce7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
+  prompt: Use
+  openAngle: -110
+  openSpeed: 3
+  hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: -0.39688855, y: 0, z: 0}
+  label: cabinet
+  sound: 0
+  unlocksAtRound: 0
+  sealedArea:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0, y: 0, z: 0}
 --- !u!1 &472680106
 GameObject:
   m_ObjectHideFlags: 0
@@ -30702,6 +30786,7 @@ MonoBehaviour:
   openAngle: 110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cabinet
   sound: 0
   unlocksAtRound: 0
@@ -30724,6 +30809,7 @@ MonoBehaviour:
   openAngle: -110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cabinet
   sound: 0
   unlocksAtRound: 0
@@ -31744,6 +31830,7 @@ MonoBehaviour:
   openAngle: -100
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: door
   sound: 1
   unlocksAtRound: 0
@@ -33104,6 +33191,7 @@ MonoBehaviour:
   openAngle: 110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cabinet
   sound: 0
   unlocksAtRound: 0
@@ -33126,6 +33214,7 @@ MonoBehaviour:
   openAngle: -110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cabinet
   sound: 0
   unlocksAtRound: 0
@@ -33821,6 +33910,7 @@ MonoBehaviour:
   openAngle: 110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cabinet
   sound: 0
   unlocksAtRound: 0
@@ -36898,6 +36988,7 @@ MonoBehaviour:
   openAngle: 110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cupboard
   sound: 0
   unlocksAtRound: 0
@@ -36920,6 +37011,7 @@ MonoBehaviour:
   openAngle: -110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cupboard
   sound: 0
   unlocksAtRound: 0
@@ -40038,6 +40130,7 @@ MonoBehaviour:
   openAngle: -110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cabinet
   sound: 0
   unlocksAtRound: 0
@@ -42408,6 +42501,7 @@ MonoBehaviour:
   openAngle: -100
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: door
   sound: 1
   unlocksAtRound: 0
@@ -43399,6 +43493,118 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b6003057d8cc495198414a52ac020c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.KeySpotMarker
+--- !u!1 &788899656
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 788899657}
+  - component: {fileID: 788899660}
+  - component: {fileID: 788899659}
+  - component: {fileID: 788899658}
+  m_Layer: 0
+  m_Name: InteractiveFurniture13_04 Panel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 4
+  m_IsActive: 1
+--- !u!4 &788899657
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 788899656}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.28019997, y: 0.7371893, z: 0.34097674}
+  m_LocalScale: {x: 0.55426747, y: 0.20577455, z: 0.02}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1004420647}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!23 &788899658
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 788899656}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 949c979a0ea8743e99cfc254c8e40aa7, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 1
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &788899659
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 788899656}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!33 &788899660
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 788899656}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1001 &789831502
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -46197,6 +46403,7 @@ MonoBehaviour:
   openAngle: 110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cabinet
   sound: 0
   unlocksAtRound: 0
@@ -46916,50 +47123,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6800581386900437496, guid: 286c96f290fd2954dbcc666ebf01e255, type: 3}
   m_PrefabInstance: {fileID: 861247918}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &870563873
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 870563874}
-  - component: {fileID: 870563875}
-  m_Layer: 0
-  m_Name: KeySpot
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &870563874
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 870563873}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.000000059604645, y: -0.0028106607, z: -0.2706212}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1498030703}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &870563875
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 870563873}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9b6003057d8cc495198414a52ac020c4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.KeySpotMarker
 --- !u!1001 &874787629
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -47086,6 +47249,7 @@ MonoBehaviour:
   openAngle: 110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cupboard
   sound: 0
   unlocksAtRound: 0
@@ -47108,6 +47272,7 @@ MonoBehaviour:
   openAngle: -110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cupboard
   sound: 0
   unlocksAtRound: 0
@@ -47957,7 +48122,7 @@ PrefabInstance:
       addedObject: {fileID: 886284243}
     - targetCorrespondingSourceObject: {fileID: 2172788472976664777, guid: ef53681550b8c9e42b226492bc6ae7eb, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 886284242}
+      addedObject: {fileID: 886284248}
   m_SourcePrefab: {fileID: 100100000, guid: ef53681550b8c9e42b226492bc6ae7eb, type: 3}
 --- !u!4 &886284239 stripped
 Transform:
@@ -47974,28 +48139,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 2936006109238118503, guid: ef53681550b8c9e42b226492bc6ae7eb, type: 3}
   m_PrefabInstance: {fileID: 886284238}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &886284242
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 886284240}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d9553d41a5a64391bb8ce08f540ce7b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
-  prompt: Use
-  openAngle: -110
-  openSpeed: 3
-  hingeAxis: {x: 0, y: 1, z: 0}
-  label: cabinet
-  sound: 0
-  unlocksAtRound: 0
-  sealedArea:
-    m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 0, y: 0, z: 0}
 --- !u!114 &886284243
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -48008,6 +48151,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d664de47a0184aadbcef6015ea4bba4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.SearchableProp
+--- !u!114 &886284248
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 886284240}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d9553d41a5a64391bb8ce08f540ce7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
+  prompt: Use
+  openAngle: 110
+  openSpeed: 3
+  hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0.39283317, y: 0, z: 0}
+  label: cabinet
+  sound: 0
+  unlocksAtRound: 0
+  sealedArea:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0, y: 0, z: 0}
 --- !u!1 &891095491
 GameObject:
   m_ObjectHideFlags: 0
@@ -49462,6 +49628,7 @@ MonoBehaviour:
   openAngle: -110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cabinet
   sound: 0
   unlocksAtRound: 0
@@ -52057,6 +52224,7 @@ MonoBehaviour:
   openAngle: 90
   openSpeed: 3
   hingeAxis: {x: 1, y: 0, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cabinet
   sound: 3
   unlocksAtRound: 0
@@ -52939,7 +53107,7 @@ PrefabInstance:
       addedObject: {fileID: 992005414}
     - targetCorrespondingSourceObject: {fileID: 2172788472976664777, guid: ef53681550b8c9e42b226492bc6ae7eb, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 992005413}
+      addedObject: {fileID: 992005419}
   m_SourcePrefab: {fileID: 100100000, guid: ef53681550b8c9e42b226492bc6ae7eb, type: 3}
 --- !u!4 &992005410 stripped
 Transform:
@@ -52956,28 +53124,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 2936006109238118503, guid: ef53681550b8c9e42b226492bc6ae7eb, type: 3}
   m_PrefabInstance: {fileID: 992005409}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &992005413
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 992005411}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d9553d41a5a64391bb8ce08f540ce7b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
-  prompt: Use
-  openAngle: -110
-  openSpeed: 3
-  hingeAxis: {x: 0, y: 1, z: 0}
-  label: cabinet
-  sound: 0
-  unlocksAtRound: 0
-  sealedArea:
-    m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 0, y: 0, z: 0}
 --- !u!114 &992005414
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -52990,6 +53136,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d664de47a0184aadbcef6015ea4bba4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.SearchableProp
+--- !u!114 &992005419
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 992005411}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d9553d41a5a64391bb8ce08f540ce7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
+  prompt: Use
+  openAngle: 110
+  openSpeed: 3
+  hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0.39283317, y: 0, z: 0}
+  label: cabinet
+  sound: 0
+  unlocksAtRound: 0
+  sealedArea:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0, y: 0, z: 0}
 --- !u!1001 &992122080
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -53550,16 +53719,24 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3893693795507899108, guid: 0ebc4f62f2a26e54d9cef79f8891c5d8, type: 3}
-      propertyPath: m_StaticEditorFlags
+      propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3893693795507899108, guid: 0ebc4f62f2a26e54d9cef79f8891c5d8, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 4744503510949076271, guid: 0ebc4f62f2a26e54d9cef79f8891c5d8, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6250343498025975669, guid: 0ebc4f62f2a26e54d9cef79f8891c5d8, type: 3}
-      propertyPath: m_StaticEditorFlags
+      propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6250343498025975669, guid: 0ebc4f62f2a26e54d9cef79f8891c5d8, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 8791257317874774510, guid: 0ebc4f62f2a26e54d9cef79f8891c5d8, type: 3}
       propertyPath: m_StaticEditorFlags
@@ -53574,16 +53751,16 @@ PrefabInstance:
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 3473829504530333715, guid: 0ebc4f62f2a26e54d9cef79f8891c5d8, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1138940984}
-    - targetCorrespondingSourceObject: {fileID: 3473829504530333715, guid: 0ebc4f62f2a26e54d9cef79f8891c5d8, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 1730727158}
     - targetCorrespondingSourceObject: {fileID: 3473829504530333715, guid: 0ebc4f62f2a26e54d9cef79f8891c5d8, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1312049542}
-    - targetCorrespondingSourceObject: {fileID: 423828687368857733, guid: 0ebc4f62f2a26e54d9cef79f8891c5d8, type: 3}
+    - targetCorrespondingSourceObject: {fileID: 3473829504530333715, guid: 0ebc4f62f2a26e54d9cef79f8891c5d8, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1181792444}
+      addedObject: {fileID: 788899657}
+    - targetCorrespondingSourceObject: {fileID: 3473829504530333715, guid: 0ebc4f62f2a26e54d9cef79f8891c5d8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 77596395}
     - targetCorrespondingSourceObject: {fileID: 1226425679453931852, guid: 0ebc4f62f2a26e54d9cef79f8891c5d8, type: 3}
       insertIndex: -1
       addedObject: {fileID: 711242772}
@@ -53591,12 +53768,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 9085559119798059958, guid: 0ebc4f62f2a26e54d9cef79f8891c5d8, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1004420658}
-    - targetCorrespondingSourceObject: {fileID: 3893693795507899108, guid: 0ebc4f62f2a26e54d9cef79f8891c5d8, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1004420657}
-    - targetCorrespondingSourceObject: {fileID: 6250343498025975669, guid: 0ebc4f62f2a26e54d9cef79f8891c5d8, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1004420656}
     - targetCorrespondingSourceObject: {fileID: 4744503510949076271, guid: 0ebc4f62f2a26e54d9cef79f8891c5d8, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1004420655}
@@ -53624,21 +53795,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 4744503510949076271, guid: 0ebc4f62f2a26e54d9cef79f8891c5d8, type: 3}
   m_PrefabInstance: {fileID: 1004420646}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1004420651 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6250343498025975669, guid: 0ebc4f62f2a26e54d9cef79f8891c5d8, type: 3}
-  m_PrefabInstance: {fileID: 1004420646}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &1004420652 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 423828687368857733, guid: 0ebc4f62f2a26e54d9cef79f8891c5d8, type: 3}
-  m_PrefabInstance: {fileID: 1004420646}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &1004420653 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3893693795507899108, guid: 0ebc4f62f2a26e54d9cef79f8891c5d8, type: 3}
-  m_PrefabInstance: {fileID: 1004420646}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1004420654 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 9085559119798059958, guid: 0ebc4f62f2a26e54d9cef79f8891c5d8, type: 3}
@@ -53660,50 +53816,13 @@ MonoBehaviour:
   openAngle: 110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cabinet
   sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
---- !u!114 &1004420656
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1004420651}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d9553d41a5a64391bb8ce08f540ce7b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
-  prompt: Use
-  openAngle: -110
-  openSpeed: 3
-  hingeAxis: {x: 0, y: 1, z: 0}
-  label: cabinet
-  sound: 0
-  unlocksAtRound: 0
-  sealedArea:
-    m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 0, y: 0, z: 0}
---- !u!114 &1004420657
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1004420653}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8824212f3be0b4e189f0a0c8c3acd52c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DrawerInteractable
-  prompt: Use
-  slideAxis: {x: 0, y: 0, z: 1}
-  openDistance: 0.4124383
-  openSpeed: 4
 --- !u!114 &1004420658
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -53968,6 +54087,7 @@ MonoBehaviour:
   openAngle: 110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cupboard
   sound: 0
   unlocksAtRound: 0
@@ -53990,6 +54110,7 @@ MonoBehaviour:
   openAngle: -110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cupboard
   sound: 0
   unlocksAtRound: 0
@@ -54603,6 +54724,7 @@ MonoBehaviour:
   openAngle: 110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cupboard
   sound: 0
   unlocksAtRound: 0
@@ -54625,6 +54747,7 @@ MonoBehaviour:
   openAngle: -110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cupboard
   sound: 0
   unlocksAtRound: 0
@@ -56960,6 +57083,7 @@ MonoBehaviour:
   openAngle: -100
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: door
   sound: 1
   unlocksAtRound: 0
@@ -60057,50 +60181,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6800581386900437496, guid: 286c96f290fd2954dbcc666ebf01e255, type: 3}
   m_PrefabInstance: {fileID: 1137758238}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1138940983
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1138940984}
-  - component: {fileID: 1138940985}
-  m_Layer: 0
-  m_Name: KeySpot
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1138940984
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1138940983}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.27568147, y: 0.31599998, z: 0.16734278}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1004420647}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1138940985
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1138940983}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9b6003057d8cc495198414a52ac020c4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.KeySpotMarker
 --- !u!1 &1148915098
 GameObject:
   m_ObjectHideFlags: 0
@@ -62318,50 +62398,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.704167, y: 0.007954112, z: 1.1367478}
   m_Center: {x: 0, y: 0.003977056, z: 0}
---- !u!1 &1181792443
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1181792444}
-  - component: {fileID: 1181792445}
-  m_Layer: 0
-  m_Name: KeySpot
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1181792444
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1181792443}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.000000059604645, y: -0.0028106607, z: -0.2706212}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1004420652}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1181792445
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1181792443}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9b6003057d8cc495198414a52ac020c4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.KeySpotMarker
 --- !u!1001 &1181897546
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -67557,6 +67593,7 @@ MonoBehaviour:
   openAngle: -100
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: door
   sound: 1
   unlocksAtRound: 0
@@ -68143,6 +68180,7 @@ MonoBehaviour:
   openAngle: -100
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: door
   sound: 1
   unlocksAtRound: 0
@@ -69879,6 +69917,7 @@ MonoBehaviour:
   openAngle: 110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cabinet
   sound: 0
   unlocksAtRound: 0
@@ -73098,6 +73137,7 @@ MonoBehaviour:
   openAngle: -110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cabinet
   sound: 0
   unlocksAtRound: 0
@@ -73306,6 +73346,7 @@ MonoBehaviour:
   openAngle: -100
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: door
   sound: 1
   unlocksAtRound: 0
@@ -76293,6 +76334,118 @@ Rigidbody:
   m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 2
+--- !u!1 &1452447684
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1452447685}
+  - component: {fileID: 1452447688}
+  - component: {fileID: 1452447687}
+  - component: {fileID: 1452447686}
+  m_Layer: 0
+  m_Name: InteractiveFurniture10_05 Panel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 4
+  m_IsActive: 1
+--- !u!4 &1452447685
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1452447684}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.27300048, y: 0.7371894, z: 0.34097788}
+  m_LocalScale: {x: 0.55426747, y: 0.20577455, z: 0.02}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1498030702}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!23 &1452447686
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1452447684}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 949c979a0ea8743e99cfc254c8e40aa7, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 1
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &1452447687
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1452447684}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!33 &1452447688
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1452447684}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1001 &1454719044
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -77948,6 +78101,7 @@ MonoBehaviour:
   openAngle: -100
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: door
   sound: 1
   unlocksAtRound: 0
@@ -79088,8 +79242,12 @@ PrefabInstance:
     m_TransformParent: {fileID: 697962953}
     m_Modifications:
     - target: {fileID: 3847975184535791693, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
-      propertyPath: m_StaticEditorFlags
+      propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3847975184535791693, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 3847975184537794189, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
@@ -79100,8 +79258,12 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: a2dcc1387ed0e455b9f2dd26ea397f2e, type: 2}
     - target: {fileID: 4411972152264765409, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
-      propertyPath: m_StaticEditorFlags
+      propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4411972152264765409, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 5245682060061437686, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
       propertyPath: m_StaticEditorFlags
@@ -79187,42 +79349,26 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 7540854615601672395, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
       insertIndex: -1
       addedObject: {fileID: 910217197}
-    - targetCorrespondingSourceObject: {fileID: 4411972152265257921, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
+    - targetCorrespondingSourceObject: {fileID: 7540854615601672395, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 57427487}
-    - targetCorrespondingSourceObject: {fileID: 3847975184535499885, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
+      addedObject: {fileID: 1707537365}
+    - targetCorrespondingSourceObject: {fileID: 7540854615601672395, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 870563874}
+      addedObject: {fileID: 1452447685}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 5818855576741987075, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1498030713}
-    - targetCorrespondingSourceObject: {fileID: 4411972152264765409, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1498030712}
     - targetCorrespondingSourceObject: {fileID: 8132519859894808962, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1498030711}
     - targetCorrespondingSourceObject: {fileID: 8019141213797511131, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1498030710}
-    - targetCorrespondingSourceObject: {fileID: 3847975184535791693, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1966664175}
   m_SourcePrefab: {fileID: 100100000, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
 --- !u!4 &1498030702 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7540854615601672395, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
-  m_PrefabInstance: {fileID: 1498030701}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &1498030703 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 3847975184535499885, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
-  m_PrefabInstance: {fileID: 1498030701}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &1498030704 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3847975184535791693, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
   m_PrefabInstance: {fileID: 1498030701}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &1498030705 stripped
@@ -79233,16 +79379,6 @@ GameObject:
 --- !u!1 &1498030706 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8132519859894808962, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
-  m_PrefabInstance: {fileID: 1498030701}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &1498030707 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 4411972152265257921, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
-  m_PrefabInstance: {fileID: 1498030701}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &1498030708 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4411972152264765409, guid: c00ea538aedf58a4fbf7d2308175e091, type: 3}
   m_PrefabInstance: {fileID: 1498030701}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &1498030709 stripped
@@ -79266,6 +79402,7 @@ MonoBehaviour:
   openAngle: 110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cabinet
   sound: 0
   unlocksAtRound: 0
@@ -79288,28 +79425,13 @@ MonoBehaviour:
   openAngle: -110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cabinet
   sound: 0
   unlocksAtRound: 0
   sealedArea:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
---- !u!114 &1498030712
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1498030708}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8824212f3be0b4e189f0a0c8c3acd52c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DrawerInteractable
-  prompt: Use
-  slideAxis: {x: 0, y: 0, z: 1}
-  openDistance: 0.4124383
-  openSpeed: 4
 --- !u!114 &1498030713
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -80514,6 +80636,7 @@ MonoBehaviour:
   openAngle: 110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cupboard
   sound: 0
   unlocksAtRound: 0
@@ -80536,6 +80659,7 @@ MonoBehaviour:
   openAngle: -110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cupboard
   sound: 0
   unlocksAtRound: 0
@@ -84638,7 +84762,7 @@ PrefabInstance:
       addedObject: {fileID: 1600101821}
     - targetCorrespondingSourceObject: {fileID: 1649812252802333281, guid: 010d43eb21696d84692cb87cc2d62d14, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1600101820}
+      addedObject: {fileID: 1600101826}
   m_SourcePrefab: {fileID: 100100000, guid: 010d43eb21696d84692cb87cc2d62d14, type: 3}
 --- !u!4 &1600101817 stripped
 Transform:
@@ -84655,28 +84779,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 168631635104827613, guid: 010d43eb21696d84692cb87cc2d62d14, type: 3}
   m_PrefabInstance: {fileID: 1600101816}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1600101820
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1600101818}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d9553d41a5a64391bb8ce08f540ce7b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
-  prompt: Use
-  openAngle: 110
-  openSpeed: 3
-  hingeAxis: {x: 0, y: 1, z: 0}
-  label: cabinet
-  sound: 0
-  unlocksAtRound: 0
-  sealedArea:
-    m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 0, y: 0, z: 0}
 --- !u!114 &1600101821
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -84689,6 +84791,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d664de47a0184aadbcef6015ea4bba4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.SearchableProp
+--- !u!114 &1600101826
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1600101818}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d9553d41a5a64391bb8ce08f540ce7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
+  prompt: Use
+  openAngle: -110
+  openSpeed: 3
+  hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: -0.39688855, y: 0, z: 0}
+  label: cabinet
+  sound: 0
+  unlocksAtRound: 0
+  sealedArea:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0, y: 0, z: 0}
 --- !u!1001 &1600390473
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -85323,6 +85448,7 @@ MonoBehaviour:
   openAngle: 110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cabinet
   sound: 0
   unlocksAtRound: 0
@@ -85345,6 +85471,7 @@ MonoBehaviour:
   openAngle: -110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cabinet
   sound: 0
   unlocksAtRound: 0
@@ -86561,7 +86688,7 @@ PrefabInstance:
       addedObject: {fileID: 1634919981}
     - targetCorrespondingSourceObject: {fileID: 1649812252802333281, guid: 010d43eb21696d84692cb87cc2d62d14, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1634919980}
+      addedObject: {fileID: 1634919986}
   m_SourcePrefab: {fileID: 100100000, guid: 010d43eb21696d84692cb87cc2d62d14, type: 3}
 --- !u!4 &1634919977 stripped
 Transform:
@@ -86578,28 +86705,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 168631635104827613, guid: 010d43eb21696d84692cb87cc2d62d14, type: 3}
   m_PrefabInstance: {fileID: 1634919976}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1634919980
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1634919978}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d9553d41a5a64391bb8ce08f540ce7b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
-  prompt: Use
-  openAngle: 110
-  openSpeed: 3
-  hingeAxis: {x: 0, y: 1, z: 0}
-  label: cabinet
-  sound: 0
-  unlocksAtRound: 0
-  sealedArea:
-    m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 0, y: 0, z: 0}
 --- !u!114 &1634919981
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -86612,6 +86717,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d664de47a0184aadbcef6015ea4bba4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.SearchableProp
+--- !u!114 &1634919986
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1634919978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d9553d41a5a64391bb8ce08f540ce7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
+  prompt: Use
+  openAngle: -110
+  openSpeed: 3
+  hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: -0.39688855, y: 0, z: 0}
+  label: cabinet
+  sound: 0
+  unlocksAtRound: 0
+  sealedArea:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0, y: 0, z: 0}
 --- !u!1001 &1643651562
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -87012,7 +87140,7 @@ PrefabInstance:
       addedObject: {fileID: 1646955677}
     - targetCorrespondingSourceObject: {fileID: 4744503510949076271, guid: 0ebc4f62f2a26e54d9cef79f8891c5d8, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1646955676}
+      addedObject: {fileID: 1646955684}
     - targetCorrespondingSourceObject: {fileID: 3596067029139817617, guid: 0ebc4f62f2a26e54d9cef79f8891c5d8, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2081580069}
@@ -87057,28 +87185,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 9085559119798059958, guid: 0ebc4f62f2a26e54d9cef79f8891c5d8, type: 3}
   m_PrefabInstance: {fileID: 1646955667}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1646955676
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1646955671}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d9553d41a5a64391bb8ce08f540ce7b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
-  prompt: Use
-  openAngle: 110
-  openSpeed: 3
-  hingeAxis: {x: 0, y: 1, z: 0}
-  label: cabinet
-  sound: 0
-  unlocksAtRound: 0
-  sealedArea:
-    m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 0, y: 0, z: 0}
 --- !u!114 &1646955677
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -87095,6 +87201,7 @@ MonoBehaviour:
   openAngle: -110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cabinet
   sound: 0
   unlocksAtRound: 0
@@ -87129,6 +87236,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d664de47a0184aadbcef6015ea4bba4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.SearchableProp
+--- !u!114 &1646955684
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1646955671}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d9553d41a5a64391bb8ce08f540ce7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
+  prompt: Use
+  openAngle: -110
+  openSpeed: 3
+  hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: -0.55263686, y: 0, z: 0}
+  label: cabinet
+  sound: 0
+  unlocksAtRound: 0
+  sealedArea:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0, y: 0, z: 0}
 --- !u!114 &1650354596
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -88616,6 +88746,7 @@ MonoBehaviour:
   openAngle: 110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cabinet
   sound: 0
   unlocksAtRound: 0
@@ -88638,6 +88769,7 @@ MonoBehaviour:
   openAngle: -110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cabinet
   sound: 0
   unlocksAtRound: 0
@@ -89525,6 +89657,7 @@ MonoBehaviour:
   openAngle: 110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cupboard
   sound: 0
   unlocksAtRound: 0
@@ -89547,6 +89680,7 @@ MonoBehaviour:
   openAngle: -110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cupboard
   sound: 0
   unlocksAtRound: 0
@@ -89863,6 +89997,118 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5923670615402198364, guid: 56d7c1abcb4e1e340ab8d485b2c25dfd, type: 3}
   m_PrefabInstance: {fileID: 1707163131}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1707537364
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1707537365}
+  - component: {fileID: 1707537368}
+  - component: {fileID: 1707537367}
+  - component: {fileID: 1707537366}
+  m_Layer: 0
+  m_Name: InteractiveFurniture10_04 Panel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 4
+  m_IsActive: 1
+--- !u!4 &1707537365
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1707537364}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.2801993, y: 0.7371894, z: 0.34097746}
+  m_LocalScale: {x: 0.55426747, y: 0.20577455, z: 0.02}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1498030702}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!23 &1707537366
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1707537364}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 949c979a0ea8743e99cfc254c8e40aa7, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 1
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &1707537367
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1707537364}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!33 &1707537368
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1707537364}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1001 &1708029676
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -101946,6 +102192,7 @@ MonoBehaviour:
   openAngle: 110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cupboard
   sound: 0
   unlocksAtRound: 0
@@ -101968,6 +102215,7 @@ MonoBehaviour:
   openAngle: -110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cupboard
   sound: 0
   unlocksAtRound: 0
@@ -102233,6 +102481,7 @@ MonoBehaviour:
   openAngle: -100
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: door
   sound: 1
   unlocksAtRound: 0
@@ -103376,22 +103625,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6800581386900437496, guid: 286c96f290fd2954dbcc666ebf01e255, type: 3}
   m_PrefabInstance: {fileID: 1963650054}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1966664175
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1498030704}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8824212f3be0b4e189f0a0c8c3acd52c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DrawerInteractable
-  prompt: Use
-  slideAxis: {x: 0, y: 0, z: 1}
-  openDistance: 0.4124383
-  openSpeed: 4
 --- !u!1001 &1969547751
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -103584,6 +103817,7 @@ MonoBehaviour:
   openAngle: 110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cupboard
   sound: 0
   unlocksAtRound: 0
@@ -103606,6 +103840,7 @@ MonoBehaviour:
   openAngle: -110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cupboard
   sound: 0
   unlocksAtRound: 0
@@ -107866,6 +108101,7 @@ MonoBehaviour:
   openAngle: 110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cabinet
   sound: 0
   unlocksAtRound: 0
@@ -111957,7 +112193,7 @@ PrefabInstance:
       addedObject: {fileID: 2121495936}
     - targetCorrespondingSourceObject: {fileID: 2172788472976664777, guid: ef53681550b8c9e42b226492bc6ae7eb, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 2121495935}
+      addedObject: {fileID: 2121495941}
   m_SourcePrefab: {fileID: 100100000, guid: ef53681550b8c9e42b226492bc6ae7eb, type: 3}
 --- !u!4 &2121495932 stripped
 Transform:
@@ -111974,28 +112210,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 2936006109238118503, guid: ef53681550b8c9e42b226492bc6ae7eb, type: 3}
   m_PrefabInstance: {fileID: 2121495931}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2121495935
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2121495933}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d9553d41a5a64391bb8ce08f540ce7b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
-  prompt: Use
-  openAngle: -110
-  openSpeed: 3
-  hingeAxis: {x: 0, y: 1, z: 0}
-  label: cabinet
-  sound: 0
-  unlocksAtRound: 0
-  sealedArea:
-    m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 0, y: 0, z: 0}
 --- !u!114 &2121495936
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -112008,6 +112222,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d664de47a0184aadbcef6015ea4bba4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.SearchableProp
+--- !u!114 &2121495941
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2121495933}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d9553d41a5a64391bb8ce08f540ce7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ProjectRetrace.Runtime::ProjectRetrace.DoorInteractable
+  prompt: Use
+  openAngle: 110
+  openSpeed: 3
+  hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0.39283317, y: 0, z: 0}
+  label: cabinet
+  sound: 0
+  unlocksAtRound: 0
+  sealedArea:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0, y: 0, z: 0}
 --- !u!1 &2121653337
 GameObject:
   m_ObjectHideFlags: 0
@@ -113235,6 +113472,7 @@ MonoBehaviour:
   openAngle: 110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cupboard
   sound: 0
   unlocksAtRound: 0
@@ -113257,6 +113495,7 @@ MonoBehaviour:
   openAngle: -110
   openSpeed: 3
   hingeAxis: {x: 0, y: 1, z: 0}
+  hingeOffset: {x: 0, y: 0, z: 0}
   label: cupboard
   sound: 0
   unlocksAtRound: 0

@@ -99,6 +99,26 @@ namespace ProjectRetrace.EditorTools
         /// re-import cannot quietly bring it back.</summary>
         private static readonly Dictionary<string, string> DroppedProps = new Dictionary<string, string>();
 
+        /// <summary>Moving parts (prop name/part name) replaced by a plain panel: a real
+        /// kitchen fills a blind corner with a blank because a drawer or door there swings
+        /// into the run beside it. The part itself is switched off rather than edited, so
+        /// the art stays hers, and a panel with no handle stands in its place so nobody
+        /// tries a front that does nothing. Prepare strips whatever an earlier pass wired,
+        /// so the fix survives a re-import until the art scene fills the corner itself.</summary>
+        private static readonly Dictionary<string, string> FixedFronts = new Dictionary<string, string>
+        {
+            { "KitchenTabletop2_03/InteractiveFurniture10_04", "slides into InteractiveFurniture_13 (3)" },
+            { "KitchenTabletop2_03/InteractiveFurniture10_05", "slides into InteractiveFurniture_13 (3)" },
+            { "InteractiveFurniture_13 (3)/InteractiveFurniture13_04", "slides into KitchenTabletop2_03" },
+            { "InteractiveFurniture_13 (3)/InteractiveFurniture13_03", "swings into KitchenTabletop2_03" },
+        };
+
+        private const string PanelSuffix = " Panel";
+        private const float PanelThickness = 0.02f;
+
+        /// <summary>Two leaves whose pivots stand this close share a hinge line.</summary>
+        private const float SharedHingeTolerance = 0.05f;
+
         /// <summary>The upper floor's plate is tiled straight across the stair flight below
         /// it. Any tile covering this much of the flight's footprint is cut out to make the
         /// stairwell; the sliver a tile shares with the flight's edge rail is left alone.</summary>
@@ -151,9 +171,9 @@ namespace ProjectRetrace.EditorTools
 
         private struct Summary
         {
-            public int props, doors, drawers, keySpots, hidingSpots, roomDoors, backs, colliders, boxed, tuned, readableMeshes, swapped, stairs, batched, throwables;
+            public int props, doors, drawers, keySpots, hidingSpots, roomDoors, backs, colliders, boxed, tuned, readableMeshes, swapped, stairs, batched, throwables, fixedFronts, rehinged;
             public override string ToString() =>
-                $"{swapped} static prop(s) swapped for interactive twins; {props} prop(s): {doors} door(s), {drawers} drawer(s), {keySpots} key spot(s), " +
+                $"{swapped} static prop(s) swapped for interactive twins; {props} prop(s): {doors} door(s), {drawers} drawer(s), {fixedFronts} front(s) panelled, {rehinged} door(s) re-hinged, {keySpots} key spot(s), " +
                 $"{hidingSpots} hiding spot(s), {roomDoors} room door(s), {backs} back(s); {colliders} collider(s) added, {boxed} part(s) boxed, {tuned} hand-tuned part(s) kept, " +
                 $"{readableMeshes} mesh import(s) made readable, {stairs} stair flight(s) marked, {batched} renderer(s) marked static for batching, {throwables} throwable(s)";
         }
@@ -596,6 +616,8 @@ namespace ProjectRetrace.EditorTools
             summary.stairs = MarkStairs(house);
             foreach (var transform in house.GetComponentsInChildren<Transform>(true))
             {
+                // A fixed front's key spot is destroyed by an earlier prop in this same list.
+                if (transform == null) continue;
                 if (!PrefabUtility.IsAnyPrefabInstanceRoot(transform.gameObject)) continue;
 
                 var assetPath = PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(transform.gameObject);
@@ -610,8 +632,60 @@ namespace ProjectRetrace.EditorTools
                 }
             }
 
+            summary.rehinged = ReHingeBookDoors(house);
             summary.batched = MarkStaticForBatching(house);
             return summary;
+        }
+
+        /// <summary>The pack's wall cabinets come as mirrored halves, each hinged on one
+        /// edge. Placed the wrong way round, the two pivots meet in the middle and the
+        /// doors open like a book, through each other. The mesh decides where the pivot
+        /// is, so the fix moves the hinge to the leaf's far edge and swings it the other
+        /// way. Found by geometry, like the wiring: any two leaves that share a hinge line
+        /// are a pair, whichever props they belong to.</summary>
+        private static int ReHingeBookDoors(Transform house)
+        {
+            var leaves = new List<(DoorInteractable door, Bounds bounds)>();
+            foreach (var door in house.GetComponentsInChildren<DoorInteractable>(true))
+            {
+                var filter = door.GetComponent<MeshFilter>();
+                if (filter == null || filter.sharedMesh == null) continue;
+                var serialized = new SerializedObject(door);
+                if (Vector3.Dot(serialized.FindProperty("hingeAxis").vector3Value.normalized, Vector3.up) < 0.99f) continue;
+                // An already re-hinged leaf still stands on the shared line; skipping it
+                // keeps a second Prepare from swinging it back.
+                if (serialized.FindProperty("hingeOffset").vector3Value != Vector3.zero) continue;
+                leaves.Add((door, filter.sharedMesh.bounds));
+            }
+
+            // Pairs are found before any leaf moves: re-hinging destroys the component the
+            // comparison reads.
+            var paired = new HashSet<int>();
+            for (var i = 0; i < leaves.Count; i++)
+            {
+                for (var j = i + 1; j < leaves.Count; j++)
+                {
+                    var a = leaves[i].door.transform.position;
+                    var b = leaves[j].door.transform.position;
+                    if (Vector3.Distance(a, b) > SharedHingeTolerance) continue;
+                    if (Vector3.Dot(leaves[i].door.transform.TransformDirection(leaves[i].bounds.center), leaves[j].door.transform.TransformDirection(leaves[j].bounds.center)) >= 0f) continue;
+                    paired.Add(i);
+                    paired.Add(j);
+                }
+            }
+
+            foreach (var index in paired) ReHinge(leaves[index].door, leaves[index].bounds);
+            return paired.Count;
+        }
+
+        private static void ReHinge(DoorInteractable door, Bounds bounds)
+        {
+            var serialized = new SerializedObject(door);
+            // The pivot sits on one edge and the leaf extends from it, so the far edge is
+            // twice the leaf's local centre along the width.
+            serialized.FindProperty("hingeOffset").vector3Value = new Vector3(bounds.center.x * 2f, 0f, 0f);
+            serialized.FindProperty("openAngle").floatValue = -serialized.FindProperty("openAngle").floatValue;
+            serialized.ApplyModifiedProperties();
         }
 
         /// <summary>Nearly a thousand small meshes, each drawn once per shadow cascade on
@@ -1114,6 +1188,12 @@ namespace ProjectRetrace.EditorTools
             var parts = MovingParts(prop.transform);
             foreach (var (part, bounds) in parts)
             {
+                if (FixedFronts.ContainsKey(prop.name + "/" + part.name))
+                {
+                    summary.fixedFronts += Panel(prop.transform, part, bounds);
+                    continue;
+                }
+
                 if (part.GetComponent<InteractableBase>() != null) continue;
 
                 var center = bounds.center;
@@ -1146,6 +1226,47 @@ namespace ProjectRetrace.EditorTools
 
             summary.backs += AddBack(prop);
             return summary;
+        }
+
+        /// <summary>Switches a fixed front off and stands a plain panel in its place, flush
+        /// with the part's own front face and the same width and height, so the run reads
+        /// as one piece with a blank in it. Anything an earlier Prepare wired on the part is
+        /// stripped, including a door's spot on the carcass, so the keys never spawn behind
+        /// a front that cannot open.</summary>
+        private static int Panel(Transform prop, Transform part, Bounds bounds)
+        {
+            foreach (var interactable in part.GetComponents<InteractableBase>()) Undo.DestroyObjectImmediate(interactable);
+
+            var spot = part.Find("KeySpot");
+            if (spot != null) Undo.DestroyObjectImmediate(spot.gameObject);
+
+            var behind = prop.InverseTransformPoint(part.TransformPoint(bounds.center));
+            behind.z -= 0.15f;
+            foreach (Transform child in prop)
+            {
+                if (child.name != "KeySpot" || Vector3.Distance(child.localPosition, behind) >= 0.05f) continue;
+                Undo.DestroyObjectImmediate(child.gameObject);
+                break;
+            }
+
+            if (part.gameObject.activeSelf)
+            {
+                Undo.RecordObject(part.gameObject, "Fix front");
+                part.gameObject.SetActive(false);
+            }
+
+            if (prop.Find(part.name + PanelSuffix) != null) return 0;
+
+            var panel = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            panel.name = part.name + PanelSuffix;
+            Undo.RegisterCreatedObjectUndo(panel, "Fix front");
+            panel.transform.SetParent(prop, false);
+            panel.transform.rotation = part.rotation;
+            var faceZ = bounds.center.z + bounds.extents.z;
+            panel.transform.position = part.TransformPoint(new Vector3(bounds.center.x, bounds.center.y, faceZ - PanelThickness * 0.5f));
+            panel.transform.localScale = new Vector3(bounds.size.x, bounds.size.y, PanelThickness);
+            panel.GetComponent<Renderer>().sharedMaterial = BackMaterial();
+            return 1;
         }
 
         /// <summary>The pack models its carcasses open at the back, since they stand against
@@ -1220,6 +1341,8 @@ namespace ProjectRetrace.EditorTools
             {
                 var filter = child.GetComponent<MeshFilter>();
                 if (filter == null || filter.sharedMesh == null || child.name == BackName) continue;
+                // A panel is a unit cube scaled down; its mesh bounds would outrank the carcass.
+                if (child.name.EndsWith(PanelSuffix)) continue;
 
                 var local = filter.sharedMesh.bounds;
                 local.center += child.localPosition;
@@ -1247,6 +1370,8 @@ namespace ProjectRetrace.EditorTools
             {
                 var filter = child.GetComponent<MeshFilter>();
                 if (filter == null || filter.sharedMesh == null || child.name == BackName) continue;
+                // A panel is a unit cube scaled down; its mesh bounds would outrank the carcass.
+                if (child.name.EndsWith(PanelSuffix)) continue;
 
                 var bounds = filter.sharedMesh.bounds;
                 if (Volume(bounds) < MinPartVolume) continue;
@@ -1339,6 +1464,8 @@ namespace ProjectRetrace.EditorTools
             total.props += part.props;
             total.doors += part.doors;
             total.drawers += part.drawers;
+            total.fixedFronts += part.fixedFronts;
+            total.rehinged += part.rehinged;
             total.keySpots += part.keySpots;
             total.hidingSpots += part.hidingSpots;
             total.roomDoors += part.roomDoors;
