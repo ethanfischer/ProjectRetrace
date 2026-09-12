@@ -29,7 +29,6 @@ namespace ProjectRetrace
             "Level design by Tanya Jones",
             "Music by Ethan Berg",
             "Sound effects by Joe Lou and Ethan Fischer",
-            "Keys model by Joe Lou and Tanya Jones",
             "Bomb model by Tanya Jones",
             "House interiors by JustCreate",
             "(Low Poly Cartoon House Interiors, Unity Asset Store)",
