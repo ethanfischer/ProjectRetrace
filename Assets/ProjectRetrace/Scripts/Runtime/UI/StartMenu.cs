@@ -29,7 +29,15 @@ namespace ProjectRetrace
             "Level design by Tanya Jones",
             "Music by Ethan Berg",
             "Sound effects by Joe Lou and Ethan Fischer",
+            "Keys model by Joe Lou and Tanya Jones",
+            "Bomb model by Tanya Jones",
+            "House interiors by JustCreate",
+            "(Low Poly Cartoon House Interiors, Unity Asset Store)",
         };
+
+        // The credit list outgrew the menu panel, so that page alone gets a taller one.
+        private const float PanelHeight = 336f;
+        private const float CreditsPanelHeight = 420f;
 
         private void Reset()
         {
@@ -60,7 +68,8 @@ namespace ProjectRetrace
             HudScale.Apply();
             EnsureStyles();
 
-            var panel = new Rect(HudScale.Width * 0.5f - 220f, HudScale.Height * 0.5f - 168f, 440f, 336f);
+            var height = _page == Page.Credits ? CreditsPanelHeight : PanelHeight;
+            var panel = new Rect(HudScale.Width * 0.5f - 220f, HudScale.Height * 0.5f - height * 0.5f, 440f, height);
             GUI.Box(panel, GUIContent.none);
 
             HudText.OutlinedLabel(new Rect(panel.x, panel.y + 20f, panel.width, 40f), "PROJECT RETRACE", _title);
@@ -92,9 +101,9 @@ namespace ProjectRetrace
         {
             for (var i = 0; i < CreditLines.Length; i++)
             {
-                HudText.OutlinedLabel(new Rect(panel.x + 20f, panel.y + 84f + i * 30f, panel.width - 40f, 24f), CreditLines[i], _subtitle);
+                HudText.OutlinedLabel(new Rect(panel.x + 20f, panel.y + 76f + i * 30f, panel.width - 40f, 24f), CreditLines[i], _subtitle);
             }
-            if (MenuButton(panel, 3, "← Back")) _page = Page.Main;
+            if (HudText.OutlinedButton(new Rect(panel.x + 70f, panel.yMax - 62f, 300f, 42f), "← Back", _button)) _page = Page.Main;
         }
 
         private bool MenuButton(Rect panel, int row, string label)
