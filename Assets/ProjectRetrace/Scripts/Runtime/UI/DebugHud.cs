@@ -21,11 +21,27 @@ namespace ProjectRetrace
         private string _toast = string.Empty;
         private float _toastStartedAt;
 
+        private string _lastError = string.Empty;
+
         private GUIStyle _label;
         private GUIStyle _centered;
         private GUIStyle _handover;
         private GUIStyle _cash;
         private GUIStyle _button;
+
+        /// <summary>A build has no console, and an exception thrown every frame from a
+        /// ghost's Update looks exactly like a ghost that decided to stand still. The last
+        /// error or exception stays on the debug readout so a playtester can report it.</summary>
+        private void OnEnable() => Application.logMessageReceived += RememberError;
+
+        private void OnDisable() => Application.logMessageReceived -= RememberError;
+
+        private void RememberError(string condition, string stackTrace, LogType type)
+        {
+            if (type != LogType.Error && type != LogType.Exception && type != LogType.Assert) return;
+            var firstFrame = string.IsNullOrEmpty(stackTrace) ? string.Empty : stackTrace.Split('\n')[0];
+            _lastError = condition + (firstFrame.Length > 0 ? "  @ " + firstFrame : string.Empty);
+        }
 
         private void Reset()
         {
@@ -401,12 +417,40 @@ namespace ProjectRetrace
                         current.Crumbs.Count, current.Dwells.Count, current.Distance)
                     : ""), _label);
             GUILayout.Label(SentryStatusLine(), _label);
+            DrawSentryLines();
+            if (_lastError.Length > 0) GUILayout.Label("<color=#ff6060>last error: " + _lastError + "</color>", _label);
             GUILayout.Label(string.Format("spacing {0:0.00}m", settings.dotSpacing), _label);
             GUILayout.Label(KeyStatusLine(), _label);
             GUILayout.Label(BombStatusLine(), _label);
             GUILayout.Label("config: " + RetraceConfig.FilePath, _label);
             GUILayout.EndVertical();
             GUILayout.EndArea();
+        }
+
+        /// <summary>One line per live ghost, agent internals included: the fields that
+        /// decide whether it walks. A ghost that stands still is a bug report waiting to be
+        /// written, and this is the readout to write it from.</summary>
+        private void DrawSentryLines()
+        {
+            if (director == null) return;
+            var sentries = director.Sentries;
+            var routes = director.PatrolledRoutes;
+            for (var i = 0; i < sentries.Count; i++)
+            {
+                var sentry = sentries[i];
+                if (sentry == null || sentry.State == SentryState.Inactive) continue;
+
+                var crumbs = i < routes.Count ? routes[i].Crumbs.Count : 0;
+                var owner = i < routes.Count ? routes[i].Owner : 0;
+                var agent = sentry.GetComponent<UnityEngine.AI.NavMeshAgent>();
+                var agentLine = agent == null ? "no agent"
+                    : !agent.enabled ? "agent off"
+                    : !agent.isOnNavMesh ? "OFF NAVMESH"
+                    : string.Format("path {0}{1} rem {2:0.0}m v {3:0.0}{4}",
+                        agent.pathStatus, agent.pathPending ? " (pending)" : "", agent.remainingDistance,
+                        agent.velocity.magnitude, agent.isStopped ? " stopped" : "");
+                GUILayout.Label(string.Format("  {0}: {1} crumb {2}/{3} (P{4}) {5}", sentry.name, sentry.State, sentry.TargetIndex, crumbs, owner, agentLine), _label);
+            }
         }
 
         private string SentryStatusLine()
