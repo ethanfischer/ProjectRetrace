@@ -134,6 +134,14 @@ namespace ProjectRetrace
                 markups.Add(new NavMeshBuildMarkup { root = gate.transform, ignoreFromBuild = true });
             }
 
+            var roomGates = root != null
+                ? root.GetComponentsInChildren<RoomGate>(true)
+                : FindObjectsByType<RoomGate>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (var gate in roomGates)
+            {
+                markups.Add(new NavMeshBuildMarkup { root = gate.transform, ignoreFromBuild = true });
+            }
+
             var throwables = root != null
                 ? root.GetComponentsInChildren<ThrowableInteractable>(true)
                 : FindObjectsByType<ThrowableInteractable>(FindObjectsInactive.Include, FindObjectsSortMode.None);

@@ -63,7 +63,7 @@ namespace ProjectRetrace
 
         // Night: the whole house in one flat blue wash, applied at runtime over the scene's
         // authored daylight so the scene file never has to change hands with the setting.
-        public bool nightMode = false;
+        public bool nightMode = true;
 
         // Hiding. Peeking through the door crack: how far you can turn, and how tall the
         // crack is as a fraction of the screen.
@@ -137,10 +137,20 @@ namespace ProjectRetrace
         /// floor from round one.</summary>
         public bool lockUpstairs = true;
 
-        /// <summary>Off, no bomb spawns and the run plays as before. The bomb removes a
-        /// ghost for the rest of the run, which flattens the difficulty curve; on by
-        /// default anyway because setting the trap turned out to be the fun part.</summary>
-        public bool bombEnabled = true;
+        /// <summary>Displayed round from which the kitchen opens. Until then its opening is
+        /// veiled and solid and the keys never hide inside it, so the first search is a
+        /// smaller house. 0 = never locked.</summary>
+        public int kitchenUnlockRound = 2;
+
+        /// <summary>Blur-and-dim pane over a locked room gate, on top of the baby gate. Off by
+        /// default: the gate prop says "not yet" on its own, and the veil is kept for
+        /// playtests where the air above a knee-high gate reads as an invisible wall.</summary>
+        public bool gateVeilEnabled = false;
+
+        /// <summary>Off, no bomb spawns and the run plays as before. Opt-in: the bomb removes
+        /// a ghost for the rest of the run, which flattens the difficulty curve, and a first
+        /// run has enough to learn without a second item on the same key list.</summary>
+        public bool bombEnabled = false;
 
         /// <summary>Cash in drawers, re-hidden each round: score only. cashDrawerFraction is
         /// the share of key spots that hold a stack. cashValues is the draw bag: each stack's

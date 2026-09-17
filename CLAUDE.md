@@ -118,8 +118,8 @@ stun, since the spot already decided the attempt. Throwables are excluded from t
 bake like doors. Mark a prop with ProjectRetrace > Furniture > Mark Selection Throwable;
 the test house generator drops one mug per room.
 
-The bomb (`BombItem` on the `Bomb_PF` prefab, `PlayerBombCarrier` on the player) is on by
-default (`bombEnabled`; off, the run plays without it). It spawns once per run right after the phase-1 keys, from the same spot
+The bomb (`BombItem` on the `Bomb_PF` prefab, `PlayerBombCarrier` on the player) is opt-in
+(`bombEnabled`, off by default; on, it spawns once per run). It spawns once per run right after the phase-1 keys, from the same spot
 list with a seed derived from the run seed, never inside the keys' prop. It spawns unarmed, so
 finding it is safe. Taking it puts it in the pocket (hidden; the HUD shows a procedural
 `BombIcon` bottom-right); the bomb key (`bombKey`, C) plants it in whatever open
@@ -163,6 +163,20 @@ the door and hauls out (and spots) anyone inside. Ghosts never hide themselves. 
 `sentriesOpenFurniture` on, a ghost also re-opens whatever `IOpenable` the player used at
 each stop; off (the default), furniture only opens when a hider is found.
 ProjectRetrace > Furniture > Add Hiding Spots To Cupboards retrofits an older scene.
+
+`RoomGate` (beside `FloorGate`) seals a room that has no door of its own: a volume, not a
+height, because the kitchen wing is a five-metre open side rather than a doorway. It reads
+the same round clock (`kitchenUnlockRound` in the config, 0 = never), is solid to full height
+while locked, `KeySpawner` skips every spot inside its `sealedArea`, and the baker leaves it
+out of the bake like a door. Both locks share one prop: a knee-high baby gate built from
+primitives whose `GateLeaf` swings open on the unlock round, so opening the house is an
+event the toast can point at. The collider is taller than the gate on purpose (no jump, but
+players push on the air above it); `gateVeilEnabled` adds a blur-and-dim pane (`GateVeil`
+shader, reads the camera opaque texture, which both URP assets keep on) for playtests where
+that reads as an invisible wall. ProjectRetrace > Setup Kitchen Gate places the room gate at
+the living-room end of the corridor into the wing, under the Additions root (two sealed
+boxes: the corridor and the wing, since one box would swallow the bedroom beside it); Setup Stair Gate puts the
+same leaf on the hand-placed `FloorGate` barrier.
 
 `DoorInteractable` can be round-locked (`unlocksAtRound`, a displayed round number, read
 against `GameDirector.Instance.StealthRound`) and carries a `sealedArea`; `KeySpawner`
