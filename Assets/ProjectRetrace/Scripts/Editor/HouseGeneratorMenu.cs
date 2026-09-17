@@ -29,7 +29,7 @@ namespace ProjectRetrace.EditorTools
         private const float GroundTop = 0.05f;
         private const float UpperTop = 2.8f;
         private const float DoorWidth = 1.1f;
-        private const int UpstairsUnlockRound = 4;
+        private const int UpstairsUnlockRound = 5;
 
         // South face of the stair enclosure; step 1 begins at z 3.5, just past the door.
         private const float StairGateZ = 3.4f;

@@ -143,7 +143,7 @@ namespace ProjectRetrace
             for (var i = 0; i < markers.Length; i++)
             {
                 var point = markers[i].transform.position;
-                if (IsSealed(point, doors) || !FloorGate.Allows(point)) continue;
+                if (IsSealed(point, doors) || !FloorGate.Allows(point) || !RoomGate.Allows(point)) continue;
                 if (IsExcluded(HierarchyPath.Of(markers[i].transform))) continue;
                 spots.Add(markers[i].transform);
             }

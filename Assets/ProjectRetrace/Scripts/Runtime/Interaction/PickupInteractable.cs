@@ -10,8 +10,17 @@ namespace ProjectRetrace
         private Vector3 _initialLocalPosition;
         private Quaternion _initialLocalRotation;
         private bool _taken;
+        private IOpenable _container;
 
-        public override bool CanInteract => base.CanInteract && !_taken;
+        public override bool CanInteract => base.CanInteract && !_taken && !ShutAway;
+
+        /// <summary>
+        /// A pickup behind a closed drawer front or cupboard door answers nothing. The
+        /// interaction ray alone is not enough: aiming at a prop's shell latches onto its
+        /// nearest usable part, and a stack of cash an arm's length inside a shut drawer is
+        /// exactly that, so the player could bank a whole dresser without opening it.
+        /// </summary>
+        private bool ShutAway => _container != null && !_container.IsOpen;
 
         protected virtual void Awake()
         {
@@ -44,6 +53,12 @@ namespace ProjectRetrace
         {
             _initialLocalPosition = transform.localPosition;
             _initialLocalRotation = transform.localRotation;
+
+            // Resolved here, once per placement, because the marker's lookup walks the prop:
+            // a drawer's spot rides on the drawer, a door's sits on the carcass and is
+            // claimed by geometry, and this is the one place both are settled.
+            var spot = GetComponentInParent<KeySpotMarker>();
+            _container = spot != null ? spot.Openable : null;
         }
 
         public override void RestoreInitialState()

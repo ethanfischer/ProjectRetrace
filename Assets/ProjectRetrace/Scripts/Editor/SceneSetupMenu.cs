@@ -264,6 +264,189 @@ namespace ProjectRetrace.EditorTools
             return material;
         }
 
+        private const string VeilMaterialPath = "Assets/ProjectRetrace/Art/Materials/GateVeil.mat";
+        private const string GateMaterialPath = "Assets/ProjectRetrace/Art/Materials/Gate.mat";
+        private const string KitchenGateName = "KitchenGate";
+        private const string StairGateName = "StairGate";
+
+        /// <summary>The hallway into the kitchen wing, gated until kitchenUnlockRound.
+        /// Numbers are the imported house: the corridor between bedroom and living room
+        /// runs from x -11.3 to -8.7 and is walled on both sides from z 4.9 to 7.3, then
+        /// opens north into the dining strip and kitchen. The gate sits at the corridor's
+        /// south end, where it meets the living room, so the player meets it in the
+        /// hallway rather than at the kitchen: a doorway-sized gap, and the whole wing
+        /// plus the corridor behind it is lost to round one, which is what a first-round
+        /// house should lose. Lives under the Additions root like the stair barrier, so a
+        /// re-import keeps it. Idempotent: re-running rebuilds the gate.</summary>
+        [MenuItem("ProjectRetrace/Setup Kitchen Gate", false, 7)]
+        public static void SetupKitchenGate()
+        {
+            var existing = Object.FindFirstObjectByType<RoomGate>(FindObjectsInactive.Include);
+            if (existing != null) Undo.DestroyObjectImmediate(existing.gameObject);
+
+            const float width = 2.5f;
+            var root = new GameObject(KitchenGateName);
+            Undo.RegisterCreatedObjectUndo(root, "Create Kitchen Gate");
+            root.transform.SetParent(AdditionsRoot(), true);
+            // Faces -Z, the living-room side; the leaf swings +Z, up the corridor.
+            root.transform.SetPositionAndRotation(new Vector3(-10f, 0f, 5.2f), Quaternion.identity);
+
+            var box = root.AddComponent<BoxCollider>();
+            box.size = new Vector3(width + 0.1f, 2.5f, 0.06f);
+            box.center = new Vector3(0f, 1.25f, 0f);
+
+            var gate = root.AddComponent<RoomGate>();
+            gate.gateProp = BuildGate(root.transform, width);
+            gate.veil = BuildVeil(root.transform, width + 0.1f);
+            // The corridor north of the gate, then everything north of the wing's south
+            // wall on the ground floor, kitchen and dining strip alike. Two boxes rather
+            // than one because one big enough would swallow the bedroom, which has its
+            // own door from the south. A spot sealed off by mistake costs one hiding
+            // place; a spot missed costs the round.
+            gate.sealedAreas = new[]
+            {
+                new Bounds(new Vector3(-10f, 1.25f, 6.3f), new Vector3(2.8f, 2.4f, 2.4f)),
+                new Bounds(new Vector3(-11.3f, 1.25f, 10.6f), new Vector3(15.6f, 2.4f, 6.4f)),
+            };
+
+            EditorSceneManager.MarkSceneDirty(root.scene);
+            Selection.activeGameObject = root;
+            Debug.Log("[ProjectRetrace] Kitchen gate placed at the hallway mouth.");
+        }
+
+        /// <summary>The same gate prop on the hand-placed stair barrier, so both locks in
+        /// the house read the same. The barrier keeps its own collider and logic; the prop
+        /// is a sibling under Additions because the barrier's non-uniform scale would
+        /// squash a child.</summary>
+        [MenuItem("ProjectRetrace/Setup Stair Gate", false, 8)]
+        public static void SetupStairGate()
+        {
+            var floorGate = Object.FindFirstObjectByType<FloorGate>(FindObjectsInactive.Include);
+            if (floorGate == null)
+            {
+                Debug.LogError("[ProjectRetrace] No FloorGate in the scene -- import the house first.");
+                return;
+            }
+
+            var old = floorGate.transform.parent != null ? floorGate.transform.parent.Find(StairGateName) : null;
+            if (old != null) Undo.DestroyObjectImmediate(old.gameObject);
+
+            var bounds = floorGate.GetComponent<Collider>().bounds;
+            var alongZ = bounds.size.z > bounds.size.x;
+            var width = alongZ ? bounds.size.z : bounds.size.x;
+            var root = new GameObject(StairGateName);
+            Undo.RegisterCreatedObjectUndo(root, "Create Stair Gate");
+            root.transform.SetParent(floorGate.transform.parent, true);
+            // Centred on the barrier, spanning its long axis.
+            var centre = new Vector3(bounds.center.x, bounds.min.y, bounds.center.z);
+            root.transform.SetPositionAndRotation(centre, alongZ ? Quaternion.Euler(0f, -90f, 0f) : Quaternion.identity);
+
+            floorGate.gateProp = BuildGate(root.transform, width);
+            EditorUtility.SetDirty(floorGate);
+            EditorSceneManager.MarkSceneDirty(root.scene);
+            Debug.Log("[ProjectRetrace] Stair gate placed on the FloorGate barrier.");
+        }
+
+        /// <summary>A baby gate from primitives, in the pack's flat-shaded style: two posts,
+        /// two rails, a row of bars, centred on the parent and spanning its local x. One
+        /// object so the owning gate can hide it whole.</summary>
+        private static GameObject BuildGate(Transform parent, float width)
+        {
+            const float height = 0.8f;
+            const float post = 0.06f;
+            const float bar = 0.025f;
+            var material = GateMaterial();
+
+            var gate = new GameObject("Gate");
+            gate.transform.SetParent(parent, false);
+            var half = width / 2f;
+            Bar(gate.transform, "LeftPost", new Vector3(-half + post / 2f, height / 2f, 0f), new Vector3(post, height, post), material);
+            Bar(gate.transform, "RightPost", new Vector3(half - post / 2f, height / 2f, 0f), new Vector3(post, height, post), material);
+            Bar(gate.transform, "TopRail", new Vector3(0f, height - bar, 0f), new Vector3(width, bar * 1.5f, bar * 1.5f), material);
+            Bar(gate.transform, "BottomRail", new Vector3(0f, 0.06f, 0f), new Vector3(width, bar * 1.5f, bar * 1.5f), material);
+            var bars = Mathf.Max(1, Mathf.RoundToInt(width / 0.11f));
+            for (var i = 1; i < bars; i++)
+            {
+                var x = -half + width * i / bars;
+                Bar(gate.transform, "Bar" + i, new Vector3(x, height / 2f, 0f), new Vector3(bar, height - 0.08f, bar), material);
+            }
+
+            return gate;
+        }
+
+        private static GameObject Bar(Transform parent, string name, Vector3 localPosition, Vector3 size, Material material)
+        {
+            var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            // Colliders come from the gate's own full-height box; primitive colliders here
+            // would only snag the navmesh bake and the player's feet.
+            Object.DestroyImmediate(cube.GetComponent<Collider>());
+            cube.name = name;
+            cube.transform.SetParent(parent, false);
+            cube.transform.localPosition = localPosition;
+            cube.transform.localScale = size;
+            cube.GetComponent<MeshRenderer>().sharedMaterial = material;
+            return cube;
+        }
+
+        private static Renderer BuildVeil(Transform parent, float width)
+        {
+            var pane = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            Object.DestroyImmediate(pane.GetComponent<Collider>());
+            pane.name = "Veil";
+            pane.transform.SetParent(parent, false);
+            pane.transform.localPosition = new Vector3(0f, 1.25f, 0f);
+            pane.transform.localScale = new Vector3(width, 2.5f, 1f);
+            var renderer = pane.GetComponent<MeshRenderer>();
+            renderer.sharedMaterial = VeilMaterial();
+            renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            renderer.receiveShadows = false;
+            return renderer;
+        }
+
+        private static Material GateMaterial()
+        {
+            var material = AssetDatabase.LoadAssetAtPath<Material>(GateMaterialPath);
+            if (material != null) return material;
+
+            var shader = Shader.Find("Universal Render Pipeline/Lit");
+            if (shader == null) throw new System.InvalidOperationException("URP Lit shader missing.");
+            material = new Material(shader) { name = "Gate" };
+            material.SetColor("_BaseColor", new Color(0.92f, 0.9f, 0.86f));
+            material.SetFloat("_Smoothness", 0.35f);
+            AssetDatabase.CreateAsset(material, GateMaterialPath);
+            return material;
+        }
+
+        private static Transform AdditionsRoot()
+        {
+            const string name = "TestHouse (Additions)";
+            var scene = EditorSceneManager.GetActiveScene();
+            foreach (var root in scene.GetRootGameObjects())
+            {
+                if (root.name == name) return root.transform;
+            }
+
+            var created = new GameObject(name);
+            Undo.RegisterCreatedObjectUndo(created, "Create Additions Root");
+            return created.transform;
+        }
+
+        private static Material VeilMaterial()
+        {
+            var material = AssetDatabase.LoadAssetAtPath<Material>(VeilMaterialPath);
+            if (material != null) return material;
+
+            var shader = Shader.Find("ProjectRetrace/GateVeil");
+            if (shader == null)
+            {
+                throw new System.InvalidOperationException("ProjectRetrace/GateVeil shader is missing or failed to compile.");
+            }
+
+            material = new Material(shader) { name = "GateVeil" };
+            AssetDatabase.CreateAsset(material, VeilMaterialPath);
+            return material;
+        }
+
         [MenuItem("ProjectRetrace/Setup Bomb", false, 2)]
         public static void SetupBomb()
         {

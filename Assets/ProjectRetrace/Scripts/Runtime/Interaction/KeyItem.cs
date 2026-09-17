@@ -5,8 +5,7 @@ namespace ProjectRetrace
     /// <summary>
     /// The keys. Picking them up ends phase 1; picking them up again ends phase 2 (in the
     /// default KeyPickup end mode). Position is owned by KeySpawner, not by this component.
-    /// Whether they are reachable is left to the interaction ray: a closed door or drawer
-    /// front is the first thing it hits, so the keys only answer once it is out of the way.
+    /// Like every pickup, they answer nothing while their drawer or door is shut.
     /// </summary>
     public class KeyItem : PickupInteractable
     {

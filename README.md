@@ -13,7 +13,7 @@ pausing to look around wherever you did. Round N has N ghosts. Loose props can b
 up and thrown: a hit ghost is stunned for a few seconds, but the throw is recorded too, and
 next round a ghost throws it back from the same spot; get hit and it costs a life. There is no winning — only
 how deep you get before your tries run out. The door to the stairs stays locked until
-round 4, so the early rounds play out on the ground floor and the house doubles once
+round 5, so the early rounds play out on the ground floor and the house doubles once
 you've earned it.
 
 The twist: you know every patrol perfectly, because they're all your own routes. Every
