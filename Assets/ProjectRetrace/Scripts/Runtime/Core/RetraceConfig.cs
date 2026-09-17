@@ -106,8 +106,10 @@ namespace ProjectRetrace
         public float sentryStunSeconds = 3f;
         public float sentryStunFadeSeconds = 0.3f;
 
-        // Vision
-        public float visionRange = 7f;
+        // Vision. visionRange is how far a ghost can *spot* you (with the cone and a clear
+        // line of sight); catchDistance above is how close the chase has to get to sell the
+        // catch the spot already decided. 5 m came out of playtests: 7 saw across whole rooms.
+        public float visionRange = 5f;
         public float visionAngle = 30f;
         public float graceSeconds = 3f;
 
@@ -131,7 +133,7 @@ namespace ProjectRetrace
 
         /// <summary>Displayed round from which the stairs open; until then the keys stay
         /// downstairs, from then on they hide only upstairs.</summary>
-        public int upstairsUnlockRound = 4;
+        public int upstairsUnlockRound = 5;
 
         /// <summary>Off, the stair barrier never appears and the keys may hide on either
         /// floor from round one.</summary>
@@ -140,7 +142,7 @@ namespace ProjectRetrace
         /// <summary>Displayed round from which the kitchen opens. Until then its opening is
         /// veiled and solid and the keys never hide inside it, so the first search is a
         /// smaller house. 0 = never locked.</summary>
-        public int kitchenUnlockRound = 2;
+        public int kitchenUnlockRound = 3;
 
         /// <summary>Blur-and-dim pane over a locked room gate, on top of the baby gate. Off by
         /// default: the gate prop says "not yet" on its own, and the veil is kept for

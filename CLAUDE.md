@@ -182,7 +182,7 @@ same leaf on the hand-placed `FloorGate` barrier.
 `DoorInteractable` can be round-locked (`unlocksAtRound`, a displayed round number, read
 against `GameDirector.Instance.StealthRound`) and carries a `sealedArea`; `KeySpawner`
 skips any hiding spot inside a locked door's sealed volume. The generated house uses this
-to keep the upper floor shut until round 4; the imported house uses `FloorGate` instead.
+to keep the upper floor shut until round 5; the imported house uses `FloorGate` instead.
 
 Online (`Runtime/Net/`, design in [ONLINE.md](ONLINE.md)) is couch mode split across two
 machines. `OnlineSession` owns the socket and translates wire messages into director
