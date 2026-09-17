@@ -296,8 +296,7 @@ namespace ProjectRetrace.EditorTools
             box.center = new Vector3(0f, 1.25f, 0f);
 
             var gate = root.AddComponent<RoomGate>();
-            gate.roomName = "kitchen";
-            gate.leaf = BuildGateLeaf(root.transform, width, openAngle: -100f);
+            gate.gateProp = BuildGate(root.transform, width);
             gate.veil = BuildVeil(root.transform, width + 0.1f);
             // The corridor north of the gate, then everything north of the wing's south
             // wall on the ground floor, kitchen and dining strip alike. Two boxes rather
@@ -316,7 +315,7 @@ namespace ProjectRetrace.EditorTools
         }
 
         /// <summary>The same gate prop on the hand-placed stair barrier, so both locks in
-        /// the house read the same. The barrier keeps its own collider and logic; the leaf
+        /// the house read the same. The barrier keeps its own collider and logic; the prop
         /// is a sibling under Additions because the barrier's non-uniform scale would
         /// squash a child.</summary>
         [MenuItem("ProjectRetrace/Setup Stair Gate", false, 8)]
@@ -338,49 +337,41 @@ namespace ProjectRetrace.EditorTools
             var root = new GameObject(StairGateName);
             Undo.RegisterCreatedObjectUndo(root, "Create Stair Gate");
             root.transform.SetParent(floorGate.transform.parent, true);
-            // Hinge at the barrier's min corner; the leaf spans its long axis. Opens away
-            // from the spawn side, which is east of the stairs.
-            var hinge = alongZ
-                ? new Vector3(bounds.center.x, bounds.min.y, bounds.min.z)
-                : new Vector3(bounds.min.x, bounds.min.y, bounds.center.z);
-            root.transform.SetPositionAndRotation(hinge, alongZ ? Quaternion.Euler(0f, -90f, 0f) : Quaternion.identity);
+            // Centred on the barrier, spanning its long axis.
+            var centre = new Vector3(bounds.center.x, bounds.min.y, bounds.center.z);
+            root.transform.SetPositionAndRotation(centre, alongZ ? Quaternion.Euler(0f, -90f, 0f) : Quaternion.identity);
 
-            floorGate.leaf = BuildGateLeaf(root.transform, width, openAngle: alongZ ? 100f : -100f, hingeAtOrigin: true);
+            floorGate.gateProp = BuildGate(root.transform, width);
             EditorUtility.SetDirty(floorGate);
             EditorSceneManager.MarkSceneDirty(root.scene);
             Debug.Log("[ProjectRetrace] Stair gate placed on the FloorGate barrier.");
         }
 
         /// <summary>A baby gate from primitives, in the pack's flat-shaded style: two posts,
-        /// two rails, a row of bars. The hinge post stays put; everything else is the
-        /// leaf, whose origin is the hinge so GateLeaf can rotate it in place.</summary>
-        private static GateLeaf BuildGateLeaf(Transform parent, float width, float openAngle, bool hingeAtOrigin = false)
+        /// two rails, a row of bars, centred on the parent and spanning its local x. One
+        /// object so the owning gate can hide it whole.</summary>
+        private static GameObject BuildGate(Transform parent, float width)
         {
             const float height = 0.8f;
             const float post = 0.06f;
             const float bar = 0.025f;
             var material = GateMaterial();
-            var left = hingeAtOrigin ? 0f : -width / 2f;
 
-            Bar(parent, "HingePost", new Vector3(left + post / 2f, height / 2f, 0f), new Vector3(post, height, post), material);
-
-            var leaf = new GameObject("Leaf");
-            leaf.transform.SetParent(parent, false);
-            leaf.transform.localPosition = new Vector3(left + post, 0f, 0f);
-            var span = width - post;
-            Bar(leaf.transform, "LatchPost", new Vector3(span - post / 2f, height / 2f, 0f), new Vector3(post, height, post), material);
-            Bar(leaf.transform, "TopRail", new Vector3(span / 2f, height - bar, 0f), new Vector3(span, bar * 1.5f, bar * 1.5f), material);
-            Bar(leaf.transform, "BottomRail", new Vector3(span / 2f, 0.06f, 0f), new Vector3(span, bar * 1.5f, bar * 1.5f), material);
-            var bars = Mathf.Max(1, Mathf.RoundToInt(span / 0.11f));
+            var gate = new GameObject("Gate");
+            gate.transform.SetParent(parent, false);
+            var half = width / 2f;
+            Bar(gate.transform, "LeftPost", new Vector3(-half + post / 2f, height / 2f, 0f), new Vector3(post, height, post), material);
+            Bar(gate.transform, "RightPost", new Vector3(half - post / 2f, height / 2f, 0f), new Vector3(post, height, post), material);
+            Bar(gate.transform, "TopRail", new Vector3(0f, height - bar, 0f), new Vector3(width, bar * 1.5f, bar * 1.5f), material);
+            Bar(gate.transform, "BottomRail", new Vector3(0f, 0.06f, 0f), new Vector3(width, bar * 1.5f, bar * 1.5f), material);
+            var bars = Mathf.Max(1, Mathf.RoundToInt(width / 0.11f));
             for (var i = 1; i < bars; i++)
             {
-                var x = span * i / bars;
-                Bar(leaf.transform, "Bar" + i, new Vector3(x, height / 2f, 0f), new Vector3(bar, height - 0.08f, bar), material);
+                var x = -half + width * i / bars;
+                Bar(gate.transform, "Bar" + i, new Vector3(x, height / 2f, 0f), new Vector3(bar, height - 0.08f, bar), material);
             }
 
-            var component = leaf.AddComponent<GateLeaf>();
-            component.openAngle = openAngle;
-            return component;
+            return gate;
         }
 
         private static GameObject Bar(Transform parent, string name, Vector3 localPosition, Vector3 size, Material material)

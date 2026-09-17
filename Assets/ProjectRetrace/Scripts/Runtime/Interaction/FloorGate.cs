@@ -15,8 +15,8 @@ namespace ProjectRetrace
         [Tooltip("Key spots at or above this world height count as upstairs.")]
         public float floorHeight = 2.2f;
 
-        [Tooltip("The swinging leaf placed by Setup Stair Gate. Optional: the barrier works without a prop.")]
-        public GateLeaf leaf;
+        [Tooltip("The gate prop placed by Setup Stair Gate, shown only while locked. Optional: the barrier works without it.")]
+        public GameObject gateProp;
 
         private Collider _collider;
 
@@ -41,7 +41,7 @@ namespace ProjectRetrace
         private void Update()
         {
             if (_collider != null) _collider.enabled = Locked;
-            if (leaf != null) leaf.Open = !Locked;
+            if (gateProp != null && gateProp.activeSelf != Locked) gateProp.SetActive(Locked);
         }
 
         /// <summary>Whether a key may hide at this point in the current round. With no gate

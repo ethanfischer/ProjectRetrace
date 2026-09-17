@@ -10,25 +10,23 @@ namespace ProjectRetrace
     /// has a five-metre open side rather than a doorway. It reads the same round clock as the
     /// door locks and FloorGate, so it carries no state through retries or couch handovers.
     /// While locked the collider is solid to full height and the keys never hide inside the
-    /// sealed volume. The prop is a baby gate (GateLeaf) that swings open on the unlock
-    /// round, so opening the house is a moment the player sees rather than a wall that is
-    /// quietly gone. The gate is knee-high and the collider is not, which every player will
-    /// test once; the veil pane (GateVeil shader, gateVeilEnabled) is kept for playtests
-    /// where that reads as an invisible wall rather than a rule.
+    /// sealed volume. The prop is a baby gate that is simply gone from the unlock round on:
+    /// an open gate left standing in a doorway reads as furniture to walk around. The HUD
+    /// says nothing about it: a gate that was there and is not is the whole message. The gate is knee-high and the
+    /// collider is not, which every player will test once; the veil pane (GateVeil shader,
+    /// gateVeilEnabled) is kept for playtests where that reads as an invisible wall rather
+    /// than a rule.
     /// </summary>
     public class RoomGate : MonoBehaviour
     {
-        [Tooltip("Named in the round toast: 'Look in the kitchen'.")]
-        public string roomName = "kitchen";
-
         [Tooltip("World volumes sealed while locked. Keys never hide inside any of them until the unlock round. Several because a gated corridor plus the wing behind it is an L, not a box.")]
         public Bounds[] sealedAreas = new Bounds[0];
 
         [Tooltip("Seconds the veil takes to fade once the gate unlocks.")]
         public float revealSeconds = 1.2f;
 
-        [Tooltip("The swinging leaf. Optional: without one only the collider and veil gate the room.")]
-        public GateLeaf leaf;
+        [Tooltip("The gate prop, shown only while locked. Optional: without one only the collider and veil gate the room.")]
+        public GameObject gateProp;
 
         [Tooltip("The veil pane's renderer. Shown only while gateVeilEnabled is on.")]
         public Renderer veil;
@@ -49,12 +47,6 @@ namespace ProjectRetrace
             Enabled
             && GameDirector.Instance != null
             && GameDirector.Instance.StealthRound + 1 < UnlockRound;
-
-        /// <summary>True on the round the gate first opens, so the HUD can say so once.</summary>
-        public static bool UnlocksThisRound =>
-            Enabled
-            && GameDirector.Instance != null
-            && GameDirector.Instance.StealthRound + 1 == UnlockRound;
 
         private void Awake()
         {
@@ -90,7 +82,7 @@ namespace ProjectRetrace
         private void Apply()
         {
             if (_collider != null) _collider.enabled = Locked;
-            if (leaf != null) leaf.Open = !Locked;
+            if (gateProp != null && gateProp.activeSelf != Locked) gateProp.SetActive(Locked);
             if (veil == null) return;
             veil.enabled = VeilEnabled && _veil > 0f;
             veil.GetPropertyBlock(_block);

@@ -227,8 +227,15 @@ namespace ProjectRetrace
             _alpha = 0f;
             SetConeAlarmed(false);
             UpdateConeVisual();
-            State = SentryState.Materializing;
-            _agent.isStopped = true;
+
+            // Walks from the first frame, fading in on the move: the round starts when the
+            // player can act, and a ghost standing still at spawn for the fade is dead time
+            // in which the first lesson (it is retracing *you*) is not being taught. Only the
+            // loop restart holds still to materialise -- see RestartFromBeginning. The
+            // blindness grace still applies, since the player spawns a step behind it.
+            State = SentryState.Patrolling;
+            _agent.isStopped = false;
+            AdvanceOrRestart();
             PlaySpawn();
         }
 
@@ -621,9 +628,10 @@ namespace ProjectRetrace
             _agent.SetDestination(_route[_targetIndex].Position);
         }
 
-        /// <summary>Same placement as the initial spawn, grace period included: the player
-        /// may be standing near the route's start, and materialising mid-room should never
-        /// be an instant catch.</summary>
+        /// <summary>Same placement as the initial spawn, but unlike it the ghost holds still
+        /// while it materialises, blind, before setting off again: by now the player may be
+        /// anywhere near the route's start, and appearing mid-room already walking should
+        /// never be an instant catch.</summary>
         private void RestartFromBeginning()
         {
             var config = RetraceConfig.Current;

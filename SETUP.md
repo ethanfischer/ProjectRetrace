@@ -103,8 +103,8 @@ hide you). Getting spotted ends the attempt — the short chase that follows is 
 presentation. You get `stealthLives` attempts (3 by default) **per round**; each catch
 resets the house and returns you to spawn, with the keys still hidden in the **same**
 spot for that round, so what you learned before getting caught stays true. Run out of
-attempts and the run is lost. A `graceSeconds` window after each attempt starts keeps the
-near-spawn patrol starts fair.
+attempts and the run is lost. Ghosts set off the moment the round starts; a `graceSeconds`
+window of blindness after each attempt starts keeps the near-spawn patrol starts fair.
 
 **Hiding.** Open a cupboard and Use again to climb in; the door shuts behind you and
 sentries cannot see you. Use once more to step out. The catch: a ghost retracing a route

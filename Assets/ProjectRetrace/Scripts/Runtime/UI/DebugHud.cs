@@ -278,11 +278,6 @@ namespace ProjectRetrace
 
                     var toast = $"{who}Round {director.StealthRound + 1}";
                     if (FloorGate.UnlocksThisRound || AnyDoorUnlocksThisRound()) toast += "\nLook upstairs";
-                    if (RoomGate.UnlocksThisRound)
-                    {
-                        var gate = FindFirstObjectByType<RoomGate>();
-                        if (gate != null) toast += $"\nLook in the {gate.roomName}";
-                    }
                     return toast;
                 default:
                     return string.Empty;

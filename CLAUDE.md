@@ -92,8 +92,9 @@ turned out to cost nothing, so nothing fades. It reads `GameDirector.PatrolledRo
 pairs with `Sentries` by index. ProjectRetrace > Setup Footprints retrofits an older scene.
 
 `PatrolSentry` (`Runtime/AI/`) is the whole NPC on one component: NavMeshAgent patrol over a
-recorded route in the player's direction (at the end it fades out, teleports back to the
-start, and fades in — frozen and blind during both fades), a fixed-length look-around at each
+recorded route in the player's direction (it sets off the moment the round starts, fading
+in on the move; at the end it fades out, teleports back to the start, and fades in — frozen
+and blind during both of those fades, the only time it stands still), a fixed-length look-around at each
 dwell point, cone + line-of-sight detection (head and chest samples, the
 RaycastAll-skip-own-root idiom from `PlayerInteractor` — no tags or layers), and a time-capped
 chase that only sells the catch. It deliberately never replays the player's *timing*: pace and
@@ -169,8 +170,8 @@ height, because the kitchen wing is a five-metre open side rather than a doorway
 the same round clock (`kitchenUnlockRound` in the config, 0 = never), is solid to full height
 while locked, `KeySpawner` skips every spot inside its `sealedArea`, and the baker leaves it
 out of the bake like a door. Both locks share one prop: a knee-high baby gate built from
-primitives whose `GateLeaf` swings open on the unlock round, so opening the house is an
-event the toast can point at. The collider is taller than the gate on purpose (no jump, but
+primitives that is shown only while locked and gone from the unlock round on (an open gate
+left in a doorway reads as furniture; the HUD says nothing, the missing gate is the message). The collider is taller than the gate on purpose (no jump, but
 players push on the air above it); `gateVeilEnabled` adds a blur-and-dim pane (`GateVeil`
 shader, reads the camera opaque texture, which both URP assets keep on) for playtests where
 that reads as an invisible wall. ProjectRetrace > Setup Kitchen Gate places the room gate at
